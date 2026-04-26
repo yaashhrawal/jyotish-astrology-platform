@@ -52,15 +52,21 @@ def _build_chart(req: SaveChartRequest) -> dict:
 
 
 FREE_CHART_LIMIT = 3
+# trial and paid plans get unlimited charts
 
 @router.post("/charts/save")
 async def save_chart(req: SaveChartRequest, current_user=Depends(get_current_user)):
     pool = await get_pool()
+    from datetime import datetime
     async with pool.acquire() as conn:
         user_row = await conn.fetchrow(
-            "SELECT plan FROM users WHERE id=$1", current_user["sub"]
+            "SELECT plan, trial_ends_at FROM users WHERE id=$1", current_user["sub"]
         )
         plan = (user_row["plan"] if user_row else None) or "free"
+        # Expire trial → downgrade to free automatically
+        if plan == "trial" and user_row["trial_ends_at"] and user_row["trial_ends_at"] < datetime.utcnow().replace(tzinfo=user_row["trial_ends_at"].tzinfo):
+            await conn.execute("UPDATE users SET plan='free' WHERE id=$1", current_user["sub"])
+            plan = "free"
         if plan == "free":
             count = await conn.fetchval(
                 "SELECT COUNT(*) FROM charts WHERE user_id=$1", current_user["sub"]

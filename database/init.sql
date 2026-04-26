@@ -19,7 +19,8 @@ CREATE TABLE IF NOT EXISTS users (
     name            TEXT NOT NULL DEFAULT '',
     phone           TEXT NOT NULL DEFAULT '',
     plan            TEXT NOT NULL DEFAULT 'free'
-                        CHECK (plan IN ('free','practitioner','professional')),
+                        CHECK (plan IN ('free','trial','practitioner','professional')),
+    trial_ends_at   TIMESTAMPTZ,
     ayanamsa_pref   TEXT NOT NULL DEFAULT 'lahiri',
     chart_style     TEXT NOT NULL DEFAULT 'north',
     timezone        TEXT NOT NULL DEFAULT 'Asia/Kolkata',

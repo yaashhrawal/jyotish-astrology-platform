@@ -1,8 +1,13 @@
+import os
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel, EmailStr
 from core.db import get_pool
 from core.auth import hash_password, verify_password, create_access_token, get_current_user
 import uuid
+from datetime import datetime, timedelta
+
+FREE_TRIAL_DAYS = 14
+DEMO_USER_ID = os.getenv("DEMO_USER_ID")  # set only in demo env
 
 router = APIRouter(tags=["auth"])
 
@@ -35,13 +40,25 @@ async def register(req: RegisterRequest):
         if existing:
             raise HTTPException(status_code=400, detail="Email already registered")
         user_id = str(uuid.uuid4())
+        trial_ends = datetime.utcnow() + timedelta(days=FREE_TRIAL_DAYS)
         await conn.execute(
-            """INSERT INTO users (id, email, password_hash, name, phone)
-               VALUES ($1, $2, $3, $4, $5)""",
-            user_id, req.email, hash_password(req.password), req.name, req.phone
+            """INSERT INTO users (id, email, password_hash, name, phone, plan, trial_ends_at)
+               VALUES ($1, $2, $3, $4, $5, 'trial', $6)""",
+            user_id, req.email, hash_password(req.password), req.name, req.phone, trial_ends
+        )
+        # Insert trial subscription record
+        await conn.execute(
+            """INSERT INTO subscriptions (id, user_id, plan, status, ends_at)
+               VALUES ($1, $2, 'professional', 'trialing', $3)""",
+            str(uuid.uuid4()), user_id, trial_ends
         )
         token = create_access_token(user_id, req.email)
-        return {"token": token, "user": {"id": user_id, "email": req.email, "name": req.name, "plan": "free"}}
+        return {
+            "token": token,
+            "user": {"id": user_id, "email": req.email, "name": req.name, "plan": "trial"},
+            "trial_ends_at": trial_ends.isoformat(),
+            "trial_days": FREE_TRIAL_DAYS,
+        }
 
 
 @router.post("/auth/login")
@@ -74,6 +91,19 @@ async def me(current_user=Depends(get_current_user)):
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
         return dict(user)
+
+
+@router.get("/auth/demo-login")
+async def demo_login():
+    """Auto-login endpoint for demo environment only. Returns token for pre-seeded demo user."""
+    if not DEMO_USER_ID:
+        raise HTTPException(status_code=403, detail="Demo mode not enabled on this server")
+    token = create_access_token(DEMO_USER_ID, "demo@jyotish.app")
+    return {
+        "token": token,
+        "user": {"id": DEMO_USER_ID, "email": "demo@jyotish.app", "name": "Demo Astrologer", "plan": "professional"},
+        "is_demo": True,
+    }
 
 
 @router.patch("/auth/profile")
