@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { crmApi, reportsApi } from '../api/client'
 import { useLang } from '../contexts/LanguageContext'
 import ClientInviteModal from './business/ClientInviteModal'
+import GemPickerForClient from './business/GemPickerForClient'
 
 const S = {
   wrap: { display: 'flex', gap: '20px', height: '600px' },
@@ -40,6 +41,7 @@ export default function CRMPanel() {
   const [showInvite, setShowInvite] = useState(false)
   const [editingClient, setEditingClient] = useState(false)
   const [editClient, setEditClient] = useState<any>({})
+  const [showGemPicker, setShowGemPicker] = useState(false)
   const [showAddInvoice, setShowAddInvoice] = useState(false)
   const [newInvoice, setNewInvoice] = useState({ client_id: '', amount: 0, currency: 'INR', notes: '', due_on: '' })
   const [showAddSession, setShowAddSession] = useState(false)
@@ -137,6 +139,9 @@ export default function CRMPanel() {
                   <div style={{ color: '#4a9eff', fontSize: '20px', fontWeight: 'bold' }}>{selectedClient.name}</div>
                   <div style={{ display: 'flex', gap: 6 }}>
                     <button style={S.btn} onClick={() => { setEditClient({ ...selectedClient }); setEditingClient(true) }}>Edit</button>
+                    <button style={{ ...S.btn, background: '#D97706', color: '#fff', border: 'none' }} onClick={() => setShowGemPicker(true)}>
+                      💎 Recommend Gem
+                    </button>
                     <button style={{ ...S.btn, background: '#25D366', color: '#fff', border: 'none' }} onClick={() => setShowInvite(true)}>
                       🔗 Invite
                     </button>
@@ -457,6 +462,15 @@ export default function CRMPanel() {
           clientId={selectedClient.id}
           clientName={selectedClient.name}
           clientWhatsApp={selectedClient.whatsapp_phone || selectedClient.phone}
+        />
+      )}
+
+      {showGemPicker && selectedClient && (
+        <GemPickerForClient
+          clientId={selectedClient.id}
+          clientName={selectedClient.name}
+          clientWhatsApp={selectedClient.whatsapp_phone || selectedClient.phone}
+          onClose={() => setShowGemPicker(false)}
         />
       )}
     </div>

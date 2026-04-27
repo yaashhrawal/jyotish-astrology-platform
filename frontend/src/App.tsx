@@ -83,6 +83,8 @@ import ReportBuilderModal from './components/business/ReportBuilderModal'
 import ClientPortalPage from './components/business/ClientPortalPage'
 import GemShopPanel from './components/business/GemShopPanel'
 import EarningsPanel from './components/business/EarningsPanel'
+import GemPickerForClient from './components/business/GemPickerForClient'
+import GemPurchasePage from './components/business/GemPurchasePage'
 
 type Tab ='chart' | 'vargas' | 'dasha' | 'yogas' | 'shadbala' | 'planets' | 'sky' | 'saved' | 'crm' | 'research' | 'ai' | 'prashna' | 'transit' | 'ashtakavarga' | 'compatibility' | 'doshas' | 'synastry' | 'varshaphal' | 'muhurta' | 'kp' | 'arudha' | 'yogini' | 'aspects' | 'chara' | 'sbc' | 'bhava' | 'jaimini' | 'combustion' | 'sudarshan' | 'ashtottari' | 'narayana' | 'special' | 'dignity' | 'kalachakra' | 'shoola' | 'kota' | 'gochara' | 'madhya' | 'upagraha' | 'transit_hits' | 'tithi' | 'sahams' | 'ayurdaya' | 'jaimini_asp' | 'saptarishi' | 'pancha_pakshi' | 'lagnesh' | 'transit_natal' | 'remedies' | 'misc_dasha' | 'hora_variants' | 'vimshopaka' | 'rectification' | 'varga_dasha' | 'classical' | 'famous_charts' | 'numerology' | 'predictions' | 'ephemeris' | 'dasha_transit' | 'avasthas' | 'karakamsha' | 'argala' | 'conditional_dasha' | 'upapada' | 'varnada' | 'dasha_3col' | 'profile' | 'gems' | 'earnings'
 
@@ -253,11 +255,24 @@ export default function App() {
 
   const isAppTab = ['crm','research','saved','ai','prashna','compatibility','synastry','muhurta','profile','gems','earnings'].includes(activeTab) && !chart
   const [showReportModal, setShowReportModal] = useState(false)
+  const [showGemPicker, setShowGemPicker] = useState(false)
+
+  // Compute weak planets (debilitated + low dignity) for smart gem suggestion
+  const weakPlanets: string[] = chart?.planets ? Object.entries(chart.planets as any)
+    .filter(([_, p]: any) => p.status === 'debilitated' || p.retrograde)
+    .map(([n]) => n)
+    .filter(n => !['Rahu', 'Ketu'].includes(n))
+    .slice(0, 3) : []
 
   // Public client portal route — bypass app shell
   const portalMatch = typeof window !== 'undefined' ? window.location.pathname.match(/^\/portal\/([A-Za-z0-9_-]+)/) : null
   if (portalMatch) {
     return <ClientPortalPage token={portalMatch[1]} />
+  }
+  // Public gem purchase route
+  const gemMatch = typeof window !== 'undefined' ? window.location.pathname.match(/^\/gem-purchase\/([A-Za-z0-9-]+)/) : null
+  if (gemMatch) {
+    return <GemPurchasePage orderNumber={gemMatch[1]} />
   }
 
   return (
@@ -327,6 +342,15 @@ export default function App() {
       </header>
 
       {showAuth && <AuthModal onClose={() => setShowAuth(false)} />}
+
+      {showGemPicker && chart && (
+        <GemPickerForClient
+          clientId={''}
+          clientName={chart.name}
+          weakPlanets={weakPlanets}
+          onClose={() => setShowGemPicker(false)}
+        />
+      )}
 
       {showReportModal && chart && birthDataRaw && (
         <ReportBuilderModal
@@ -441,6 +465,9 @@ export default function App() {
                       )}
                       <button onClick={handleSaveChart} style={ghostBtnSm}>Save</button>
                       <button onClick={() => setShowReportModal(true)} style={ghostBtnSm}>📄 PDF Report</button>
+                      <button onClick={() => setShowGemPicker(true)} style={{
+                        ...ghostBtnSm, background: '#D97706', color: '#fff', border: 'none',
+                      }}>💎 Recommend Gem</button>
                       <button onClick={() => setActiveTab('ai')} style={{
                         ...ghostBtnSm, background: 'var(--accent)', color: '#fff', border: 'none',
                       }}>✦ Ask AI</button>

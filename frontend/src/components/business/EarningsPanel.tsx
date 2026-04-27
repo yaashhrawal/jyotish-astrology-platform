@@ -18,6 +18,7 @@ export default function EarningsPanel() {
   const [orders, setOrders] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<string>('')
+  const [drillOrder, setDrillOrder] = useState<any>(null)
 
   const reload = () => {
     setLoading(true)
@@ -109,8 +110,8 @@ export default function EarningsPanel() {
               {orders.length === 0 ? (
                 <tr><td colSpan={8} style={{ padding: 20, color: 'var(--text4)', textAlign: 'center' }}>No orders yet — recommend a gem from the catalog.</td></tr>
               ) : orders.map(o => (
-                <tr key={o.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                  <td style={{ padding: '8px 12px', fontFamily: 'monospace', fontSize: 11 }}>{o.order_number}</td>
+                <tr key={o.id} style={{ borderBottom: '1px solid var(--border)', cursor: 'pointer' }} onClick={() => gemsApi.order(o.id).then(setDrillOrder)}>
+                  <td style={{ padding: '8px 12px', fontFamily: 'monospace', fontSize: 11, color: 'var(--accent)' }}>{o.order_number}</td>
                   <td style={{ padding: '8px 12px' }}>{o.gem_name} <span style={{ fontSize: 9, color: 'var(--text4)' }}>({o.gem_tier})</span></td>
                   <td style={{ padding: '8px 12px' }}>{o.client_name || '—'}</td>
                   <td style={{ padding: '8px 12px' }}>{o.carat}</td>
@@ -121,7 +122,7 @@ export default function EarningsPanel() {
                       background: (STATUS_COLORS[o.status] || '#6b7280') + '22',
                       color: STATUS_COLORS[o.status] || '#6b7280' }}>{o.status}</span>
                   </td>
-                  <td style={{ padding: '8px 12px' }}>
+                  <td style={{ padding: '8px 12px' }} onClick={e => e.stopPropagation()}>
                     <div style={{ display: 'flex', gap: 4 }}>
                       {o.status === 'recommended' && <button onClick={() => updateStatus(o.id, 'paid')} style={actionBtn}>Mark paid</button>}
                       {o.status === 'paid' && <button onClick={() => updateStatus(o.id, 'shipped')} style={actionBtn}>Mark shipped</button>}
@@ -134,6 +135,59 @@ export default function EarningsPanel() {
           </table>
         </div>
       </div>
+
+      {drillOrder && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }} onClick={() => setDrillOrder(null)}>
+          <div style={{ background: 'var(--surface)', borderRadius: 12, padding: 22, width: 600, maxWidth: '95vw', maxHeight: '90vh', overflowY: 'auto' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+              <div>
+                <div style={{ fontSize: 16, fontWeight: 700, fontFamily: 'monospace' }}>{drillOrder.order_number}</div>
+                <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 10, background: (STATUS_COLORS[drillOrder.status] || '#6b7280') + '22', color: STATUS_COLORS[drillOrder.status] || '#6b7280' }}>{drillOrder.status}</span>
+              </div>
+              <button onClick={() => setDrillOrder(null)} style={{ background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', color: 'var(--text3)' }}>×</button>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '140px 1fr', gap: 6, fontSize: 12 }}>
+              <div style={{ color: 'var(--text3)' }}>Gem:</div><div><strong>{drillOrder.gem_name}</strong> ({drillOrder.gem_tier}) · {drillOrder.carat} ct</div>
+              <div style={{ color: 'var(--text3)' }}>Cert:</div><div>{drillOrder.gem_cert_authority}</div>
+              <div style={{ color: 'var(--text3)' }}>Client:</div><div>{drillOrder.client_name || '—'}{drillOrder.client_phone && <span style={{ color: 'var(--text4)' }}> · {drillOrder.client_phone}</span>}</div>
+              <div style={{ color: 'var(--text3)' }}>Retail:</div><div>{fmtINR(drillOrder.retail_price_paise)}</div>
+              <div style={{ color: 'var(--text3)' }}>Commission:</div><div style={{ color: '#16A34A', fontWeight: 600 }}>{fmtINR(drillOrder.commission_amount_paise)} ({drillOrder.commission_pct}%)</div>
+              <div style={{ color: 'var(--text3)' }}>Created:</div><div>{new Date(drillOrder.created_at).toLocaleString()}</div>
+              {drillOrder.paid_at && <><div style={{ color: 'var(--text3)' }}>Paid:</div><div>{new Date(drillOrder.paid_at).toLocaleString()}</div></>}
+              {drillOrder.shipped_at && <><div style={{ color: 'var(--text3)' }}>Shipped:</div><div>{new Date(drillOrder.shipped_at).toLocaleString()} · {drillOrder.courier} {drillOrder.tracking_number}</div></>}
+              {drillOrder.delivered_at && <><div style={{ color: 'var(--text3)' }}>Delivered:</div><div>{new Date(drillOrder.delivered_at).toLocaleString()}</div></>}
+            </div>
+
+            {drillOrder.recommendation_reason && (
+              <div style={{ marginTop: 14, padding: 12, background: 'var(--surface2)', borderRadius: 8 }}>
+                <div style={{ fontSize: 10, color: 'var(--text3)', fontWeight: 700, marginBottom: 4 }}>RECOMMENDATION REASON</div>
+                <div style={{ fontSize: 12 }}>{drillOrder.recommendation_reason}</div>
+              </div>
+            )}
+            {drillOrder.astrologer_notes && (
+              <div style={{ marginTop: 8, padding: 12, background: 'var(--surface2)', borderRadius: 8 }}>
+                <div style={{ fontSize: 10, color: 'var(--text3)', fontWeight: 700, marginBottom: 4 }}>WEARING INSTRUCTIONS</div>
+                <div style={{ fontSize: 12 }}>{drillOrder.astrologer_notes}</div>
+              </div>
+            )}
+
+            {drillOrder.certificate && (
+              <div style={{ marginTop: 14, padding: 12, background: '#fef3c7', borderRadius: 8 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#92400e' }}>✓ Certificate {drillOrder.certificate.cert_number}</div>
+                <div style={{ fontSize: 11, color: '#78350f' }}>Issued by {drillOrder.certificate.cert_authority} on {drillOrder.certificate.issued_on}</div>
+              </div>
+            )}
+
+            <div style={{ marginTop: 14, padding: 12, background: 'var(--surface2)', borderRadius: 8 }}>
+              <div style={{ fontSize: 10, color: 'var(--text3)', fontWeight: 700, marginBottom: 4 }}>CLIENT PURCHASE LINK</div>
+              <div style={{ fontSize: 11, fontFamily: 'monospace', wordBreak: 'break-all' }}>
+                {window.location.origin}/gem-purchase/{drillOrder.order_number}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
