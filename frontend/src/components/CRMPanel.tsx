@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { crmApi } from '../api/client'
 import { useLang } from '../contexts/LanguageContext'
+import ClientInviteModal from './business/ClientInviteModal'
 
 const S = {
   wrap: { display: 'flex', gap: '20px', height: '600px' },
@@ -35,7 +36,8 @@ export default function CRMPanel() {
   const [predictions, setPredictions] = useState<any[]>([])
   const [accuracy, setAccuracy] = useState<any>(null)
   const [showAddClient, setShowAddClient] = useState(false)
-  const [newClient, setNewClient] = useState({ name: '', phone: '', email: '', notes: '' })
+  const [newClient, setNewClient] = useState({ name: '', phone: '', email: '', notes: '', whatsapp_phone: '', birth_date: '', birth_time: '', birth_place: '', birth_lat: '', birth_lon: '', birth_tz: '5.5' })
+  const [showInvite, setShowInvite] = useState(false)
 
   useEffect(() => {
     crmApi.listClients().then(setClients).catch(() => {})
@@ -48,9 +50,15 @@ export default function CRMPanel() {
 
   const addClient = async () => {
     if (!newClient.name) return
-    const r = await crmApi.createClient(newClient)
-    setClients(c => [...c, { id: r.client_id, ...newClient }])
-    setNewClient({ name: '', phone: '', email: '', notes: '' })
+    const payload: any = { ...newClient }
+    payload.birth_lat = newClient.birth_lat ? parseFloat(newClient.birth_lat) : null
+    payload.birth_lon = newClient.birth_lon ? parseFloat(newClient.birth_lon) : null
+    payload.birth_tz = newClient.birth_tz ? parseFloat(newClient.birth_tz) : null
+    if (!payload.birth_date) payload.birth_date = null
+    if (!payload.birth_time) payload.birth_time = null
+    const r = await crmApi.createClient(payload)
+    setClients(c => [...c, { id: r.client_id, ...payload }])
+    setNewClient({ name: '', phone: '', email: '', notes: '', whatsapp_phone: '', birth_date: '', birth_time: '', birth_place: '', birth_lat: '', birth_lon: '', birth_tz: '5.5' })
     setShowAddClient(false)
   }
 
@@ -87,7 +95,17 @@ export default function CRMPanel() {
               <div style={{ padding: '12px', borderBottom: '1px solid #1a3a5c' }}>
                 <input style={S.input} placeholder="Name *" value={newClient.name} onChange={e => setNewClient(c => ({ ...c, name: e.target.value }))} />
                 <input style={S.input} placeholder="Phone" value={newClient.phone} onChange={e => setNewClient(c => ({ ...c, phone: e.target.value }))} />
+                <input style={S.input} placeholder="WhatsApp (e.g. 919876543210)" value={newClient.whatsapp_phone} onChange={e => setNewClient(c => ({ ...c, whatsapp_phone: e.target.value }))} />
                 <input style={S.input} placeholder="Email" value={newClient.email} onChange={e => setNewClient(c => ({ ...c, email: e.target.value }))} />
+                <div style={{ fontSize: 11, color: '#4a6fa5', marginTop: 8, marginBottom: 4 }}>Birth Data (for charts/reports)</div>
+                <input style={S.input} type="date" placeholder="Birth Date" value={newClient.birth_date} onChange={e => setNewClient(c => ({ ...c, birth_date: e.target.value }))} />
+                <input style={S.input} type="time" placeholder="Birth Time" value={newClient.birth_time} onChange={e => setNewClient(c => ({ ...c, birth_time: e.target.value }))} />
+                <input style={S.input} placeholder="Birth Place" value={newClient.birth_place} onChange={e => setNewClient(c => ({ ...c, birth_place: e.target.value }))} />
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <input style={S.input} placeholder="Lat" value={newClient.birth_lat} onChange={e => setNewClient(c => ({ ...c, birth_lat: e.target.value }))} />
+                  <input style={S.input} placeholder="Lon" value={newClient.birth_lon} onChange={e => setNewClient(c => ({ ...c, birth_lon: e.target.value }))} />
+                  <input style={S.input} placeholder="TZ" value={newClient.birth_tz} onChange={e => setNewClient(c => ({ ...c, birth_tz: e.target.value }))} />
+                </div>
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <button style={{ ...S.btn, background: '#4a9eff', color: '#fff', border: 'none' }} onClick={addClient}>{t('Save')}</button>
                   <button style={S.btn} onClick={() => setShowAddClient(false)}>{t('Cancel')}</button>
@@ -107,11 +125,25 @@ export default function CRMPanel() {
           <div style={S.main}>
             {selectedClient ? (
               <div>
-                <div style={{ color: '#4a9eff', fontSize: '20px', fontWeight: 'bold', marginBottom: '4px' }}>{selectedClient.name}</div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
+                  <div style={{ color: '#4a9eff', fontSize: '20px', fontWeight: 'bold' }}>{selectedClient.name}</div>
+                  <button style={{ ...S.btn, background: '#25D366', color: '#fff', border: 'none' }} onClick={() => setShowInvite(true)}>
+                    🔗 Invite to Portal
+                  </button>
+                </div>
                 <div style={{ color: '#4a6fa5', fontSize: '13px', marginBottom: '20px' }}>
                   {selectedClient.phone && <span>📞 {selectedClient.phone}  </span>}
+                  {selectedClient.whatsapp_phone && <span>WA {selectedClient.whatsapp_phone}  </span>}
                   {selectedClient.email && <span>✉ {selectedClient.email}</span>}
                 </div>
+                {selectedClient.birth_date && (
+                  <div style={{ ...S.section }}>
+                    <div style={S.sectionTitle}>Birth Data</div>
+                    <div style={{ color: '#8899aa', fontSize: '13px' }}>
+                      {selectedClient.birth_date} {selectedClient.birth_time || ''} · {selectedClient.birth_place || '—'}
+                    </div>
+                  </div>
+                )}
                 {selectedClient.notes && (
                   <div style={{ ...S.section }}>
                     <div style={S.sectionTitle}>{t('Notes')}</div>
@@ -275,6 +307,16 @@ export default function CRMPanel() {
             </div>
           ))}
         </div>
+      )}
+
+      {showInvite && selectedClient && (
+        <ClientInviteModal
+          open={showInvite}
+          onClose={() => setShowInvite(false)}
+          clientId={selectedClient.id}
+          clientName={selectedClient.name}
+          clientWhatsApp={selectedClient.whatsapp_phone || selectedClient.phone}
+        />
       )}
     </div>
   )

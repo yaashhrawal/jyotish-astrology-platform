@@ -78,8 +78,11 @@ import ConditionalDashaPanel from './components/ConditionalDashaPanel'
 import UpapadaPanel from './components/UpapadaPanel'
 import VarnadaPanel from './components/VarnadaPanel'
 import DashaTriColumn from './components/DashaTriColumn'
+import AstrologerProfileSettings from './components/business/AstrologerProfileSettings'
+import ReportBuilderModal from './components/business/ReportBuilderModal'
+import ClientPortalPage from './components/business/ClientPortalPage'
 
-type Tab ='chart' | 'vargas' | 'dasha' | 'yogas' | 'shadbala' | 'planets' | 'sky' | 'saved' | 'crm' | 'research' | 'ai' | 'prashna' | 'transit' | 'ashtakavarga' | 'compatibility' | 'doshas' | 'synastry' | 'varshaphal' | 'muhurta' | 'kp' | 'arudha' | 'yogini' | 'aspects' | 'chara' | 'sbc' | 'bhava' | 'jaimini' | 'combustion' | 'sudarshan' | 'ashtottari' | 'narayana' | 'special' | 'dignity' | 'kalachakra' | 'shoola' | 'kota' | 'gochara' | 'madhya' | 'upagraha' | 'transit_hits' | 'tithi' | 'sahams' | 'ayurdaya' | 'jaimini_asp' | 'saptarishi' | 'pancha_pakshi' | 'lagnesh' | 'transit_natal' | 'remedies' | 'misc_dasha' | 'hora_variants' | 'vimshopaka' | 'rectification' | 'varga_dasha' | 'classical' | 'famous_charts' | 'numerology' | 'predictions' | 'ephemeris' | 'dasha_transit' | 'avasthas' | 'karakamsha' | 'argala' | 'conditional_dasha' | 'upapada' | 'varnada' | 'dasha_3col'
+type Tab ='chart' | 'vargas' | 'dasha' | 'yogas' | 'shadbala' | 'planets' | 'sky' | 'saved' | 'crm' | 'research' | 'ai' | 'prashna' | 'transit' | 'ashtakavarga' | 'compatibility' | 'doshas' | 'synastry' | 'varshaphal' | 'muhurta' | 'kp' | 'arudha' | 'yogini' | 'aspects' | 'chara' | 'sbc' | 'bhava' | 'jaimini' | 'combustion' | 'sudarshan' | 'ashtottari' | 'narayana' | 'special' | 'dignity' | 'kalachakra' | 'shoola' | 'kota' | 'gochara' | 'madhya' | 'upagraha' | 'transit_hits' | 'tithi' | 'sahams' | 'ayurdaya' | 'jaimini_asp' | 'saptarishi' | 'pancha_pakshi' | 'lagnesh' | 'transit_natal' | 'remedies' | 'misc_dasha' | 'hora_variants' | 'vimshopaka' | 'rectification' | 'varga_dasha' | 'classical' | 'famous_charts' | 'numerology' | 'predictions' | 'ephemeris' | 'dasha_transit' | 'avasthas' | 'karakamsha' | 'argala' | 'conditional_dasha' | 'upapada' | 'varnada' | 'dasha_3col' | 'profile'
 
 // Grouped tab menu — each group renders as a dropdown in the sub-tab bar
 type TabGroup = { label: string; tabs: { id: Tab; label: string }[] }
@@ -170,6 +173,7 @@ const APP_TABS: { id: Tab; label: string }[] = [
   { id: 'crm',           label: 'Clients' },
   { id: 'research',      label: 'Research' },
   { id: 'ai',            label: 'AI' },
+  { id: 'profile',       label: '⚙ Brand' },
 ]
 
 const PLANET_COLORS: Record<string, string> = {
@@ -243,7 +247,14 @@ export default function App() {
     node_type: birthDataRaw.node_type || 'true',
   } : null
 
-  const isAppTab = ['crm','research','saved','ai','prashna','compatibility','synastry','muhurta'].includes(activeTab) && !chart
+  const isAppTab = ['crm','research','saved','ai','prashna','compatibility','synastry','muhurta','profile'].includes(activeTab) && !chart
+  const [showReportModal, setShowReportModal] = useState(false)
+
+  // Public client portal route — bypass app shell
+  const portalMatch = typeof window !== 'undefined' ? window.location.pathname.match(/^\/portal\/([A-Za-z0-9_-]+)/) : null
+  if (portalMatch) {
+    return <ClientPortalPage token={portalMatch[1]} />
+  }
 
   return (
     <div style={{ height: '100svh', background: 'var(--bg)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -313,6 +324,23 @@ export default function App() {
 
       {showAuth && <AuthModal onClose={() => setShowAuth(false)} />}
 
+      {showReportModal && chart && birthDataRaw && (
+        <ReportBuilderModal
+          open={showReportModal}
+          onClose={() => setShowReportModal(false)}
+          clientName={chart.name}
+          birthData={{
+            birth_date: chart.birth.split(' ')[0],
+            birth_time: chart.birth.split(' ')[1]?.slice(0, 5) || '12:00',
+            birth_tz: birthDataRaw.tz_offset,
+            birth_place: chart.place || birthDataRaw.place,
+            latitude: birthDataRaw.latitude,
+            longitude: birthDataRaw.longitude,
+            ayanamsa: chart.ayanamsa,
+          }}
+        />
+      )}
+
       {/* ── Body ─────────────────────────────────────────────────────────────── */}
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
 
@@ -344,6 +372,7 @@ export default function App() {
               {activeTab === 'compatibility' && <CompatibilityPanel />}
               {activeTab === 'synastry'      && <ChartComparisonPanel />}
               {activeTab === 'muhurta'       && <MuhurtaPanel />}
+              {activeTab === 'profile'       && <AstrologerProfileSettings />}
             </div>
           )
         )}
@@ -405,6 +434,7 @@ export default function App() {
                         </span>
                       )}
                       <button onClick={handleSaveChart} style={ghostBtnSm}>Save</button>
+                      <button onClick={() => setShowReportModal(true)} style={ghostBtnSm}>📄 PDF Report</button>
                       <button onClick={() => setActiveTab('ai')} style={{
                         ...ghostBtnSm, background: 'var(--accent)', color: '#fff', border: 'none',
                       }}>✦ Ask AI</button>
