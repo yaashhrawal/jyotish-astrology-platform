@@ -2,11 +2,30 @@
 CRM layer: clients, reading sessions, appointments, invoices, predictions.
 """
 import uuid
+from datetime import date, time
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from typing import Optional
 from core.db import get_pool
 from core.auth import get_current_user
+
+
+def _parse_date(s):
+    if s is None or s == "":
+        return None
+    if isinstance(s, date):
+        return s
+    return date.fromisoformat(s)
+
+
+def _parse_time(s):
+    if s is None or s == "":
+        return None
+    if isinstance(s, time):
+        return s
+    # Accept HH:MM or HH:MM:SS
+    parts = s.split(":")
+    return time(int(parts[0]), int(parts[1]), int(parts[2]) if len(parts) > 2 else 0)
 
 router = APIRouter(tags=["crm"])
 
@@ -40,7 +59,7 @@ async def create_client(req: ClientRequest, current_user=Depends(get_current_use
                VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)""",
             cid, current_user["sub"], req.name, req.phone, req.whatsapp_phone,
             req.email, req.notes, req.tags,
-            req.birth_date, req.birth_time, req.birth_place,
+            _parse_date(req.birth_date), _parse_time(req.birth_time), req.birth_place,
             req.birth_lat, req.birth_lon, req.birth_tz
         )
     return {"client_id": cid, "name": req.name}
@@ -81,7 +100,7 @@ async def update_client(client_id: str, req: ClientRequest, current_user=Depends
                WHERE id=$1 AND user_id=$2""",
             client_id, current_user["sub"], req.name, req.phone, req.whatsapp_phone,
             req.email, req.notes, req.tags,
-            req.birth_date, req.birth_time, req.birth_place,
+            _parse_date(req.birth_date), _parse_time(req.birth_time), req.birth_place,
             req.birth_lat, req.birth_lon, req.birth_tz
         )
     return {"ok": True}

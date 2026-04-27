@@ -205,7 +205,9 @@ def calculate_houses(jd: float, lat: float, lon: float, ayanamsa: str = "lahiri"
     cusps, ascmc = swe.houses(jd, lat, lon, hsys)
 
     houses = {}
-    for i, cusp in enumerate(cusps[1:], 1):
+    # pyswisseph 2.x returns 12-element tuple (house 1 first); older returned 13 with index 0 unused.
+    cusp_iter = cusps[1:] if len(cusps) >= 13 else cusps
+    for i, cusp in enumerate(cusp_iter, 1):
         sid_cusp = tropical_to_sidereal(cusp, ayan)
         sign, deg, sign_idx = get_sign_and_degree(sid_cusp)
         houses[i] = {

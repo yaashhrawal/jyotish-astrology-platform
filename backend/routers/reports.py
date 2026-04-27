@@ -321,7 +321,7 @@ async def invoice_pdf(invoice_id: str, current_user=Depends(get_current_user)):
     async with pool.acquire() as conn:
         inv = await conn.fetchrow(
             """SELECT i.*, c.name as client_name, c.email as client_email,
-                      c.phone as client_phone, c.address_line1
+                      c.phone as client_phone
                FROM invoices i
                LEFT JOIN clients c ON c.id = i.client_id
                WHERE i.id=$1 AND i.user_id=$2""",
@@ -331,9 +331,11 @@ async def invoice_pdf(invoice_id: str, current_user=Depends(get_current_user)):
             raise HTTPException(404, "Invoice not found")
         profile = await _get_profile(conn, current_user["sub"])
 
+    inv_dict = dict(inv)
+    inv_dict["id"] = str(inv_dict["id"])  # UUID → str for [:8] slice
     template = jinja.get_template("invoice.html")
     html = template.render(
-        invoice=dict(inv),
+        invoice=inv_dict,
         profile=_localize_upload_urls(profile),
         is_receipt=(inv["status"] == "paid"),
         generated_at=datetime.utcnow().strftime("%d %b %Y"),
