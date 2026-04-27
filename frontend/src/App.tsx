@@ -81,8 +81,10 @@ import DashaTriColumn from './components/DashaTriColumn'
 import AstrologerProfileSettings from './components/business/AstrologerProfileSettings'
 import ReportBuilderModal from './components/business/ReportBuilderModal'
 import ClientPortalPage from './components/business/ClientPortalPage'
+import GemShopPanel from './components/business/GemShopPanel'
+import EarningsPanel from './components/business/EarningsPanel'
 
-type Tab ='chart' | 'vargas' | 'dasha' | 'yogas' | 'shadbala' | 'planets' | 'sky' | 'saved' | 'crm' | 'research' | 'ai' | 'prashna' | 'transit' | 'ashtakavarga' | 'compatibility' | 'doshas' | 'synastry' | 'varshaphal' | 'muhurta' | 'kp' | 'arudha' | 'yogini' | 'aspects' | 'chara' | 'sbc' | 'bhava' | 'jaimini' | 'combustion' | 'sudarshan' | 'ashtottari' | 'narayana' | 'special' | 'dignity' | 'kalachakra' | 'shoola' | 'kota' | 'gochara' | 'madhya' | 'upagraha' | 'transit_hits' | 'tithi' | 'sahams' | 'ayurdaya' | 'jaimini_asp' | 'saptarishi' | 'pancha_pakshi' | 'lagnesh' | 'transit_natal' | 'remedies' | 'misc_dasha' | 'hora_variants' | 'vimshopaka' | 'rectification' | 'varga_dasha' | 'classical' | 'famous_charts' | 'numerology' | 'predictions' | 'ephemeris' | 'dasha_transit' | 'avasthas' | 'karakamsha' | 'argala' | 'conditional_dasha' | 'upapada' | 'varnada' | 'dasha_3col' | 'profile'
+type Tab ='chart' | 'vargas' | 'dasha' | 'yogas' | 'shadbala' | 'planets' | 'sky' | 'saved' | 'crm' | 'research' | 'ai' | 'prashna' | 'transit' | 'ashtakavarga' | 'compatibility' | 'doshas' | 'synastry' | 'varshaphal' | 'muhurta' | 'kp' | 'arudha' | 'yogini' | 'aspects' | 'chara' | 'sbc' | 'bhava' | 'jaimini' | 'combustion' | 'sudarshan' | 'ashtottari' | 'narayana' | 'special' | 'dignity' | 'kalachakra' | 'shoola' | 'kota' | 'gochara' | 'madhya' | 'upagraha' | 'transit_hits' | 'tithi' | 'sahams' | 'ayurdaya' | 'jaimini_asp' | 'saptarishi' | 'pancha_pakshi' | 'lagnesh' | 'transit_natal' | 'remedies' | 'misc_dasha' | 'hora_variants' | 'vimshopaka' | 'rectification' | 'varga_dasha' | 'classical' | 'famous_charts' | 'numerology' | 'predictions' | 'ephemeris' | 'dasha_transit' | 'avasthas' | 'karakamsha' | 'argala' | 'conditional_dasha' | 'upapada' | 'varnada' | 'dasha_3col' | 'profile' | 'gems' | 'earnings'
 
 // Grouped tab menu — each group renders as a dropdown in the sub-tab bar
 type TabGroup = { label: string; tabs: { id: Tab; label: string }[] }
@@ -171,6 +173,8 @@ const APP_TABS: { id: Tab; label: string }[] = [
   { id: 'synastry',      label: '⊗ Compare' },
   { id: 'saved',         label: 'Saved' },
   { id: 'crm',           label: 'Clients' },
+  { id: 'gems',          label: '💎 Gems' },
+  { id: 'earnings',      label: '💰 Earnings' },
   { id: 'research',      label: 'Research' },
   { id: 'ai',            label: 'AI' },
   { id: 'profile',       label: '⚙ Brand' },
@@ -247,7 +251,7 @@ export default function App() {
     node_type: birthDataRaw.node_type || 'true',
   } : null
 
-  const isAppTab = ['crm','research','saved','ai','prashna','compatibility','synastry','muhurta','profile'].includes(activeTab) && !chart
+  const isAppTab = ['crm','research','saved','ai','prashna','compatibility','synastry','muhurta','profile','gems','earnings'].includes(activeTab) && !chart
   const [showReportModal, setShowReportModal] = useState(false)
 
   // Public client portal route — bypass app shell
@@ -373,6 +377,8 @@ export default function App() {
               {activeTab === 'synastry'      && <ChartComparisonPanel />}
               {activeTab === 'muhurta'       && <MuhurtaPanel />}
               {activeTab === 'profile'       && <AstrologerProfileSettings />}
+              {activeTab === 'gems'          && <GemShopPanel />}
+              {activeTab === 'earnings'      && <EarningsPanel />}
             </div>
           )
         )}

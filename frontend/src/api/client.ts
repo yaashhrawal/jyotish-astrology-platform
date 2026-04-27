@@ -326,6 +326,48 @@ export const reportsApi = {
 
 // ── Business: Client Portal Invites ────────────────────────────────────────────
 
+// ── Business: Gem Marketplace ──────────────────────────────────────────────────
+
+export interface Gem {
+  id: string
+  sku: string
+  name: string
+  sanskrit_name?: string
+  planet: string
+  rashi: string[]
+  color?: string
+  carat_min: number
+  carat_max: number
+  carat_default?: number
+  tier: 'premium' | 'standard' | 'budget'
+  cert_authority: string
+  retail_price_paise: number
+  base_commission_pct: number
+  image_url?: string
+  description?: string
+  benefits?: string
+  contraindications?: string
+  in_stock: boolean
+  your_commission_pct?: number
+  your_commission_paise?: number
+}
+
+export const gemsApi = {
+  catalog: (params?: { planet?: string; tier?: string }) =>
+    api.get('/api/gems/catalog', { params }).then(r => r.data),
+  get: (id: string) => api.get(`/api/gems/catalog/${id}`).then(r => r.data),
+  recommend: (payload: {
+    gem_id: string; client_id?: string; chart_id?: string; carat: number;
+    recommendation_reason?: string; astrologer_notes?: string;
+    client_name?: string; client_phone?: string; client_email?: string;
+  }) => api.post('/api/gems/recommend', payload).then(r => r.data),
+  orders: (status?: string) => api.get('/api/gems/orders', { params: status ? { status } : {} }).then(r => r.data),
+  order: (id: string) => api.get(`/api/gems/orders/${id}`).then(r => r.data),
+  updateStatus: (id: string, status: string, extras?: { tracking_number?: string; courier?: string }) =>
+    api.patch(`/api/gems/orders/${id}/status`, { status, ...extras }).then(r => r.data),
+  earnings: () => api.get('/api/gems/earnings').then(r => r.data),
+}
+
 export const portalApi = {
   invite: (clientId: string, expiresDays = 90) =>
     api.post(`/api/business/clients/${clientId}/invite`, { client_id: clientId, expires_days: expiresDays })
