@@ -57,14 +57,14 @@ FREE_CHART_LIMIT = 3
 @router.post("/charts/save")
 async def save_chart(req: SaveChartRequest, current_user=Depends(get_current_user)):
     pool = await get_pool()
-    from datetime import datetime
+    from datetime import datetime, timezone
     async with pool.acquire() as conn:
         user_row = await conn.fetchrow(
             "SELECT plan, trial_ends_at FROM users WHERE id=$1", current_user["sub"]
         )
         plan = (user_row["plan"] if user_row else None) or "free"
         # Expire trial → downgrade to free automatically
-        if plan == "trial" and user_row["trial_ends_at"] and user_row["trial_ends_at"] < datetime.utcnow().replace(tzinfo=user_row["trial_ends_at"].tzinfo):
+        if plan == "trial" and user_row["trial_ends_at"] and user_row["trial_ends_at"] < datetime.now(timezone.utc):
             await conn.execute("UPDATE users SET plan='free' WHERE id=$1", current_user["sub"])
             plan = "free"
         if plan == "free":

@@ -7,7 +7,7 @@ import json
 import secrets
 import uuid
 from pathlib import Path
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import FileResponse, Response
@@ -26,6 +26,21 @@ router = APIRouter(tags=["business-reports"])
 TEMPLATES_DIR = Path(__file__).resolve().parent.parent / "templates"
 REPORTS_DIR = Path(os.getenv("REPORTS_DIR", "/tmp/jyotish-reports"))
 REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+UPLOAD_DIR = Path(os.getenv("UPLOAD_DIR", "/tmp/jyotish-uploads"))
+
+
+def _localize_upload_urls(profile: dict) -> dict:
+    """Rewrite /uploads/<id>/<file> → file:///<UPLOAD_DIR>/<id>/<file>
+    so WeasyPrint can read images from disk."""
+    if not profile:
+        return profile
+    out = dict(profile)
+    for key in ("logo_url", "photo_url", "signature_url"):
+        v = out.get(key)
+        if v and v.startswith("/uploads/"):
+            rel = v[len("/uploads/"):]
+            out[key] = f"file://{UPLOAD_DIR}/{rel}"
+    return out
 
 jinja = Environment(
     loader=FileSystemLoader(str(TEMPLATES_DIR)),
@@ -102,7 +117,7 @@ def _build_chart_data(req: GenerateReportRequest):
 
 def _render_pdf_html(html: str, base_url: str = "") -> bytes:
     from weasyprint import HTML  # lazy import
-    return HTML(string=html, base_url=base_url).write_pdf()
+    return HTML(string=html, base_url=base_url or str(TEMPLATES_DIR)).write_pdf()
 
 
 @router.post("/business/reports/generate")
@@ -142,7 +157,7 @@ async def generate_report(req: GenerateReportRequest, current_user=Depends(get_c
 
         template = jinja.get_template("report.html")
         html = template.render(
-            profile=profile,
+            profile=_localize_upload_urls(profile),
             chart=chart,
             req=req,
             sections=sections,
@@ -195,7 +210,7 @@ async def invoice_pdf(invoice_id: str, current_user=Depends(get_current_user)):
     template = jinja.get_template("invoice.html")
     html = template.render(
         invoice=dict(inv),
-        profile=profile,
+        profile=_localize_upload_urls(profile),
         is_receipt=(inv["status"] == "paid"),
         generated_at=datetime.utcnow().strftime("%d %b %Y"),
     )
@@ -287,7 +302,7 @@ async def create_invite(client_id: str, req: InviteRequest = None,
             raise HTTPException(404, "Client not found")
         token = secrets.token_urlsafe(32)
         invite_id = str(uuid.uuid4())
-        expires = datetime.utcnow() + timedelta(days=days)
+        expires = datetime.now(timezone.utc) + timedelta(days=days)
         await conn.execute(
             """INSERT INTO client_portal_invites
                (id,client_id,user_id,token,expires_at)
@@ -348,7 +363,7 @@ async def portal_view(token: str):
             raise HTTPException(404, "Invalid link")
         if invite["revoked_at"]:
             raise HTTPException(403, "Link revoked")
-        if invite["expires_at"] < datetime.utcnow().replace(tzinfo=invite["expires_at"].tzinfo):
+        if invite["expires_at"] < datetime.now(timezone.utc):
             raise HTTPException(403, "Link expired")
 
         # Track view

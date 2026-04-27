@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { crmApi } from '../api/client'
+import { crmApi, reportsApi } from '../api/client'
 import { useLang } from '../contexts/LanguageContext'
 import ClientInviteModal from './business/ClientInviteModal'
 
@@ -38,6 +38,12 @@ export default function CRMPanel() {
   const [showAddClient, setShowAddClient] = useState(false)
   const [newClient, setNewClient] = useState({ name: '', phone: '', email: '', notes: '', whatsapp_phone: '', birth_date: '', birth_time: '', birth_place: '', birth_lat: '', birth_lon: '', birth_tz: '5.5' })
   const [showInvite, setShowInvite] = useState(false)
+  const [showAddInvoice, setShowAddInvoice] = useState(false)
+  const [newInvoice, setNewInvoice] = useState({ client_id: '', amount: 0, currency: 'INR', notes: '', due_on: '' })
+  const [showAddSession, setShowAddSession] = useState(false)
+  const [newSession, setNewSession] = useState({ client_id: '', session_date: '', duration_mins: 60, fee_charged: 0, notes: '' })
+  const [showAddAppt, setShowAddAppt] = useState(false)
+  const [newAppt, setNewAppt] = useState({ client_id: '', scheduled_at: '', duration_mins: 60, type: 'reading', fee: 0, notes: '' })
 
   useEffect(() => {
     crmApi.listClients().then(setClients).catch(() => {})
@@ -161,7 +167,34 @@ export default function CRMPanel() {
       {/* SESSIONS */}
       {view === 'sessions' && (
         <div style={S.main}>
-          <div style={S.sectionTitle}>{t('Reading Sessions')} ({sessions.length})</div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={S.sectionTitle}>{t('Reading Sessions')} ({sessions.length})</div>
+            <button style={{ ...S.btn, background: '#4a9eff', color: '#fff', border: 'none' }} onClick={() => setShowAddSession(true)}>+ Log Session</button>
+          </div>
+          {showAddSession && (
+            <div style={{ padding: 14, background: '#0a1520', border: '1px solid #1a3a5c', borderRadius: 8, marginBottom: 14 }}>
+              <select style={S.input} value={newSession.client_id} onChange={e => setNewSession({ ...newSession, client_id: e.target.value })}>
+                <option value="">— Select Client —</option>
+                {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
+              <input style={S.input} type="date" placeholder="Session Date" value={newSession.session_date} onChange={e => setNewSession({ ...newSession, session_date: e.target.value })} />
+              <div style={{ display: 'flex', gap: 6 }}>
+                <input style={S.input} type="number" placeholder="Duration (min)" value={newSession.duration_mins || ''} onChange={e => setNewSession({ ...newSession, duration_mins: parseInt(e.target.value) || 60 })} />
+                <input style={S.input} type="number" placeholder="Fee (₹)" value={newSession.fee_charged || ''} onChange={e => setNewSession({ ...newSession, fee_charged: parseFloat(e.target.value) || 0 })} />
+              </div>
+              <input style={S.input} placeholder="Notes" value={newSession.notes} onChange={e => setNewSession({ ...newSession, notes: e.target.value })} />
+              <div style={{ display: 'flex', gap: 6 }}>
+                <button style={{ ...S.btn, background: '#4a9eff', color: '#fff', border: 'none' }} onClick={async () => {
+                  if (!newSession.session_date) return
+                  await crmApi.createSession(newSession)
+                  crmApi.listSessions().then(setSessions)
+                  setNewSession({ client_id: '', session_date: '', duration_mins: 60, fee_charged: 0, notes: '' })
+                  setShowAddSession(false)
+                }}>Save</button>
+                <button style={S.btn} onClick={() => setShowAddSession(false)}>Cancel</button>
+              </div>
+            </div>
+          )}
           {!sessions.length && <div style={{ color: '#4a6fa5', fontSize: '13px' }}>{t('No sessions')}</div>}
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead>
@@ -189,7 +222,35 @@ export default function CRMPanel() {
       {/* APPOINTMENTS */}
       {view === 'appointments' && (
         <div style={S.main}>
-          <div style={S.sectionTitle}>Appointments ({appointments.length})</div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={S.sectionTitle}>Appointments ({appointments.length})</div>
+            <button style={{ ...S.btn, background: '#4a9eff', color: '#fff', border: 'none' }} onClick={() => setShowAddAppt(true)}>+ Schedule</button>
+          </div>
+          {showAddAppt && (
+            <div style={{ padding: 14, background: '#0a1520', border: '1px solid #1a3a5c', borderRadius: 8, marginBottom: 14 }}>
+              <select style={S.input} value={newAppt.client_id} onChange={e => setNewAppt({ ...newAppt, client_id: e.target.value })}>
+                <option value="">— Select Client —</option>
+                {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
+              <input style={S.input} type="datetime-local" value={newAppt.scheduled_at} onChange={e => setNewAppt({ ...newAppt, scheduled_at: e.target.value })} />
+              <div style={{ display: 'flex', gap: 6 }}>
+                <input style={S.input} type="number" placeholder="Duration (min)" value={newAppt.duration_mins || ''} onChange={e => setNewAppt({ ...newAppt, duration_mins: parseInt(e.target.value) || 60 })} />
+                <input style={S.input} type="number" placeholder="Fee (₹)" value={newAppt.fee || ''} onChange={e => setNewAppt({ ...newAppt, fee: parseFloat(e.target.value) || 0 })} />
+              </div>
+              <input style={S.input} placeholder="Type (reading/follow-up)" value={newAppt.type} onChange={e => setNewAppt({ ...newAppt, type: e.target.value })} />
+              <input style={S.input} placeholder="Notes" value={newAppt.notes} onChange={e => setNewAppt({ ...newAppt, notes: e.target.value })} />
+              <div style={{ display: 'flex', gap: 6 }}>
+                <button style={{ ...S.btn, background: '#4a9eff', color: '#fff', border: 'none' }} onClick={async () => {
+                  if (!newAppt.scheduled_at) return
+                  await crmApi.createAppointment(newAppt)
+                  crmApi.listAppointments().then(setAppointments)
+                  setNewAppt({ client_id: '', scheduled_at: '', duration_mins: 60, type: 'reading', fee: 0, notes: '' })
+                  setShowAddAppt(false)
+                }}>Save</button>
+                <button style={S.btn} onClick={() => setShowAddAppt(false)}>Cancel</button>
+              </div>
+            </div>
+          )}
           {!appointments.length && <div style={{ color: '#4a6fa5', fontSize: '13px' }}>No appointments scheduled</div>}
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead>
@@ -222,11 +283,35 @@ export default function CRMPanel() {
       {/* INVOICES */}
       {view === 'invoices' && (
         <div style={S.main}>
-          <div style={S.sectionTitle}>Invoices</div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={S.sectionTitle}>Invoices</div>
+            <button style={{ ...S.btn, background: '#4a9eff', color: '#fff', border: 'none' }} onClick={() => setShowAddInvoice(true)}>+ New Invoice</button>
+          </div>
+          {showAddInvoice && (
+            <div style={{ padding: 14, background: '#0a1520', border: '1px solid #1a3a5c', borderRadius: 8, marginBottom: 14 }}>
+              <select style={S.input} value={newInvoice.client_id} onChange={e => setNewInvoice({ ...newInvoice, client_id: e.target.value })}>
+                <option value="">— Select Client —</option>
+                {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
+              <input style={S.input} type="number" placeholder="Amount (₹)" value={newInvoice.amount || ''} onChange={e => setNewInvoice({ ...newInvoice, amount: parseFloat(e.target.value) || 0 })} />
+              <input style={S.input} type="date" placeholder="Due On" value={newInvoice.due_on} onChange={e => setNewInvoice({ ...newInvoice, due_on: e.target.value })} />
+              <input style={S.input} placeholder="Notes / description" value={newInvoice.notes} onChange={e => setNewInvoice({ ...newInvoice, notes: e.target.value })} />
+              <div style={{ display: 'flex', gap: 6 }}>
+                <button style={{ ...S.btn, background: '#4a9eff', color: '#fff', border: 'none' }} onClick={async () => {
+                  if (!newInvoice.client_id || !newInvoice.amount) return
+                  const r = await crmApi.createInvoice({ ...newInvoice, due_on: newInvoice.due_on || null })
+                  setInvoices(ii => [{ id: r.invoice_id, client_name: clients.find(c => c.id === newInvoice.client_id)?.name, amount: newInvoice.amount, currency: 'INR', status: 'unpaid', issued_on: new Date().toISOString().slice(0, 10), due_on: newInvoice.due_on || null }, ...ii])
+                  setNewInvoice({ client_id: '', amount: 0, currency: 'INR', notes: '', due_on: '' })
+                  setShowAddInvoice(false)
+                }}>Save</button>
+                <button style={S.btn} onClick={() => setShowAddInvoice(false)}>Cancel</button>
+              </div>
+            </div>
+          )}
           <div style={{ marginBottom: '16px' }}>
             <span style={S.statBox}><div style={S.statNum}>{invoices.length}</div><div style={S.statLabel}>Total</div></span>
-            <span style={S.statBox}><div style={{ ...S.statNum, color: '#2ECC71' }}>₹{invoices.filter(i => i.status === 'paid').reduce((s, i) => s + i.amount, 0).toLocaleString()}</div><div style={S.statLabel}>Collected</div></span>
-            <span style={S.statBox}><div style={{ ...S.statNum, color: '#E74C3C' }}>₹{invoices.filter(i => i.status === 'pending').reduce((s, i) => s + i.amount, 0).toLocaleString()}</div><div style={S.statLabel}>Pending</div></span>
+            <span style={S.statBox}><div style={{ ...S.statNum, color: '#2ECC71' }}>₹{invoices.filter(i => i.status === 'paid').reduce((s, i) => s + Number(i.amount || 0), 0).toLocaleString()}</div><div style={S.statLabel}>Collected</div></span>
+            <span style={S.statBox}><div style={{ ...S.statNum, color: '#E74C3C' }}>₹{invoices.filter(i => i.status === 'unpaid').reduce((s, i) => s + Number(i.amount || 0), 0).toLocaleString()}</div><div style={S.statLabel}>Unpaid</div></span>
           </div>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead>
@@ -250,13 +335,25 @@ export default function CRMPanel() {
                       {inv.status}
                     </span>
                   </td>
-                  <td style={{ padding: '8px 12px' }}>
+                  <td style={{ padding: '8px 12px', display: 'flex', gap: 6 }}>
                     {inv.status !== 'paid' && (
                       <button style={{ ...S.btn, fontSize: '11px', padding: '3px 8px' }}
                         onClick={async () => { await crmApi.markPaid(inv.id); setInvoices(ii => ii.map(i => i.id === inv.id ? { ...i, status: 'paid' } : i)) }}>
                         Mark Paid
                       </button>
                     )}
+                    <button style={{ ...S.btn, fontSize: '11px', padding: '3px 8px' }}
+                      onClick={async () => {
+                        const blob = await reportsApi.invoicePdf(inv.id)
+                        const url = URL.createObjectURL(blob)
+                        const a = document.createElement('a')
+                        a.href = url
+                        a.download = `${inv.status === 'paid' ? 'receipt' : 'invoice'}-${inv.id.slice(0,8)}.pdf`
+                        a.click()
+                        URL.revokeObjectURL(url)
+                      }}>
+                      📄 PDF
+                    </button>
                   </td>
                 </tr>
               ))}
