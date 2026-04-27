@@ -55,12 +55,21 @@
 </div>
 {% endif %}
 
-{# ── CHART WHEEL (placeholder for SVG inclusion later) ── #}
+{# ── CHART WHEEL (SVG inline) ── #}
 {% if 'chart_wheel' in sections %}
 <div class="section">
   <h2>Rashi Chart (D-1)</h2>
-  <p class="muted center">Chart wheel rendering. Visualize lagna, planets, and houses.</p>
-  <table>
+  <div style="display: flex; gap: 18pt; align-items: flex-start; justify-content: center;">
+    <div style="text-align: center;">
+      <div style="font-size: 9pt; color: #6b7280; margin-bottom: 4pt;">North Indian</div>
+      {{ chart_svg_north | safe }}
+    </div>
+    <div style="text-align: center;">
+      <div style="font-size: 9pt; color: #6b7280; margin-bottom: 4pt;">South Indian</div>
+      {{ chart_svg_south | safe }}
+    </div>
+  </div>
+  <table style="margin-top: 12pt;">
     <thead><tr><th>House</th><th>Sign</th><th>Cusp °</th><th>Planets</th></tr></thead>
     <tbody>
     {% for h in range(1, 13) %}
@@ -137,12 +146,153 @@
 </div>
 {% endif %}
 
-{# Placeholders for advanced sections — fill via API enrichment later #}
-{% for s in ['ashtakavarga','shadbala','vimshopaka','varga_charts','jaimini_karakas','arudha_padas','yogini_dasha','chara_dasha','narayana_dasha','ashtottari_dasha','transit_forecast','varshaphal','numerology','remedies','compatibility','panchanga','special_lagnas','saham_points','upagrahas','sarvatobhadra','yogas','doshas'] %}
+{# ── YOGAS ── #}
+{% if 'yogas' in sections %}
+<div class="section">
+  <h2>Yogas</h2>
+  {% if enriched.yogas_list %}
+    <ul style="margin: 0; padding-left: 18pt;">
+    {% for y in enriched.yogas_list %}
+      <li style="margin-bottom: 4pt;">
+        <strong>{{ y.name }}</strong>
+        {% if y.strength %}<span class="tag">{{ y.strength }}</span>{% endif %}
+        {% if y.description %}<div class="muted" style="font-size: 9.5pt;">{{ y.description }}</div>{% endif %}
+      </li>
+    {% endfor %}
+    </ul>
+  {% else %}<p class="muted">No major yogas detected.</p>{% endif %}
+</div>
+{% endif %}
+
+{# ── DOSHAS ── #}
+{% if 'doshas' in sections and enriched.doshas_data %}
+<div class="section">
+  <h2>Doshas</h2>
+  {% set d = enriched.doshas_data %}
+  {% if d.mangal %}<div class="callout"><strong>Mangal Dosha:</strong> {{ 'Present' if d.mangal.present else 'Absent' }} — {{ d.mangal.reason or '' }}</div>{% endif %}
+  {% if d.kalsarpa %}<div class="callout"><strong>Kalsarpa Dosha:</strong> {{ 'Present' if d.kalsarpa.present else 'Absent' }} — {{ d.kalsarpa.type or '' }}</div>{% endif %}
+  {% if d.sadesati %}<div class="callout"><strong>Sade Sati:</strong> {{ d.sadesati.phase or 'Not active' }}</div>{% endif %}
+</div>
+{% endif %}
+
+{# ── ASHTAKAVARGA ── #}
+{% if 'ashtakavarga' in sections and enriched.ashtakavarga_data %}
+<div class="section">
+  <h2>Ashtakavarga</h2>
+  {% set av = enriched.ashtakavarga_data %}
+  <p class="muted">Sarva Ashtakavarga total: <strong>{{ av.total }}</strong> bindus</p>
+  <table>
+    <thead><tr><th>Sign</th>{% for p in ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn'] %}<th>{{ p[:2] }}</th>{% endfor %}<th>Sarva</th></tr></thead>
+    <tbody>
+    {% for i in range(12) %}
+      <tr>
+        <td>{{ ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'][i] }}</td>
+        {% for p in ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn'] %}<td>{{ av.bhinna[p][i] }}</td>{% endfor %}
+        <td><strong>{{ av.sarva[i] }}</strong></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+{# ── VARGA CHARTS ── #}
+{% if 'varga_charts' in sections and enriched.varga_d9 %}
+<div class="section">
+  <h2>Divisional Charts</h2>
+  {% for label, key in [('Navamsa (D-9) — Marriage / Dharma','varga_d9'), ('Dasamsa (D-10) — Career','varga_d10'), ('Dwadasamsa (D-12) — Parents','varga_d12')] %}
+    {% if enriched[key] %}
+    <h3>{{ label }}</h3>
+    <table style="margin-bottom: 8pt;">
+      <thead><tr><th>Planet</th><th>Sign</th><th>Degree</th></tr></thead>
+      <tbody>
+      {% for p, pdata in enriched[key].items() %}
+        <tr><td>{{ p }}</td><td>{{ pdata.sign }}</td><td>{{ '%.2f'|format(pdata.degree) }}°</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+  {% endfor %}
+</div>
+{% endif %}
+
+{# ── JAIMINI KARAKAS ── #}
+{% if 'jaimini_karakas' in sections and enriched.jaimini_data %}
+<div class="section">
+  <h2>Jaimini Chara Karakas</h2>
+  <table>
+    <thead><tr><th>Karaka</th><th>Planet</th><th>Sign</th><th>Degree</th></tr></thead>
+    <tbody>
+    {% for k in enriched.jaimini_data %}
+      <tr><td><strong>{{ k.karaka }}</strong></td><td>{{ k.planet }}</td><td>{{ k.sign }}</td><td>{{ k.degree }}°</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+{# ── ARUDHA PADAS ── #}
+{% if 'arudha_padas' in sections and enriched.arudha_data %}
+<div class="section">
+  <h2>Arudha Padas</h2>
+  <table>
+    <thead><tr><th>House</th><th>Lord</th><th>Arudha Sign</th></tr></thead>
+    <tbody>
+    {% for a in enriched.arudha_data %}
+      <tr><td>A{{ a.house }}</td><td>{{ a.lord }}</td><td>{{ a.arudha_sign }}</td></tr>
+    {% endfor %}
+  </tbody></table>
+</div>
+{% endif %}
+
+{# ── PANCHANGA ── #}
+{% if 'panchanga' in sections and enriched.panchanga_data %}
+<div class="section">
+  <h2>Panchanga (Five Limbs)</h2>
+  {% set pa = enriched.panchanga_data %}
+  <table>
+    <tbody>
+    {% if pa.tithi %}<tr><td><strong>Tithi</strong></td><td>{{ pa.tithi.name if pa.tithi.name else pa.tithi }}</td></tr>{% endif %}
+    <tr><td><strong>Nakshatra</strong></td><td>{{ pa.nakshatra }} (pada {{ pa.nakshatra_pada }})</td></tr>
+    {% if pa.yoga %}<tr><td><strong>Yoga</strong></td><td>{{ pa.yoga.name if pa.yoga.name else pa.yoga }}</td></tr>{% endif %}
+    {% if pa.karana %}<tr><td><strong>Karana</strong></td><td>{{ pa.karana.name if pa.karana.name else pa.karana }}</td></tr>{% endif %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+{# ── YOGINI DASHA ── #}
+{% if 'yogini_dasha' in sections and enriched.yogini_data %}
+<div class="section">
+  <h2>Yogini Dasha</h2>
+  <table>
+    <thead><tr><th>#</th><th>Yogini</th><th>Start</th><th>End</th><th>Years</th></tr></thead>
+    <tbody>
+    {% for d in enriched.yogini_data %}
+      <tr><td>{{ loop.index }}</td><td>{{ d.yogini or d.lord }}</td><td>{{ d.start or '' }}</td><td>{{ d.end or '' }}</td><td>{{ d.years }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+{# ── NUMEROLOGY ── #}
+{% if 'numerology' in sections and enriched.numerology_data %}
+<div class="section">
+  <h2>Numerology</h2>
+  <table>
+    <tr><td><strong>Life Path</strong></td><td>{{ enriched.numerology_data.life_path }}</td></tr>
+    <tr><td><strong>Destiny / Expression</strong></td><td>{{ enriched.numerology_data.destiny }}</td></tr>
+  </table>
+</div>
+{% endif %}
+
+{# Sections without specific render — generic fallback #}
+{% for s in ['shadbala','vimshopaka','chara_dasha','narayana_dasha','ashtottari_dasha','transit_forecast','varshaphal','remedies','compatibility','special_lagnas','saham_points','upagrahas','sarvatobhadra','combustion'] %}
   {% if s in sections %}
     <div class="section">
       <h2>{{ s.replace('_', ' ').title() }}</h2>
-      <p class="muted">Section reserved for {{ s.replace('_',' ') }} computation. Enrich via dedicated endpoint to populate full content.</p>
+      <p class="muted">Detail for {{ s.replace('_',' ') }} — refer to full app panel for in-depth tables.</p>
     </div>
   {% endif %}
 {% endfor %}

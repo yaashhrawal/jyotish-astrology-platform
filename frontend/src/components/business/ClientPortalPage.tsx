@@ -42,8 +42,16 @@ export default function ClientPortalPage({ token }: { token: string }) {
             <span>Date of Birth:</span><span>{c.birth_date || '—'}</span>
             <span>Time of Birth:</span><span>{c.birth_time || '—'}</span>
             <span>Place of Birth:</span><span>{c.birth_place || '—'}</span>
+            {data.ascendant_sign && (<><span>Ascendant:</span><span style={{ color: accent, fontWeight: 700 }}>{data.ascendant_sign}</span></>)}
           </div>
         </div>
+
+        {data.chart_svg && (
+          <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: 18, textAlign: 'center' }}>
+            <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 10 }}>Your Birth Chart (Rashi)</div>
+            <div dangerouslySetInnerHTML={{ __html: data.chart_svg }} />
+          </div>
+        )}
 
         <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: 18 }}>
           <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 10 }}>Your Reports</div>

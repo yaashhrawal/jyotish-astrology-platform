@@ -20,6 +20,7 @@ from core.engine import (
     assign_planets_to_houses, calculate_atmakaraka,
     get_vimshottari_dasha, jd_to_datetime,
 )
+from core.chart_svg import north_indian_svg, south_indian_svg
 
 router = APIRouter(tags=["business-reports"])
 
@@ -86,6 +87,120 @@ async def _get_profile(conn, user_id: str) -> dict:
         "SELECT * FROM astrologer_profiles WHERE user_id=$1", user_id
     )
     return dict(row) if row else {}
+
+
+def _enrich_sections(sections: List[str], chart: dict, req) -> dict:
+    """For each advanced section selected, compute real data via internal helpers.
+    Each block try/except so failures don't break PDF gen."""
+    out: dict = {}
+    asc_sign = chart["ascendant"]["sign"]
+    asc_idx = chart["ascendant"]["sign_index"]
+    planets = chart["planets"]
+    house_map = chart["planet_house_map"]
+    jd = chart["jd"]
+
+    # Yogas — uses module alias
+    if "yogas" in sections:
+        try:
+            from routers.yogas import detect_yogas
+            out["yogas_list"] = detect_yogas(planets, house_map, chart["ascendant"], jd, req.ayanamsa)
+        except Exception:
+            out["yogas_list"] = []
+
+    # Doshas
+    if "doshas" in sections:
+        try:
+            from routers.doshas import check_mangal_dosha, check_kalsarpa_dosha, check_sadesati
+            out["doshas_data"] = {
+                "mangal": check_mangal_dosha(planets, asc_idx),
+                "kalsarpa": check_kalsarpa_dosha(planets),
+                "sadesati": check_sadesati(planets["Moon"]["sign_index"], jd, req.ayanamsa),
+            }
+        except Exception:
+            pass
+
+    # Ashtakavarga — bhinna for all 7 planets + sarva
+    if "ashtakavarga" in sections:
+        try:
+            from routers.ashtakavarga import calculate_bhinnashtakavarga
+            seven = ["Sun","Moon","Mars","Mercury","Jupiter","Venus","Saturn"]
+            bav = {}
+            for p in seven:
+                bav[p] = calculate_bhinnashtakavarga(p, planets[p]["sign_index"], planets, asc_idx)
+            sav = [sum(bav[p][i] for p in seven) for i in range(12)]
+            out["ashtakavarga_data"] = {"bhinna": bav, "sarva": sav, "total": sum(sav)}
+        except Exception:
+            pass
+
+    # Varga charts — D9 + D10 + D12
+    if "varga_charts" in sections:
+        try:
+            from core.varga import get_varga_chart
+            out["varga_d9"] = get_varga_chart(planets, 9)
+            out["varga_d10"] = get_varga_chart(planets, 10)
+            out["varga_d12"] = get_varga_chart(planets, 12)
+        except Exception:
+            pass
+
+    # Jaimini karakas — top 7 by degree
+    if "jaimini_karakas" in sections:
+        try:
+            tags = ["AK","AmK","BK","MK","PiK","GK","DK"]
+            cand = [(name, p["degree"]) for name, p in planets.items() if name not in ("Rahu","Ketu")]
+            cand.sort(key=lambda x: x[1], reverse=True)
+            out["jaimini_data"] = [
+                {"karaka": tags[i], "planet": cand[i][0], "degree": round(cand[i][1], 2),
+                 "sign": planets[cand[i][0]]["sign"]}
+                for i in range(min(7, len(cand)))
+            ]
+        except Exception:
+            pass
+
+    # Arudha padas
+    if "arudha_padas" in sections:
+        try:
+            from routers.arudha import compute_arudha
+            out["arudha_data"] = [compute_arudha(h, asc_idx, planets) for h in range(1, 13)]
+        except Exception:
+            pass
+
+    # Panchanga
+    if "panchanga" in sections:
+        try:
+            from routers.panchanga import get_tithi, get_yoga, get_karana
+            sun_lon = planets["Sun"]["longitude"]
+            moon_lon = planets["Moon"]["longitude"]
+            out["panchanga_data"] = {
+                "tithi": get_tithi(sun_lon, moon_lon),
+                "nakshatra": planets["Moon"]["nakshatra"],
+                "nakshatra_pada": planets["Moon"]["pada"],
+                "yoga": get_yoga(sun_lon, moon_lon),
+                "karana": get_karana(sun_lon, moon_lon),
+            }
+        except Exception:
+            pass
+
+    # Yogini dasha — first 8
+    if "yogini_dasha" in sections:
+        try:
+            from routers.yogini_dasha import get_yogini_dashas
+            out["yogini_data"] = get_yogini_dashas(planets["Moon"]["longitude"], jd)[:8]
+        except Exception:
+            pass
+
+    # Numerology
+    if "numerology" in sections:
+        try:
+            from routers.numerology import reduce, name_to_value
+            from datetime import date as _date
+            digits = sum(int(c) for c in (req.birth_date or "").replace("-", "") if c.isdigit())
+            life_path = reduce(digits)
+            destiny = reduce(name_to_value(req.name or ""))
+            out["numerology_data"] = {"life_path": life_path, "destiny": destiny}
+        except Exception:
+            pass
+
+    return out
 
 
 def _build_chart_data(req: GenerateReportRequest):
@@ -155,12 +270,21 @@ async def generate_report(req: GenerateReportRequest, current_user=Depends(get_c
 
         sections = list(dict.fromkeys(["header"] + req.sections))  # ensure header
 
+        prof_localized = _localize_upload_urls(profile)
+        primary = (profile or {}).get("primary_color") or "#7C2D12"
+        chart_svg_north = north_indian_svg(chart["planets"], chart["ascendant"]["sign_index"], 320, primary)
+        chart_svg_south = south_indian_svg(chart["planets"], chart["ascendant"]["sign_index"], 320, primary)
+        enriched = _enrich_sections(sections, chart, req)
+
         template = jinja.get_template("report.html")
         html = template.render(
-            profile=_localize_upload_urls(profile),
+            profile=prof_localized,
             chart=chart,
             req=req,
             sections=sections,
+            chart_svg_north=chart_svg_north,
+            chart_svg_south=chart_svg_south,
+            enriched=enriched,
             generated_at=datetime.utcnow().strftime("%d %b %Y · %H:%M UTC"),
         )
 
@@ -390,6 +514,24 @@ async def portal_view(token: str):
             invite["client_id"]
         )
 
+    # Compute chart wheel SVG if birth data exists
+    chart_svg = None
+    asc_sign = None
+    if invite["birth_date"] and invite["birth_time"] and invite["birth_lat"] is not None:
+        try:
+            y, m, d = map(int, str(invite["birth_date"]).split("-"))
+            t = str(invite["birth_time"]).split(":")
+            h, mn = int(t[0]), int(t[1])
+            jd = birth_to_jd(y, m, d, h, mn, invite["birth_tz"] or 5.5)
+            planets = calculate_planets(jd, "lahiri")
+            houses = calculate_houses(jd, invite["birth_lat"], invite["birth_lon"], "lahiri")
+            asc_idx = houses["ascendant"]["sign_index"]
+            asc_sign = houses["ascendant"]["sign"]
+            primary = profile.get("primary_color") or "#7C2D12"
+            chart_svg = north_indian_svg(planets, asc_idx, 320, primary)
+        except Exception:
+            pass
+
     return {
         "client": {
             "name": invite["client_name"],
@@ -397,6 +539,8 @@ async def portal_view(token: str):
             "birth_time": str(invite["birth_time"])[:5] if invite["birth_time"] else None,
             "birth_place": invite["birth_place"],
         },
+        "chart_svg": chart_svg,
+        "ascendant_sign": asc_sign,
         "astrologer": {
             "display_name": profile.get("display_name"),
             "title": profile.get("title"),

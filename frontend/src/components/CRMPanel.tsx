@@ -38,6 +38,8 @@ export default function CRMPanel() {
   const [showAddClient, setShowAddClient] = useState(false)
   const [newClient, setNewClient] = useState({ name: '', phone: '', email: '', notes: '', whatsapp_phone: '', birth_date: '', birth_time: '', birth_place: '', birth_lat: '', birth_lon: '', birth_tz: '5.5' })
   const [showInvite, setShowInvite] = useState(false)
+  const [editingClient, setEditingClient] = useState(false)
+  const [editClient, setEditClient] = useState<any>({})
   const [showAddInvoice, setShowAddInvoice] = useState(false)
   const [newInvoice, setNewInvoice] = useState({ client_id: '', amount: 0, currency: 'INR', notes: '', due_on: '' })
   const [showAddSession, setShowAddSession] = useState(false)
@@ -133,10 +135,52 @@ export default function CRMPanel() {
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
                   <div style={{ color: '#4a9eff', fontSize: '20px', fontWeight: 'bold' }}>{selectedClient.name}</div>
-                  <button style={{ ...S.btn, background: '#25D366', color: '#fff', border: 'none' }} onClick={() => setShowInvite(true)}>
-                    🔗 Invite to Portal
-                  </button>
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    <button style={S.btn} onClick={() => { setEditClient({ ...selectedClient }); setEditingClient(true) }}>Edit</button>
+                    <button style={{ ...S.btn, background: '#25D366', color: '#fff', border: 'none' }} onClick={() => setShowInvite(true)}>
+                      🔗 Invite
+                    </button>
+                  </div>
                 </div>
+                {editingClient && (
+                  <div style={{ padding: 14, background: '#0a1520', border: '1px solid #1a3a5c', borderRadius: 8, marginBottom: 14 }}>
+                    <input style={S.input} placeholder="Name" value={editClient.name || ''} onChange={e => setEditClient({ ...editClient, name: e.target.value })} />
+                    <input style={S.input} placeholder="Phone" value={editClient.phone || ''} onChange={e => setEditClient({ ...editClient, phone: e.target.value })} />
+                    <input style={S.input} placeholder="WhatsApp" value={editClient.whatsapp_phone || ''} onChange={e => setEditClient({ ...editClient, whatsapp_phone: e.target.value })} />
+                    <input style={S.input} placeholder="Email" value={editClient.email || ''} onChange={e => setEditClient({ ...editClient, email: e.target.value })} />
+                    <input style={S.input} type="date" value={editClient.birth_date || ''} onChange={e => setEditClient({ ...editClient, birth_date: e.target.value })} />
+                    <input style={S.input} type="time" value={(editClient.birth_time || '').slice(0,5)} onChange={e => setEditClient({ ...editClient, birth_time: e.target.value })} />
+                    <input style={S.input} placeholder="Birth Place" value={editClient.birth_place || ''} onChange={e => setEditClient({ ...editClient, birth_place: e.target.value })} />
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <input style={S.input} placeholder="Lat" value={editClient.birth_lat ?? ''} onChange={e => setEditClient({ ...editClient, birth_lat: e.target.value })} />
+                      <input style={S.input} placeholder="Lon" value={editClient.birth_lon ?? ''} onChange={e => setEditClient({ ...editClient, birth_lon: e.target.value })} />
+                      <input style={S.input} placeholder="TZ" value={editClient.birth_tz ?? ''} onChange={e => setEditClient({ ...editClient, birth_tz: e.target.value })} />
+                    </div>
+                    <textarea style={{ ...S.input, minHeight: 60 }} placeholder="Notes" value={editClient.notes || ''} onChange={e => setEditClient({ ...editClient, notes: e.target.value })} />
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <button style={{ ...S.btn, background: '#4a9eff', color: '#fff', border: 'none' }} onClick={async () => {
+                        const payload: any = { ...editClient }
+                        payload.birth_lat = editClient.birth_lat ? parseFloat(editClient.birth_lat) : null
+                        payload.birth_lon = editClient.birth_lon ? parseFloat(editClient.birth_lon) : null
+                        payload.birth_tz = editClient.birth_tz ? parseFloat(editClient.birth_tz) : null
+                        if (!payload.birth_date) payload.birth_date = null
+                        if (!payload.birth_time) payload.birth_time = null
+                        await crmApi.updateClient(selectedClient.id, payload)
+                        setClients(cs => cs.map(c => c.id === selectedClient.id ? { ...c, ...payload } : c))
+                        setSelectedClient({ ...selectedClient, ...payload })
+                        setEditingClient(false)
+                      }}>Save</button>
+                      <button style={S.btn} onClick={() => setEditingClient(false)}>Cancel</button>
+                      <button style={{ ...S.btn, color: '#E74C3C', marginLeft: 'auto' }} onClick={async () => {
+                        if (!confirm(`Delete ${selectedClient.name}? Cannot undo.`)) return
+                        await crmApi.deleteClient(selectedClient.id)
+                        setClients(cs => cs.filter(c => c.id !== selectedClient.id))
+                        setSelectedClient(null)
+                        setEditingClient(false)
+                      }}>Delete</button>
+                    </div>
+                  </div>
+                )}
                 <div style={{ color: '#4a6fa5', fontSize: '13px', marginBottom: '20px' }}>
                   {selectedClient.phone && <span>📞 {selectedClient.phone}  </span>}
                   {selectedClient.whatsapp_phone && <span>WA {selectedClient.whatsapp_phone}  </span>}
