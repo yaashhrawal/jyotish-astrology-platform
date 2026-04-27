@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>{{ req.name or 'Birth Chart Report' }}</title>
+<style>
+:root {
+  --primary: {{ profile.primary_color or '#7C2D12' }};
+  --secondary: {{ profile.secondary_color or '#92400E' }};
+}
+{% include '_base.css' %}
+.birth-card { display: grid; grid-template-columns: 130pt 1fr; gap: 4pt 14pt; margin: 8pt 0 14pt; font-size: 10pt; }
+.birth-card .label { color: #6b7280; }
+.planet-grid td { font-variant-numeric: tabular-nums; }
+.dasha-row.active { background: #fef3c7; font-weight: 700; }
+.yoga-list .yoga { display: flex; justify-content: space-between; padding: 4pt 0; border-bottom: 1px dashed #e5e7eb; }
+.interpretation { white-space: pre-wrap; line-height: 1.65; padding: 8pt 12pt; background: #fafaf9; border-left: 3px solid var(--primary); }
+</style>
+</head>
+<body data-generated="{{ generated_at }}">
+
+{% if profile.show_powered_by %}<div class="watermark">ॐ</div>{% endif %}
+
+{# ── HEADER / LETTERHEAD ── #}
+<div class="letterhead">
+  <div class="brand">
+    {% if profile.logo_url %}<img class="logo" src="{{ profile.logo_url }}" alt="">{% endif %}
+    <div>
+      <div class="name">{{ profile.display_name or 'Vedic Astrologer' }}</div>
+      {% if profile.title %}<div class="title-line">{{ profile.title }}</div>{% endif %}
+      {% if profile.qualifications %}<div class="title-line">{{ profile.qualifications | join(' · ') }}</div>{% endif %}
+      {% if profile.registration_no %}<div class="title-line muted">Reg: {{ profile.registration_no }}</div>{% endif %}
+    </div>
+  </div>
+  {% if profile.photo_url %}<div class="photo"><img src="{{ profile.photo_url }}" alt=""></div>{% endif %}
+</div>
+
+<h1 class="center" style="margin-top: 6pt;">JANMA KUNDLI · BIRTH CHART REPORT</h1>
+{% if profile.tagline %}<p class="center muted" style="margin-top:-6pt;">{{ profile.tagline }}</p>{% endif %}
+
+{# ── BIRTH DETAILS ── #}
+{% if 'birth_details' in sections %}
+<div class="section">
+  <h2>Native Information</h2>
+  <div class="birth-card">
+    <div class="label">Name:</div><div><strong>{{ req.name or '—' }}</strong></div>
+    <div class="label">Date of Birth:</div><div>{{ req.birth_date }}</div>
+    <div class="label">Time of Birth:</div><div>{{ req.birth_time }} (TZ {{ req.birth_tz }})</div>
+    <div class="label">Place of Birth:</div><div>{{ req.birth_place or '—' }}</div>
+    <div class="label">Coordinates:</div><div>{{ req.latitude }}°, {{ req.longitude }}°</div>
+    <div class="label">Ayanamsa:</div><div>{{ req.ayanamsa | title }}</div>
+    <div class="label">Ascendant:</div><div><strong>{{ chart.ascendant.sign }}</strong> {{ '%.2f'|format(chart.ascendant.degree) }}°</div>
+    <div class="label">Atmakaraka:</div><div><strong>{{ chart.atmakaraka }}</strong></div>
+  </div>
+</div>
+{% endif %}
+
+{# ── CHART WHEEL (placeholder for SVG inclusion later) ── #}
+{% if 'chart_wheel' in sections %}
+<div class="section">
+  <h2>Rashi Chart (D-1)</h2>
+  <p class="muted center">Chart wheel rendering. Visualize lagna, planets, and houses.</p>
+  <table>
+    <thead><tr><th>House</th><th>Sign</th><th>Cusp °</th><th>Planets</th></tr></thead>
+    <tbody>
+    {% for h in range(1, 13) %}
+      {% set hdata = chart.houses[h] %}
+      <tr>
+        <td>{{ h }}</td>
+        <td>{{ hdata.sign }}</td>
+        <td>{{ '%.2f'|format(hdata.degree) }}°</td>
+        <td>
+          {% set occupants = [] %}
+          {% for p, pdata in chart.planets.items() %}
+            {% if pdata.house == h %}{% set _ = occupants.append(p) %}{% endif %}
+          {% endfor %}
+          {{ occupants | join(', ') if occupants else '—' }}
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+{# ── PLANETS ── #}
+{% if 'planets' in sections %}
+<div class="section">
+  <h2>Planetary Positions</h2>
+  <table class="planet-grid">
+    <thead>
+      <tr><th>Planet</th><th>Sign</th><th>Degree</th><th>Nakshatra</th><th>Pada</th><th>House</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      {% for name, p in chart.planets.items() %}
+      <tr>
+        <td><strong>{{ name }}</strong>{% if p.retrograde %} ℞{% endif %}</td>
+        <td>{{ p.sign }}</td>
+        <td>{{ '%.2f'|format(p.degree) }}°</td>
+        <td>{{ p.nakshatra }}</td>
+        <td>{{ p.pada }}</td>
+        <td>{{ p.house }}</td>
+        <td>{{ p.status }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+{# ── DASHAS ── #}
+{% if 'dashas' in sections %}
+<div class="section">
+  <h2>Vimshottari Dasha</h2>
+  <table>
+    <thead><tr><th>#</th><th>Lord</th><th>Start</th><th>End</th><th>Years</th></tr></thead>
+    <tbody>
+    {% for d in chart.dashas %}
+      <tr>
+        <td>{{ loop.index }}</td>
+        <td><strong>{{ d.lord }}</strong></td>
+        <td>{{ d.start }}</td>
+        <td>{{ d.end }}</td>
+        <td>{{ '%.2f'|format(d.years) }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+{# ── ATMAKARAKA / KARAKAS ── #}
+{% if 'atmakaraka' in sections %}
+<div class="section">
+  <h2>Karaka (Significator)</h2>
+  <p>Atmakaraka — soul significator — is <strong>{{ chart.atmakaraka }}</strong> at {{ '%.2f'|format(chart.planets[chart.atmakaraka].degree) }}° in {{ chart.planets[chart.atmakaraka].sign }}.</p>
+</div>
+{% endif %}
+
+{# Placeholders for advanced sections — fill via API enrichment later #}
+{% for s in ['ashtakavarga','shadbala','vimshopaka','varga_charts','jaimini_karakas','arudha_padas','yogini_dasha','chara_dasha','narayana_dasha','ashtottari_dasha','transit_forecast','varshaphal','numerology','remedies','compatibility','panchanga','special_lagnas','saham_points','upagrahas','sarvatobhadra','yogas','doshas'] %}
+  {% if s in sections %}
+    <div class="section">
+      <h2>{{ s.replace('_', ' ').title() }}</h2>
+      <p class="muted">Section reserved for {{ s.replace('_',' ') }} computation. Enrich via dedicated endpoint to populate full content.</p>
+    </div>
+  {% endif %}
+{% endfor %}
+
+{# ── INTERPRETATION ── #}
+{% if 'interpretation' in sections and req.interpretation %}
+<div class="section">
+  <h2>Astrologer's Interpretation</h2>
+  <div class="interpretation">{{ req.interpretation }}</div>
+</div>
+{% endif %}
+
+{# ── FOOTER ── #}
+<div class="footer-block">
+  {% if profile.signature_url %}
+    <div class="signature"><img src="{{ profile.signature_url }}" alt="Signature"></div>
+  {% endif %}
+  <strong>{{ profile.display_name or '' }}</strong>
+  {% if profile.title %} · {{ profile.title }}{% endif %}
+
+  <div class="contact-row">
+    {% if profile.phone %}<span>📞 {{ profile.phone }}</span>{% endif %}
+    {% if profile.whatsapp %}<span>WA {{ profile.whatsapp }}</span>{% endif %}
+    {% if profile.email %}<span>✉ {{ profile.email }}</span>{% endif %}
+    {% if profile.website %}<span>🌐 {{ profile.website }}</span>{% endif %}
+  </div>
+  {% if profile.address_line1 %}
+  <div class="contact-row">
+    📍 {{ profile.address_line1 }}{% if profile.address_line2 %}, {{ profile.address_line2 }}{% endif %}{% if profile.city %}, {{ profile.city }}{% endif %}{% if profile.pincode %} {{ profile.pincode }}{% endif %}
+  </div>
+  {% endif %}
+  {% if profile.gst_number or profile.pan_number %}
+  <div class="compliance">
+    {% if profile.gst_number %}GST: {{ profile.gst_number }}{% endif %}
+    {% if profile.pan_number %} · PAN: {{ profile.pan_number }}{% endif %}
+  </div>
+  {% endif %}
+  {% if profile.pdf_footer_quote %}
+    <div class="center muted" style="margin-top:8pt; font-style: italic;">{{ profile.pdf_footer_quote }}</div>
+  {% endif %}
+  {% if profile.show_powered_by %}
+    <div class="powered-by">Powered by JyotishApp</div>
+  {% endif %}
+</div>
+
+</body>
+</html>

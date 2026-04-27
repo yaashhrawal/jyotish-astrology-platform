@@ -1,0 +1,77 @@
+/* Shared CSS for PDF templates */
+@page {
+  size: A4;
+  margin: 18mm 16mm 22mm 16mm;
+  @bottom-left {
+    content: "Generated " attr(data-generated);
+    font-size: 8pt;
+    color: #888;
+  }
+  @bottom-right {
+    content: "Page " counter(page) " of " counter(pages);
+    font-size: 8pt;
+    color: #888;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: 'Noto Serif', 'Georgia', serif;
+  font-size: 10.5pt;
+  color: #1f2937;
+  line-height: 1.5;
+}
+
+h1, h2, h3, h4 { color: var(--primary, #7C2D12); margin-top: 0.6em; }
+h1 { font-size: 22pt; letter-spacing: 0.02em; }
+h2 { font-size: 14pt; border-bottom: 1.5px solid var(--primary, #7C2D12); padding-bottom: 4px; margin-top: 18pt; }
+h3 { font-size: 11pt; }
+
+.letterhead {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 2px solid var(--primary, #7C2D12);
+  padding-bottom: 8pt;
+  margin-bottom: 14pt;
+}
+.letterhead .brand { display: flex; align-items: center; gap: 12pt; }
+.letterhead .brand img.logo { width: 50pt; height: 50pt; object-fit: contain; }
+.letterhead .brand .name { font-weight: 700; font-size: 14pt; color: var(--primary, #7C2D12); }
+.letterhead .brand .title-line { font-size: 9pt; color: #6b7280; }
+.letterhead .photo img { width: 60pt; height: 60pt; object-fit: cover; border-radius: 4pt; border: 1px solid #e5e7eb; }
+
+.footer-block {
+  margin-top: 24pt;
+  padding-top: 10pt;
+  border-top: 1px solid #d1d5db;
+  font-size: 9pt;
+  color: #4b5563;
+}
+.footer-block .signature { height: 40pt; margin-bottom: 4pt; }
+.footer-block .signature img { max-height: 40pt; }
+.footer-block .contact-row { display: flex; gap: 18pt; flex-wrap: wrap; margin-top: 4pt; }
+.footer-block .compliance { margin-top: 6pt; font-size: 8.5pt; color: #6b7280; }
+.footer-block .powered-by { margin-top: 8pt; font-size: 8pt; color: #9ca3af; text-align: center; }
+
+table { width: 100%; border-collapse: collapse; margin: 8pt 0; }
+table th { background: #f3f4f6; text-align: left; padding: 5pt 8pt; font-size: 9.5pt; color: #374151; border-bottom: 1px solid #d1d5db; }
+table td { padding: 5pt 8pt; border-bottom: 1px solid #f1f5f9; font-size: 9.5pt; }
+table tr:last-child td { border-bottom: none; }
+
+.section { page-break-inside: avoid; margin-bottom: 14pt; }
+.callout { background: #fffbeb; border-left: 3px solid #d97706; padding: 6pt 10pt; margin: 6pt 0; font-size: 10pt; }
+.muted { color: #6b7280; }
+.right { text-align: right; }
+.center { text-align: center; }
+.tag { display: inline-block; background: #fef3c7; color: #92400e; padding: 2pt 8pt; border-radius: 10pt; font-size: 8.5pt; margin-right: 4pt; }
+.watermark {
+  position: fixed;
+  top: 40%; left: 50%;
+  transform: translate(-50%, -50%) rotate(-25deg);
+  font-size: 80pt;
+  color: rgba(124, 45, 18, 0.05);
+  font-weight: 700;
+  z-index: -1;
+}

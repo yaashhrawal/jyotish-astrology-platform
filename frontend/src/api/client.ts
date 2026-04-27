@@ -265,6 +265,77 @@ export const famousChartsApi = {
   meta: () => api.get('/api/calc/famous_charts/meta').then(r => r.data),
 }
 
+// ── Business: Astrologer Profile ───────────────────────────────────────────────
+
+export interface AstrologerProfile {
+  display_name?: string
+  title?: string
+  qualifications?: string[]
+  registration_no?: string
+  photo_url?: string
+  signature_url?: string
+  logo_url?: string
+  tagline?: string
+  bio?: string
+  languages?: string[]
+  phone?: string
+  whatsapp?: string
+  email?: string
+  website?: string
+  address_line1?: string
+  address_line2?: string
+  city?: string
+  state?: string
+  pincode?: string
+  gst_number?: string
+  pan_number?: string
+  primary_color?: string
+  secondary_color?: string
+  font_family?: string
+  youtube_url?: string
+  instagram_url?: string
+  facebook_url?: string
+  show_powered_by?: boolean
+  pdf_footer_quote?: string
+}
+
+export const profileApi = {
+  get: () => api.get('/api/business/profile').then(r => r.data),
+  save: (p: AstrologerProfile) => api.put('/api/business/profile', p).then(r => r.data),
+  upload: (kind: 'logo' | 'photo' | 'signature', file: File) => {
+    const fd = new FormData(); fd.append('file', file)
+    return api.post(`/api/business/profile/upload/${kind}`, fd, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }).then(r => r.data)
+  },
+}
+
+// ── Business: Reports & PDFs ───────────────────────────────────────────────────
+
+export const reportsApi = {
+  sections: () => api.get('/api/business/report-sections').then(r => r.data),
+  templates: () => api.get('/api/business/report-templates').then(r => r.data),
+  saveTemplate: (name: string, sections: string[], is_default = false) =>
+    api.post('/api/business/report-templates', { name, sections, is_default }).then(r => r.data),
+  deleteTemplate: (id: string) => api.delete(`/api/business/report-templates/${id}`).then(r => r.data),
+  generate: (payload: any) => api.post('/api/business/reports/generate', payload, {
+    responseType: 'blob',
+  }).then(r => ({ blob: r.data, reportId: r.headers['x-report-id'] })),
+  invoicePdf: (id: string) => api.get(`/api/business/invoices/${id}/pdf`, { responseType: 'blob' }).then(r => r.data),
+}
+
+// ── Business: Client Portal Invites ────────────────────────────────────────────
+
+export const portalApi = {
+  invite: (clientId: string, expiresDays = 90) =>
+    api.post(`/api/business/clients/${clientId}/invite`, { client_id: clientId, expires_days: expiresDays })
+       .then(r => r.data),
+  listInvites: (clientId: string) =>
+    api.get(`/api/business/clients/${clientId}/invites`).then(r => r.data),
+  revoke: (inviteId: string) => api.delete(`/api/business/invites/${inviteId}`).then(r => r.data),
+  view: (token: string) => api.get(`/api/portal/${token}`).then(r => r.data),
+}
+
 export const aiApi = {
   interpret: (question: string, chart_id?: string, chart_data?: any) =>
     api.post('/api/ai/interpret', { question, chart_id, chart_data }).then(r => r.data),

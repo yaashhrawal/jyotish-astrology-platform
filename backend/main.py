@@ -16,6 +16,7 @@ import time
 from core.db import get_pool, close_pool
 from routers import chart, dasha, transit, ashtakavarga, yogas, compatibility, live, varga
 from routers import auth, charts_db, crm, research, shadbala, ai, prashna, panchanga, doshas, synastry
+from routers import astrologer_profile, reports as business_reports
 from routers import varshaphal, muhurta, kp, arudha, yogini_dasha, aspects, chara_dasha, sarvatobhadra
 from routers import bhava_chalit, jaimini_karakas, combustion, sudarshana, ashtottari, narayana_dasha
 from routers import special_lagnas, dignity
@@ -158,6 +159,18 @@ app.include_router(charts_db.router,      prefix="/api")
 app.include_router(crm.router,            prefix="/api")
 app.include_router(research.router,       prefix="/api")
 app.include_router(ai.router,             prefix="/api")
+
+# Business modules (Phase 1)
+app.include_router(astrologer_profile.router, prefix="/api")
+app.include_router(business_reports.router,   prefix="/api")
+
+# Static uploads (logos, photos, signatures)
+import os as _os
+from pathlib import Path as _Path
+from fastapi.staticfiles import StaticFiles
+_uploads_dir = _Path(_os.getenv("UPLOAD_DIR", "/tmp/jyotish-uploads"))
+_uploads_dir.mkdir(parents=True, exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=str(_uploads_dir)), name="uploads")
 
 
 @app.get("/")

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>{% if is_receipt %}Receipt{% else %}Invoice{% endif %} — {{ invoice.id[:8] }}</title>
+<style>
+:root {
+  --primary: {{ profile.primary_color or '#7C2D12' }};
+}
+{% include '_base.css' %}
+.invoice-meta { display: flex; justify-content: space-between; margin: 12pt 0; font-size: 10pt; }
+.invoice-meta .meta-block { min-width: 220pt; }
+.invoice-meta strong { color: #111; }
+.totals { margin-top: 14pt; width: 100%; }
+.totals td { padding: 4pt 8pt; }
+.totals .grand { font-size: 13pt; font-weight: 700; border-top: 2px solid var(--primary); padding-top: 8pt; }
+.stamp { position: absolute; top: 200pt; right: 30pt; font-size: 28pt; font-weight: 700; color: rgba(34,197,94,0.18); border: 4px solid rgba(34,197,94,0.18); padding: 6pt 14pt; transform: rotate(-12deg); border-radius: 6pt; }
+</style>
+</head>
+<body data-generated="{{ generated_at }}">
+
+{# Letterhead #}
+<div class="letterhead">
+  <div class="brand">
+    {% if profile.logo_url %}<img class="logo" src="{{ profile.logo_url }}" alt="">{% endif %}
+    <div>
+      <div class="name">{{ profile.display_name or 'Vedic Astrology Practice' }}</div>
+      {% if profile.title %}<div class="title-line">{{ profile.title }}</div>{% endif %}
+      {% if profile.address_line1 %}<div class="title-line muted">{{ profile.address_line1 }}{% if profile.city %}, {{ profile.city }}{% endif %}</div>{% endif %}
+    </div>
+  </div>
+  <div class="right">
+    <h1 style="margin:0;">{% if is_receipt %}RECEIPT{% else %}INVOICE{% endif %}</h1>
+    <div class="muted">#{{ invoice.id[:8].upper() }}</div>
+  </div>
+</div>
+
+{% if is_receipt %}<div class="stamp">PAID</div>{% endif %}
+
+<div class="invoice-meta">
+  <div class="meta-block">
+    <div class="muted">Bill To</div>
+    <strong>{{ invoice.client_name or 'Client' }}</strong><br>
+    {% if invoice.client_phone %}{{ invoice.client_phone }}<br>{% endif %}
+    {% if invoice.client_email %}{{ invoice.client_email }}{% endif %}
+  </div>
+  <div class="meta-block right">
+    <div class="muted">Issued On</div>
+    <strong>{{ invoice.issued_on }}</strong>
+    {% if invoice.due_on %}<br><span class="muted">Due:</span> {{ invoice.due_on }}{% endif %}
+    {% if invoice.paid_on %}<br><span class="muted">Paid:</span> {{ invoice.paid_on }}{% endif %}
+  </div>
+</div>
+
+<table>
+  <thead><tr><th>Description</th><th class="right">Amount</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>Astrological consultation services{% if invoice.notes %}<br><span class="muted">{{ invoice.notes }}</span>{% endif %}</td>
+      <td class="right">{{ invoice.currency }} {{ '%.2f'|format(invoice.amount) }}</td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="totals">
+  <tr>
+    <td class="right" style="width: 70%;">Subtotal:</td>
+    <td class="right">{{ invoice.currency }} {{ '%.2f'|format(invoice.amount) }}</td>
+  </tr>
+  <tr class="grand">
+    <td class="right">Total{% if is_receipt %} (Paid){% endif %}:</td>
+    <td class="right">{{ invoice.currency }} {{ '%.2f'|format(invoice.amount) }}</td>
+  </tr>
+</table>
+
+{# Footer #}
+<div class="footer-block">
+  {% if profile.signature_url %}<div class="signature"><img src="{{ profile.signature_url }}" alt=""></div>{% endif %}
+  <strong>{{ profile.display_name or '' }}</strong>
+  {% if profile.title %} · {{ profile.title }}{% endif %}
+
+  <div class="contact-row">
+    {% if profile.phone %}<span>📞 {{ profile.phone }}</span>{% endif %}
+    {% if profile.whatsapp %}<span>WA {{ profile.whatsapp }}</span>{% endif %}
+    {% if profile.email %}<span>✉ {{ profile.email }}</span>{% endif %}
+  </div>
+
+  {% if profile.gst_number or profile.pan_number %}
+  <div class="compliance">
+    {% if profile.gst_number %}GSTIN: {{ profile.gst_number }} (HSN 998311 — Astrology services){% endif %}
+    {% if profile.pan_number %} · PAN: {{ profile.pan_number }}{% endif %}
+  </div>
+  {% endif %}
+
+  {% if profile.show_powered_by %}<div class="powered-by">Powered by JyotishApp</div>{% endif %}
+</div>
+
+</body>
+</html>

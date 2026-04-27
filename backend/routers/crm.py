@@ -16,9 +16,16 @@ router = APIRouter(tags=["crm"])
 class ClientRequest(BaseModel):
     name: str
     phone: str = ""
+    whatsapp_phone: str = ""
     email: str = ""
     notes: str = ""
     tags: list[str] = []
+    birth_date: Optional[str] = None
+    birth_time: Optional[str] = None
+    birth_place: Optional[str] = None
+    birth_lat: Optional[float] = None
+    birth_lon: Optional[float] = None
+    birth_tz: Optional[float] = None
 
 
 @router.post("/clients")
@@ -27,8 +34,14 @@ async def create_client(req: ClientRequest, current_user=Depends(get_current_use
     pool = await get_pool()
     async with pool.acquire() as conn:
         await conn.execute(
-            "INSERT INTO clients (id,user_id,name,phone,email,notes,tags) VALUES ($1,$2,$3,$4,$5,$6,$7)",
-            cid, current_user["sub"], req.name, req.phone, req.email, req.notes, req.tags
+            """INSERT INTO clients
+               (id,user_id,name,phone,whatsapp_phone,email,notes,tags,
+                birth_date,birth_time,birth_place,birth_lat,birth_lon,birth_tz)
+               VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)""",
+            cid, current_user["sub"], req.name, req.phone, req.whatsapp_phone,
+            req.email, req.notes, req.tags,
+            req.birth_date, req.birth_time, req.birth_place,
+            req.birth_lat, req.birth_lon, req.birth_tz
         )
     return {"client_id": cid, "name": req.name}
 
@@ -61,8 +74,15 @@ async def update_client(client_id: str, req: ClientRequest, current_user=Depends
     pool = await get_pool()
     async with pool.acquire() as conn:
         await conn.execute(
-            "UPDATE clients SET name=$3,phone=$4,email=$5,notes=$6,tags=$7 WHERE id=$1 AND user_id=$2",
-            client_id, current_user["sub"], req.name, req.phone, req.email, req.notes, req.tags
+            """UPDATE clients SET
+                 name=$3, phone=$4, whatsapp_phone=$5, email=$6, notes=$7, tags=$8,
+                 birth_date=$9, birth_time=$10, birth_place=$11,
+                 birth_lat=$12, birth_lon=$13, birth_tz=$14
+               WHERE id=$1 AND user_id=$2""",
+            client_id, current_user["sub"], req.name, req.phone, req.whatsapp_phone,
+            req.email, req.notes, req.tags,
+            req.birth_date, req.birth_time, req.birth_place,
+            req.birth_lat, req.birth_lon, req.birth_tz
         )
     return {"ok": True}
 
