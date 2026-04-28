@@ -52,13 +52,17 @@ export default function GemRecommendModal({ gem, clientId, clientName, clientWha
     } finally { setSubmitting(false) }
   }
 
-  const sendWA = () => {
+  const buildMsg = (template: 'formal' | 'warm' | 'concise') => {
+    const url = `${window.location.origin}${success?.purchase_url_path || ''}`
+    const formal = `Namaste,\n\nBased on your chart analysis, I am recommending a ${gem.name} (${carat} carat, certified by ${gem.cert_authority}) as a remedial gemstone for your ${gem.planet}.\n\n*Order #${success?.order_number}*\nPurchase link: ${url}\n\nThe stone ships with full lab certificate and 15-day return guarantee.\n\nRegards`
+    const warm = `🙏 Namaste,\n\nAs we discussed, your chart strongly suggests wearing ${gem.name} for ${gem.planet}. I have prepared the recommendation for you.\n\n💎 ${gem.name}\n⚖ ${carat} carat\n✓ ${gem.cert_authority} certified\n\nOrder: ${success?.order_number}\n${url}\n\nLet me know if you have questions.`
+    const concise = `${gem.name} ${carat}ct (${gem.cert_authority})\nOrder ${success?.order_number}\n${url}`
+    return template === 'formal' ? formal : template === 'concise' ? concise : warm
+  }
+
+  const sendWA = (template: 'formal' | 'warm' | 'concise' = 'warm') => {
     const phone = (adhocPhone || clientWhatsApp || '').replace(/[^0-9]/g, '')
-    const url = `${window.location.origin}${success.purchase_url_path || ''}`
-    const msg = encodeURIComponent(
-      `Namaste,\n\nBased on your chart analysis, I recommend wearing a ${gem.name} (${carat} carat) as a remedial gemstone.\n\nOrder #${success.order_number}\nLab-certified by ${gem.cert_authority}\nPurchase: ${url}\n\nFor any questions, please reach out.`
-    )
-    window.open(`https://wa.me/${phone}?text=${msg}`, '_blank')
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(buildMsg(template))}`, '_blank')
   }
 
   const overlay: React.CSSProperties = {
@@ -158,9 +162,17 @@ export default function GemRecommendModal({ gem, clientId, clientName, clientWha
                 Copy Link
               </button>
               {(adhocPhone || clientWhatsApp) && (
-                <button onClick={sendWA} style={{ padding: '8px 14px', borderRadius: 6, background: '#25D366', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
-                  Send via WhatsApp
-                </button>
+                <>
+                  <button onClick={() => sendWA('warm')} style={{ padding: '8px 14px', borderRadius: 6, background: '#25D366', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
+                    WA Warm 🙏
+                  </button>
+                  <button onClick={() => sendWA('formal')} style={{ padding: '8px 14px', borderRadius: 6, background: '#128C7E', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
+                    WA Formal
+                  </button>
+                  <button onClick={() => sendWA('concise')} style={{ padding: '8px 14px', borderRadius: 6, background: '#075E54', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
+                    WA Concise
+                  </button>
+                </>
               )}
               <button onClick={onClose} style={{ marginLeft: 'auto', padding: '8px 16px', borderRadius: 6, background: 'var(--accent)', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
                 Done

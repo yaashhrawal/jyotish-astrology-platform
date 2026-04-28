@@ -147,6 +147,41 @@ export default function EarningsPanel() {
               <button onClick={() => setDrillOrder(null)} style={{ background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', color: 'var(--text3)' }}>×</button>
             </div>
 
+            {/* Timeline */}
+            <div style={{ marginBottom: 16, padding: 14, background: 'var(--surface2)', borderRadius: 8 }}>
+              <div style={{ fontSize: 10, color: 'var(--text3)', fontWeight: 700, marginBottom: 10 }}>ORDER TIMELINE</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
+                {(['recommended', 'paid', 'shipped', 'delivered'] as const).map((step, i, arr) => {
+                  const stepStates = ['recommended', 'paid', 'shipped', 'delivered']
+                  const currentIdx = stepStates.indexOf(drillOrder.status)
+                  const reached = currentIdx >= i
+                  const stepTimes: Record<string, string | null> = {
+                    recommended: drillOrder.created_at,
+                    paid: drillOrder.paid_at,
+                    shipped: drillOrder.shipped_at,
+                    delivered: drillOrder.delivered_at,
+                  }
+                  return (
+                    <div key={step} style={{ display: 'flex', alignItems: 'center', flex: i < arr.length - 1 ? 1 : 0 }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: 60 }}>
+                        <div style={{
+                          width: 24, height: 24, borderRadius: '50%',
+                          background: reached ? '#16A34A' : 'var(--surface3, #d1d5db)',
+                          color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: 11, fontWeight: 700,
+                        }}>{reached ? '✓' : i + 1}</div>
+                        <div style={{ fontSize: 9, marginTop: 4, color: reached ? 'var(--text2)' : 'var(--text4)', fontWeight: reached ? 600 : 400, textTransform: 'capitalize' }}>{step}</div>
+                        {stepTimes[step] && (
+                          <div style={{ fontSize: 8, color: 'var(--text4)' }}>{new Date(stepTimes[step]!).toLocaleDateString()}</div>
+                        )}
+                      </div>
+                      {i < arr.length - 1 && <div style={{ flex: 1, height: 2, background: currentIdx > i ? '#16A34A' : 'var(--surface3, #d1d5db)', margin: '0 4px' }} />}
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+
             <div style={{ display: 'grid', gridTemplateColumns: '140px 1fr', gap: 6, fontSize: 12 }}>
               <div style={{ color: 'var(--text3)' }}>Gem:</div><div><strong>{drillOrder.gem_name}</strong> ({drillOrder.gem_tier}) · {drillOrder.carat} ct</div>
               <div style={{ color: 'var(--text3)' }}>Cert:</div><div>{drillOrder.gem_cert_authority}</div>

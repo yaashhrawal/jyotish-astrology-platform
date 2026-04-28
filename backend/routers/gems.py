@@ -290,6 +290,121 @@ async def earnings_summary(current_user=Depends(get_current_user)):
     return {"summary": summary, "recent": [dict(r) for r in recent]}
 
 
+# ── AI gem suggester — analyze chart, rank gems by need ─────
+class SuggestRequest(BaseModel):
+    year: int
+    month: int
+    day: int
+    hour: int
+    minute: int
+    tz_offset: float = 5.5
+    latitude: float
+    longitude: float
+    ayanamsa: str = "lahiri"
+    client_id: Optional[str] = None
+
+
+PLANET_BENEFICS = {"Jupiter", "Venus", "Mercury"}
+PLANET_NEUTRALS = {"Sun", "Moon"}
+PLANET_MALEFICS = {"Mars", "Saturn", "Rahu", "Ketu"}
+
+
+@router.post("/gems/suggest")
+async def suggest_gems(req: SuggestRequest, current_user=Depends(get_current_user)):
+    """Rule-based gem ranking from chart. Returns top 3 picks across tiers."""
+    from core.engine import (
+        birth_to_jd, calculate_planets, calculate_houses,
+        assign_planets_to_houses, get_vimshottari_dasha,
+    )
+    jd = birth_to_jd(req.year, req.month, req.day, req.hour, req.minute, req.tz_offset)
+    planets = calculate_planets(jd, req.ayanamsa)
+    houses = calculate_houses(jd, req.latitude, req.longitude, req.ayanamsa)
+    asc_idx = houses["ascendant"]["sign_index"]
+    assign_planets_to_houses(planets, asc_idx)
+
+    # Active dasha lord
+    dashas = get_vimshottari_dasha(planets["Moon"]["longitude"], jd)
+    from datetime import datetime as _dt
+    today_jd = (_dt.utcnow() - _dt(2000, 1, 1)).total_seconds() / 86400 + 2451544.5
+    active_md = next((d for d in dashas if d["start_jd"] <= today_jd <= d["end_jd"]), None)
+    md_lord = active_md["lord"] if active_md else None
+
+    # Score each planet (0..100) by need
+    scores = {}
+    reasons = {}
+    for name, p in planets.items():
+        if name in ("Rahu", "Ketu"):
+            score = 30 if name == md_lord else 10
+            r = f"{name} active in mahadasha" if name == md_lord else f"Mild {name} influence"
+        else:
+            score = 0
+            rlist = []
+            if p["status"] == "debilitated":
+                score += 50; rlist.append("debilitated")
+            elif p["status"] == "exalted":
+                score += 5
+            elif p["status"] == "own_sign":
+                score += 10
+            else:
+                score += 20
+            if p.get("retrograde"):
+                score += 15; rlist.append("retrograde")
+            # House placement — dusthana (6/8/12) needs strengthening
+            h = p.get("house", 1)
+            if h in (6, 8, 12):
+                score += 15; rlist.append(f"in dusthana (H{h})")
+            # Active dasha lord = priority
+            if name == md_lord:
+                score += 25; rlist.append("active mahadasha lord")
+            r = ", ".join(rlist) if rlist else "stable"
+        scores[name] = min(score, 100)
+        reasons[name] = r
+
+    # Top 3 needy planets (excluding very strong)
+    ranked = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+    top_planets = [n for n, s in ranked if s >= 30][:3]
+    if not top_planets:
+        top_planets = [ranked[0][0]]
+
+    pool = await get_pool()
+    suggestions = []
+    async with pool.acquire() as conn:
+        u = await conn.fetchrow("SELECT plan FROM users WHERE id=$1", current_user["sub"])
+        summary = await conn.fetchrow(
+            "SELECT lifetime_paise FROM astrologer_commission_summary WHERE astrologer_id=$1",
+            current_user["sub"]
+        )
+        plan = (u or {})["plan"] if u else "free"
+        lifetime = int((summary or {}).get("lifetime_paise") or 0) if summary else 0
+
+        for pname in top_planets:
+            # Pick standard tier as default suggestion
+            row = await conn.fetchrow(
+                """SELECT * FROM gem_catalog
+                   WHERE planet=$1 AND tier='standard' AND is_active=TRUE
+                   LIMIT 1""", pname
+            )
+            if not row:
+                continue
+            eff_pct = _effective_commission_pct(float(row["base_commission_pct"]), plan, lifetime)
+            commission_paise = int(row["retail_price_paise"] * eff_pct / 100)
+            suggestions.append({
+                "planet": pname,
+                "score": scores[pname],
+                "reason": reasons[pname],
+                "is_active_dasha": pname == md_lord,
+                "gem": dict(row),
+                "your_commission_pct": eff_pct,
+                "your_commission_paise": commission_paise,
+            })
+
+    return {
+        "active_mahadasha": md_lord,
+        "ascendant": houses["ascendant"]["sign"],
+        "suggestions": suggestions,
+    }
+
+
 # ── Public order lookup (for client purchase page, future) ──
 @router.get("/gem-order/{order_number}")
 async def public_order_lookup(order_number: str):

@@ -14,19 +14,31 @@ interface Props {
   clientName: string
   clientWhatsApp?: string
   weakPlanets?: string[]      // optional pre-suggestion
+  birthData?: any             // if provided, fetches AI suggestions
   onClose: () => void
 }
 
-export default function GemPickerForClient({ clientId, clientName, clientWhatsApp, weakPlanets, onClose }: Props) {
+export default function GemPickerForClient({ clientId, clientName, clientWhatsApp, weakPlanets, birthData, onClose }: Props) {
   const [gems, setGems] = useState<Gem[]>([])
   const [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState<Gem | null>(null)
   const [planet, setPlanet] = useState<string>(weakPlanets?.[0] || '')
+  const [suggestions, setSuggestions] = useState<any[] | null>(null)
+  const [activeMD, setActiveMD] = useState<string | null>(null)
 
   useEffect(() => {
     setLoading(true)
     gemsApi.catalog(planet ? { planet } : {}).then(setGems).finally(() => setLoading(false))
   }, [planet])
+
+  useEffect(() => {
+    if (birthData) {
+      gemsApi.suggest(birthData).then(d => {
+        setSuggestions(d.suggestions || [])
+        setActiveMD(d.active_mahadasha)
+      }).catch(() => {})
+    }
+  }, [birthData])
 
   if (selected) {
     return <GemRecommendModal
@@ -58,9 +70,36 @@ export default function GemPickerForClient({ clientId, clientName, clientWhatsAp
           <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', color: 'var(--text3)' }}>×</button>
         </div>
 
-        {weakPlanets && weakPlanets.length > 0 && (
+        {suggestions && suggestions.length > 0 && (
+          <div style={{ marginBottom: 14, padding: 14, background: '#fef3c7', borderRadius: 10, border: '1px solid #fbbf24' }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#92400e', marginBottom: 6 }}>
+              ✨ SMART SUGGESTIONS {activeMD && <span style={{ fontWeight: 400 }}>· active mahadasha: <strong>{activeMD}</strong></span>}
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 8 }}>
+              {suggestions.map((s: any) => (
+                <button key={s.planet} onClick={() => setSelected(s.gem)} style={{
+                  background: '#fff', border: '1px solid ' + (PLANET_COLORS[s.planet] || '#999') + '88',
+                  borderRadius: 8, padding: 10, textAlign: 'left', cursor: 'pointer',
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: PLANET_COLORS[s.planet] }}>{s.planet}</span>
+                    {s.is_active_dasha && <span style={{ fontSize: 8, padding: '1px 5px', background: '#fbbf24', color: '#fff', borderRadius: 8, fontWeight: 700 }}>NOW</span>}
+                  </div>
+                  <div style={{ fontSize: 12, fontWeight: 700, marginTop: 4 }}>{s.gem.name}</div>
+                  <div style={{ fontSize: 9, color: '#666', marginTop: 2 }}>{s.reason}</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: '#000' }}>{fmtINR(s.gem.retail_price_paise)}</span>
+                    <span style={{ fontSize: 10, color: '#16A34A', fontWeight: 600 }}>+{fmtINR(s.your_commission_paise)}</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {!suggestions && weakPlanets && weakPlanets.length > 0 && (
           <div style={{ padding: 10, background: '#fef3c7', borderRadius: 8, marginBottom: 12, fontSize: 12 }}>
-            <strong>Suggested based on chart:</strong> {weakPlanets.join(', ')}
+            <strong>Suggested:</strong> {weakPlanets.join(', ')}
           </div>
         )}
 

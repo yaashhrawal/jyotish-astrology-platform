@@ -366,6 +366,7 @@ export const gemsApi = {
   updateStatus: (id: string, status: string, extras?: { tracking_number?: string; courier?: string }) =>
     api.patch(`/api/gems/orders/${id}/status`, { status, ...extras }).then(r => r.data),
   earnings: () => api.get('/api/gems/earnings').then(r => r.data),
+  suggest: (birthData: any) => api.post('/api/gems/suggest', birthData).then(r => r.data),
 }
 
 export const portalApi = {

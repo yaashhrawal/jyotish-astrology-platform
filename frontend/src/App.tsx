@@ -343,11 +343,18 @@ export default function App() {
 
       {showAuth && <AuthModal onClose={() => setShowAuth(false)} />}
 
-      {showGemPicker && chart && (
+      {showGemPicker && chart && birthDataRaw && (
         <GemPickerForClient
           clientId={''}
           clientName={chart.name}
           weakPlanets={weakPlanets}
+          birthData={{
+            year: birthDataRaw.year, month: birthDataRaw.month, day: birthDataRaw.day,
+            hour: birthDataRaw.hour, minute: birthDataRaw.minute,
+            tz_offset: birthDataRaw.tz_offset,
+            latitude: birthDataRaw.latitude, longitude: birthDataRaw.longitude,
+            ayanamsa: chart.ayanamsa || 'lahiri',
+          }}
           onClose={() => setShowGemPicker(false)}
         />
       )}
