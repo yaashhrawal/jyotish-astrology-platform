@@ -2,39 +2,76 @@
  * Unified API client for Jyotish SaaS backend.
  * Calc endpoints: /api/calc/* (no auth)
  * App endpoints:  /api/* (JWT auth)
+ *
+ * Mobile (Capacitor): VITE_API_URL must be set to production backend URL.
+ * Web dev: empty string → Vite proxy handles /api/* → localhost:8888
+ * Web prod: VITE_API_URL=https://api.jyotish.app
+ *
+ * ACCURACY CONTRACT: ALL calculations run on Python/pyswisseph backend.
+ * Never compute planet positions or dashas client-side.
  */
 import axios from 'axios'
+import { Capacitor } from '@capacitor/core'
+import { isOnline } from '../lib/network'
 
-// Dev: empty string → Vite proxy handles /api/* → localhost:8888
-// Prod: VITE_API_URL=https://api.yourdomain.com
-const BASE_URL = import.meta.env.VITE_API_URL || ''
+// On native Capacitor, relative URLs don't work — must use absolute API URL.
+// VITE_API_URL is required in .env.android and .env.ios builds.
+function resolveBaseUrl(): string {
+  if (Capacitor.isNativePlatform()) {
+    const url = import.meta.env.VITE_API_URL
+    if (!url) console.error('[Jyotish] VITE_API_URL not set — API calls will fail on device')
+    return url || ''
+  }
+  // Web: empty string → Vite proxy in dev, VITE_API_URL in prod
+  return import.meta.env.VITE_API_URL || ''
+}
 
-export const api = axios.create({ baseURL: BASE_URL })
+export const BASE_URL = resolveBaseUrl()
 
-// Inject JWT token from localStorage
+export const api = axios.create({
+  baseURL: BASE_URL,
+  timeout: 30000, // 30s — slower on mobile networks
+})
+
+// Inject JWT token
 api.interceptors.request.use(config => {
   const token = localStorage.getItem('jyotish_token')
   if (token) config.headers.Authorization = `Bearer ${token}`
   return config
 })
 
+// Offline guard — return clear error instead of hanging
+api.interceptors.request.use(config => {
+  if (!isOnline() && !config.url?.includes('/api/calc/')) {
+    return Promise.reject(new Error('OFFLINE'))
+  }
+  return config
+})
+
 // ── Auth ─────────────────────────────────────────────────────────────────────
+
+export type UserRole = 'astrologer' | 'user'
 
 export interface User {
   id: string
   email: string
   name: string
   plan: string
+  role: UserRole
+  phone?: string
   ayanamsa_pref: string
   chart_style: string
+  board_layout?: number[] | null
 }
 
 export const authApi = {
-  register: (email: string, password: string, name: string) =>
-    api.post('/api/auth/register', { email, password, name }).then(r => r.data),
+  register: (email: string, password: string, name: string, phone = '', role: UserRole = 'astrologer') =>
+    api.post('/api/auth/register', { email, password, name, phone, role }).then(r => r.data),
   login: (email: string, password: string) =>
     api.post('/api/auth/login', { email, password }).then(r => r.data),
   me: () => api.get('/api/auth/me').then(r => r.data),
+  saveBoardLayout: (layout: number[]) =>
+    api.patch('/api/auth/board-layout', { layout }).then(r => r.data),
 }
 
 // ── Saved Charts ──────────────────────────────────────────────────────────────

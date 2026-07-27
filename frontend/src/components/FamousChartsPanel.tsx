@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { famousChartsApi } from '../api/client'
+import { useLang } from '../contexts/LanguageContext'
 
 const CATEGORY_COLORS: Record<string, string> = {
   'Saint/Philosopher': '#7C3AED',
@@ -38,6 +39,7 @@ interface Props {
 }
 
 export default function FamousChartsPanel({ onLoadChart }: Props) {
+  const { t } = useLang()
   const [charts, setCharts] = useState<FamousChart[]>([])
   const [categories, setCategories] = useState<string[]>([])
   const [allTags, setAllTags] = useState<string[]>([])
@@ -88,9 +90,9 @@ export default function FamousChartsPanel({ onLoadChart }: Props) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       {/* Header */}
       <div style={{ padding: '14px 18px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-m)' }}>
-        <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '4px' }}>Famous Charts Atlas</div>
+        <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '4px' }}>{t('Famous Charts Atlas')}</div>
         <div style={{ fontSize: '12px', color: 'var(--text3)' }}>
-          Study birth charts of saints, leaders, scientists, artists & more — {charts.length || 26} notable figures
+          {t('Study birth charts of saints, leaders, scientists, artists & more')} — {charts.length || 26} {t('notable figures')}
         </div>
       </div>
 
@@ -99,33 +101,33 @@ export default function FamousChartsPanel({ onLoadChart }: Props) {
         <input
           value={q} onChange={e => setQ(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && search()}
-          placeholder="Search by name, place, tag…"
+          placeholder={t('Search by name, place, tag…')}
           style={{ flex: 1, minWidth: '180px', padding: '9px 12px', borderRadius: 'var(--radius-m)', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)', fontSize: '13px' }}
         />
         <select value={selectedCat} onChange={e => setSelectedCat(e.target.value)} style={{
           padding: '9px 10px', borderRadius: 'var(--radius-m)', border: '1px solid var(--border)',
           background: 'var(--surface)', color: 'var(--text)', fontSize: '12px',
         }}>
-          <option value="All">All Categories</option>
+          <option value="All">{t('All Categories')}</option>
           {categories.map(c => <option key={c} value={c}>{c}</option>)}
         </select>
         <select value={selectedTag} onChange={e => setSelectedTag(e.target.value)} style={{
           padding: '9px 10px', borderRadius: 'var(--radius-m)', border: '1px solid var(--border)',
           background: 'var(--surface)', color: 'var(--text)', fontSize: '12px',
         }}>
-          <option value="">All Tags</option>
-          {allTags.map(t => <option key={t} value={t}>{t}</option>)}
+          <option value="">{t('All Tags')}</option>
+          {allTags.map(tag => <option key={tag} value={tag}>{tag}</option>)}
         </select>
         <button onClick={search} style={{ padding: '9px 18px', borderRadius: 'var(--radius-m)', border: 'none', background: 'var(--accent)', color: '#fff', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
-          🔍 Search
+          🔍 {t('Search')}
         </button>
         <button onClick={reset} style={{ padding: '9px 14px', borderRadius: 'var(--radius-m)', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text3)', fontSize: '12px', cursor: 'pointer' }}>
-          Reset
+          {t('Reset')}
         </button>
       </div>
 
       {/* Results */}
-      {loading && <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text3)', fontSize: '13px' }}>Loading…</div>}
+      {loading && <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text3)', fontSize: '13px' }}>{t('Loading…')}</div>}
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '10px' }}>
         {charts.map(c => {
@@ -154,9 +156,9 @@ export default function FamousChartsPanel({ onLoadChart }: Props) {
                   {/* Coords */}
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '6px' }}>
                     {[
-                      ['Lat', c.latitude.toFixed(4)],
-                      ['Lon', c.longitude.toFixed(4)],
-                      ['TZ', (c.tz_offset >= 0 ? '+' : '') + c.tz_offset],
+                      [t('Lat'), c.latitude.toFixed(4)],
+                      [t('Lon'), c.longitude.toFixed(4)],
+                      [t('TZ'), (c.tz_offset >= 0 ? '+' : '') + c.tz_offset],
                     ].map(([label, val]) => (
                       <div key={label} style={{ background: 'var(--surface2)', borderRadius: '6px', padding: '6px 8px', textAlign: 'center' }}>
                         <div style={{ fontSize: '9px', color: 'var(--text4)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</div>
@@ -183,7 +185,7 @@ export default function FamousChartsPanel({ onLoadChart }: Props) {
                       onClick={() => onLoadChart(c)}
                       style={{ padding: '8px 16px', borderRadius: 'var(--radius-m)', border: 'none', background: color, color: '#fff', fontSize: '12px', fontWeight: '700', cursor: 'pointer', width: '100%' }}
                     >
-                      📊 Load This Chart
+                      📊 {t('Load This Chart')}
                     </button>
                   )}
                 </div>
@@ -194,7 +196,7 @@ export default function FamousChartsPanel({ onLoadChart }: Props) {
       </div>
 
       {!loading && charts.length === 0 && (
-        <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text3)', fontSize: '13px' }}>No charts found.</div>
+        <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text3)', fontSize: '13px' }}>{t('No charts found.')}</div>
       )}
     </div>
   )

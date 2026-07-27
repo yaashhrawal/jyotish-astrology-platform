@@ -1,26 +1,25 @@
 import { useState, useEffect } from 'react'
 import { getChart } from './api/jyotish'
 import type { BirthData, ChartResponse } from './api/jyotish'
-import { chartsApi } from './api/client'
+import { chartsApi, authApi } from './api/client'
 import { useAuth } from './store/auth'
 import BirthForm from './components/BirthForm'
-import NorthIndianChart from './components/NorthIndianChart'
 import DashaTimeline from './components/DashaTimeline'
 import LiveSky from './components/LiveSky'
 import YogaCards from './components/YogaCards'
 import VargaCharts from './components/VargaCharts'
+import DivisionalBoard from './components/DivisionalBoard'
 import ShadbalaTable from './components/ShadbalaTable'
 import CRMPanel from './components/CRMPanel'
 import ResearchLab from './components/ResearchLab'
 import AIChat from './components/AIChat'
-import AuthModal from './components/AuthModal'
+import AuthPage from './components/AuthPage'
 import SavedCharts from './components/SavedCharts'
 import PrashnaPanel from './components/PrashnaPanel'
 import TransitPanel from './components/TransitPanel'
 import AshtakavargaPanel from './components/AshtakavargaPanel'
 import CompatibilityPanel from './components/CompatibilityPanel'
 import PanchangaCard from './components/PanchangaCard'
-import SouthIndianChart from './components/SouthIndianChart'
 import DoshaPanel from './components/DoshaPanel'
 import ChartComparisonPanel from './components/ChartComparisonPanel'
 import VarshaphalPanel from './components/VarshaphalPanel'
@@ -59,7 +58,6 @@ import PanchaPakshiPanel from './components/PanchaPakshiPanel'
 import LagneshPanel from './components/LagneshPanel'
 import TransitNatalPanel from './components/TransitNatalPanel'
 import RemediesPanel from './components/RemediesPanel'
-import EastIndianChart from './components/EastIndianChart'
 import MiscDashaPanel from './components/MiscDashaPanel'
 import HoraVariantsPanel from './components/HoraVariantsPanel'
 import VimshopakaBhavaPanel from './components/VimshopakaBhavaPanel'
@@ -88,8 +86,11 @@ import GemPurchasePage from './components/business/GemPurchasePage'
 
 type Tab ='chart' | 'vargas' | 'dasha' | 'yogas' | 'shadbala' | 'planets' | 'sky' | 'saved' | 'crm' | 'research' | 'ai' | 'prashna' | 'transit' | 'ashtakavarga' | 'compatibility' | 'doshas' | 'synastry' | 'varshaphal' | 'muhurta' | 'kp' | 'arudha' | 'yogini' | 'aspects' | 'chara' | 'sbc' | 'bhava' | 'jaimini' | 'combustion' | 'sudarshan' | 'ashtottari' | 'narayana' | 'special' | 'dignity' | 'kalachakra' | 'shoola' | 'kota' | 'gochara' | 'madhya' | 'upagraha' | 'transit_hits' | 'tithi' | 'sahams' | 'ayurdaya' | 'jaimini_asp' | 'saptarishi' | 'pancha_pakshi' | 'lagnesh' | 'transit_natal' | 'remedies' | 'misc_dasha' | 'hora_variants' | 'vimshopaka' | 'rectification' | 'varga_dasha' | 'classical' | 'famous_charts' | 'numerology' | 'predictions' | 'ephemeris' | 'dasha_transit' | 'avasthas' | 'karakamsha' | 'argala' | 'conditional_dasha' | 'upapada' | 'varnada' | 'dasha_3col' | 'profile' | 'gems' | 'earnings'
 
-// Grouped tab menu — each group renders as a dropdown in the sub-tab bar
-type TabGroup = { label: string; tabs: { id: Tab; label: string }[] }
+// Grouped tab menu — each group renders as a dropdown in the sub-tab bar.
+// icon is kept separate from label so `label` stays a plain-English i18n key
+// that resolves through t() → Hindi/Sanskrit. Emoji never enters the dictionary.
+type TabItem = { id: Tab; label: string; icon?: string }
+type TabGroup = { label: string; tabs: TabItem[] }
 
 const TAB_GROUPS: TabGroup[] = [
   { label: 'Chart', tabs: [
@@ -102,7 +103,7 @@ const TAB_GROUPS: TabGroup[] = [
   ]},
   { label: 'Dasha', tabs: [
     { id: 'dasha',        label: 'Vimshottari' },
-    { id: 'dasha_3col',   label: '⊞ 3-Level View' },
+    { id: 'dasha_3col',   label: '3-Level View', icon: '⊞' },
     { id: 'yogini',       label: 'Yogini' },
     { id: 'chara',        label: 'Chara (Jaimini)' },
     { id: 'narayana',     label: 'Narayana' },
@@ -110,10 +111,10 @@ const TAB_GROUPS: TabGroup[] = [
     { id: 'kalachakra',   label: 'Kalachakra' },
     { id: 'shoola',       label: 'Shoola / Niryana' },
     { id: 'misc_dasha',        label: 'Sthira · Moola · Tara' },
-    { id: 'conditional_dasha', label: '🔀 Conditional Dashas' },
+    { id: 'conditional_dasha', label: 'Conditional Dashas', icon: '🔀' },
     { id: 'varga_dasha',  label: 'Varga Dasha (D9/D10…)' },
     { id: 'sudarshan',    label: 'Sudarshana' },
-    { id: 'varshaphal',   label: '☀ Varshaphal' },
+    { id: 'varshaphal',   label: 'Varshaphal', icon: '☀' },
     { id: 'tithi',        label: 'Tithi Pravesha' },
   ]},
   { label: 'Analysis', tabs: [
@@ -122,15 +123,15 @@ const TAB_GROUPS: TabGroup[] = [
     { id: 'aspects',      label: 'Aspects' },
     { id: 'arudha',       label: 'Arudha Lagnas' },
     { id: 'jaimini',      label: 'Jaimini Karakas' },
-    { id: 'karakamsha',   label: '🔱 Karakamsha' },
-    { id: 'argala',       label: '⚡ Argala' },
-    { id: 'upapada',      label: '💍 Upapada (UL)' },
-    { id: 'varnada',      label: '⌛ Varnada Lagna' },
+    { id: 'karakamsha',   label: 'Karakamsha', icon: '🔱' },
+    { id: 'argala',       label: 'Argala', icon: '⚡' },
+    { id: 'upapada',      label: 'Upapada (UL)', icon: '💍' },
+    { id: 'varnada',      label: 'Varnada Lagna', icon: '⌛' },
     { id: 'special',      label: 'Special Lagnas' },
     { id: 'dignity',      label: 'Dignity Table' },
-    { id: 'doshas',       label: '⚠ Doshas' },
-    { id: 'remedies',     label: '💊 Remedies' },
-    { id: 'avasthas',     label: '🌙 Avasthas' },
+    { id: 'doshas',       label: 'Doshas', icon: '⚠' },
+    { id: 'remedies',     label: 'Remedies', icon: '💊' },
+    { id: 'avasthas',     label: 'Avasthas', icon: '🌙' },
     { id: 'combustion',   label: 'Combust / War' },
     { id: 'upagraha',     label: 'Upagrahas' },
     { id: 'ayurdaya',     label: 'Longevity' },
@@ -145,7 +146,7 @@ const TAB_GROUPS: TabGroup[] = [
     { id: 'gochara',      label: 'Gochara' },
     { id: 'transit_hits', label: 'Hit List' },
     { id: 'transit_natal',  label: 'Transit → Natal' },
-    { id: 'dasha_transit',  label: '🔗 Dasha ↔ Transit' },
+    { id: 'dasha_transit',  label: 'Dasha ↔ Transit', icon: '🔗' },
     { id: 'ashtakavarga', label: 'Ashtakavarga' },
     { id: 'kota',         label: 'Kota Chakra' },
     { id: 'sbc',          label: 'SBC Chakra' },
@@ -156,31 +157,54 @@ const TAB_GROUPS: TabGroup[] = [
   { label: 'Tools', tabs: [
     { id: 'vimshopaka',    label: 'Vimshopaka + Bhava Bala' },
     { id: 'hora_variants', label: 'Hora Methods' },
-    { id: 'rectification',  label: '🔍 Birth Rectification' },
-    { id: 'classical',      label: '📜 Classical Texts' },
-    { id: 'famous_charts',  label: '🌟 Famous Charts Atlas' },
-    { id: 'numerology',     label: '🔢 Numerology' },
-    { id: 'predictions',    label: '🎯 Prediction Tracker' },
-    { id: 'ephemeris',      label: '📥 Ephemeris Export' },
+    { id: 'rectification',  label: 'Birth Rectification', icon: '🔍' },
+    { id: 'classical',      label: 'Classical Texts', icon: '📜' },
+    { id: 'famous_charts',  label: 'Famous Charts Atlas', icon: '🌟' },
+    { id: 'numerology',     label: 'Numerology', icon: '🔢' },
+    { id: 'predictions',    label: 'Prediction Tracker', icon: '🎯' },
+    { id: 'ephemeris',      label: 'Ephemeris Export', icon: '📥' },
   ]},
 ]
 
 // Flat list for backwards-compat lookups
-const CHART_TABS: { id: Tab; label: string }[] = TAB_GROUPS.flatMap(g => g.tabs)
+const CHART_TABS: TabItem[] = TAB_GROUPS.flatMap(g => g.tabs)
 
-const APP_TABS: { id: Tab; label: string }[] = [
-  { id: 'prashna',       label: '☽ Prashna' },
-  { id: 'muhurta',       label: '✦ Muhurta' },
-  { id: 'compatibility', label: '♥ Match' },
-  { id: 'synastry',      label: '⊗ Compare' },
+const APP_TABS: TabItem[] = [
+  { id: 'prashna',       label: 'Prashna',  icon: '☽' },
+  { id: 'muhurta',       label: 'Muhurta',  icon: '✦' },
+  { id: 'compatibility', label: 'Match',    icon: '♥' },
+  { id: 'synastry',      label: 'Compare',  icon: '⊗' },
   { id: 'saved',         label: 'Saved' },
   { id: 'crm',           label: 'Clients' },
-  { id: 'gems',          label: '💎 Gems' },
-  { id: 'earnings',      label: '💰 Earnings' },
+  { id: 'gems',          label: 'Gems',     icon: '💎' },
+  { id: 'earnings',      label: 'Earnings', icon: '💰' },
   { id: 'research',      label: 'Research' },
   { id: 'ai',            label: 'AI' },
-  { id: 'profile',       label: '⚙ Brand' },
+  { id: 'profile',       label: 'Brand',    icon: '⚙' },
 ]
+
+// Header sections — the top-level nav. Astrology tools for everyone;
+// Business grouped and shown only to the 'astrologer' role.
+type AppSection = { label: string; icon?: string; astrologerOnly?: boolean; tabs: TabItem[] }
+const APP_SECTIONS: AppSection[] = [
+  { label: 'Tools', icon: '✦', tabs: [
+    { id: 'prashna',       label: 'Prashna',  icon: '☽' },
+    { id: 'muhurta',       label: 'Muhurta',  icon: '✦' },
+    { id: 'compatibility', label: 'Match',    icon: '♥' },
+    { id: 'synastry',      label: 'Compare',  icon: '⊗' },
+    { id: 'research',      label: 'Research' },
+    { id: 'ai',            label: 'AI' },
+  ]},
+  { label: 'Business', icon: '💼', astrologerOnly: true, tabs: [
+    { id: 'crm',      label: 'Clients' },
+    { id: 'gems',     label: 'Gems',     icon: '💎' },
+    { id: 'earnings', label: 'Earnings', icon: '💰' },
+    { id: 'profile',  label: 'Brand',    icon: '⚙' },
+  ]},
+]
+
+// Tabs that need a logged-in account (guests get a sign-in prompt).
+const LOGIN_REQUIRED: Tab[] = ['research','ai','crm','gems','earnings','profile','saved','predictions']
 
 const PLANET_COLORS: Record<string, string> = {
   Sun: '#D97706', Moon: '#0891B2', Mars: '#DC2626', Mercury: '#16A34A',
@@ -204,15 +228,25 @@ export default function App() {
   const [error, setError] = useState('')
   const [activeTab, setActiveTab] = useState<Tab>('chart')
   const [showForm, setShowForm] = useState(true)
-  const [showAuth, setShowAuth] = useState(false)
   const [saveMsg, setSaveMsg] = useState('')
   const [chartKey, setChartKey] = useState(0)
   const [chartStyle, setChartStyle] = useState<'north' | 'south' | 'east'>('north')
   const [openGroup, setOpenGroup] = useState<string | null>(null)
   const [selectedPlanet, setSelectedPlanet] = useState<string | null>(null)
+  const [openSection, setOpenSection] = useState<string | null>(null)
+  const [avatarOpen, setAvatarOpen] = useState(false)
+  const [showAuthPage, setShowAuthPage] = useState(false)
+  const [showSavePrompt, setShowSavePrompt] = useState(false)
 
   const { user, logout, loadUser } = useAuth()
   useEffect(() => { loadUser() }, [])
+
+  const isAstrologer = user?.role === 'astrologer'
+  // Navigate to an app tab, prompting sign-in for guest-restricted tabs.
+  const goTab = (id: Tab) => {
+    if (!user && LOGIN_REQUIRED.includes(id)) { setShowAuthPage(true); return }
+    setActiveTab(id); setShowForm(false); setOpenSection(null)
+  }
 
   const handleCalculate = async (data: BirthData) => {
     setLoading(true); setError(''); setBirthDataRaw(data)
@@ -220,6 +254,7 @@ export default function App() {
       const result = await getChart(data)
       setChart(result); setChartKey(k => k + 1)
       setShowForm(false); setActiveTab('chart')
+      if (!user) setShowSavePrompt(true)   // nudge guests to save & unlock
     } catch {
       setError('Calculation failed — is the backend running on port 8888?')
     } finally { setLoading(false) }
@@ -227,7 +262,7 @@ export default function App() {
 
   const handleSaveChart = async () => {
     if (!chart || !birthDataRaw) return
-    if (!user) { setShowAuth(true); return }
+    if (!user) { setShowAuthPage(true); return }
     try {
       const [yr, mo, dy] = chart.birth.split(' ')[0].split('-')
       const [hr, mn] = chart.birth.split(' ')[1].split(':')
@@ -275,6 +310,12 @@ export default function App() {
     return <GemPurchasePage orderNumber={gemMatch[1]} />
   }
 
+  // App-first: guests land straight on Kundli. The auth page is shown only
+  // on demand (header "Log in" button or the save-prompt after calculating).
+  if (showAuthPage && !user) {
+    return <AuthPage onClose={() => setShowAuthPage(false)} />
+  }
+
   return (
     <div style={{ height: '100svh', background: 'var(--bg)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
 
@@ -301,47 +342,135 @@ export default function App() {
 
         <div style={{ width: '1px', height: '16px', background: 'var(--border)', margin: '0 8px' }} />
 
-        {APP_TABS.map(t => (
-          <button key={t.id} onClick={() => { setActiveTab(t.id); setShowForm(false) }} style={{
-            padding: '4px 10px', borderRadius: '6px', border: 'none',
-            background: activeTab === t.id ? 'var(--hover)' : 'transparent',
-            color: activeTab === t.id ? 'var(--text)' : 'var(--text3)',
-            cursor: 'pointer', fontSize: '13px', fontWeight: activeTab === t.id ? '500' : '400',
-            transition: 'all .15s',
-          }}>{t.label}</button>
-        ))}
+        {/* Kundli (chart) */}
+        {(() => {
+          const kundliActive = !APP_TABS.some(t => t.id === activeTab)
+          return (
+            <button onClick={() => { setActiveTab('chart'); setShowForm(true); setOpenSection(null) }} style={{
+              padding: '4px 12px', borderRadius: '6px', border: 'none',
+              background: kundliActive ? 'var(--hover)' : 'transparent',
+              color: kundliActive ? 'var(--text)' : 'var(--text3)',
+              cursor: 'pointer', fontSize: '13px', fontWeight: kundliActive ? '600' : '400', transition: 'all .15s',
+            }}>{t('Kundli')}</button>
+          )
+        })()}
+
+        {/* Section dropdowns (Tools, Business) */}
+        {APP_SECTIONS.filter(s => !s.astrologerOnly || isAstrologer).map(section => {
+          const active = section.tabs.some(tb => tb.id === activeTab)
+          const open = openSection === section.label
+          return (
+            <div key={section.label} style={{ position: 'relative' }}
+                 onMouseEnter={() => setOpenSection(section.label)}
+                 onMouseLeave={() => setOpenSection(null)}>
+              <button style={{
+                padding: '4px 12px', borderRadius: '6px', border: 'none',
+                background: active || open ? 'var(--hover)' : 'transparent',
+                color: active ? 'var(--text)' : 'var(--text3)',
+                cursor: 'pointer', fontSize: '13px', fontWeight: active ? '600' : '400', transition: 'all .15s',
+              }}>{section.icon ? section.icon + ' ' : ''}{t(section.label)} <span style={{ fontSize: '9px', opacity: 0.6 }}>▾</span></button>
+              {open && (
+                <div style={menuBox}>
+                  {section.tabs.map(tb => (
+                    <div key={tb.id} onClick={() => goTab(tb.id)} style={{
+                      ...menuItem,
+                      background: activeTab === tb.id ? 'var(--accent-bg)' : 'transparent',
+                      color: activeTab === tb.id ? 'var(--accent)' : 'var(--text)',
+                    }}
+                      onMouseEnter={e => { if (activeTab !== tb.id) e.currentTarget.style.background = 'var(--hover)' }}
+                      onMouseLeave={e => { if (activeTab !== tb.id) e.currentTarget.style.background = 'transparent' }}
+                    >{tb.icon ? tb.icon + ' ' : ''}{t(tb.label)}</div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )
+        })}
+
+        {/* Saved */}
+        <button onClick={() => goTab('saved')} style={{
+          padding: '4px 12px', borderRadius: '6px', border: 'none',
+          background: activeTab === 'saved' ? 'var(--hover)' : 'transparent',
+          color: activeTab === 'saved' ? 'var(--text)' : 'var(--text3)',
+          cursor: 'pointer', fontSize: '13px', fontWeight: activeTab === 'saved' ? '600' : '400', transition: 'all .15s',
+        }}>{t('Saved')}</button>
 
         <div style={{ flex: 1 }} />
 
+        {/* Language — permanently visible */}
         <LanguageToggle />
-        <div style={{ width: '1px', height: '16px', background: 'var(--border)', margin: '0 6px' }} />
+        <div style={{ width: '1px', height: '16px', background: 'var(--border)', margin: '0 10px' }} />
 
-        {user ? (
-          <>
-            <span style={{ color: 'var(--text3)', fontSize: '12.5px', marginRight: '4px' }}>{user.name}</span>
-            <button onClick={logout} style={ghostBtnSm}>{t('Sign out')}</button>
-          </>
-        ) : (
-          <button onClick={() => setShowAuth(true)} style={ghostBtnSm}>{t('Sign in')}</button>
-        )}
-
-        <div style={{ width: '1px', height: '16px', background: 'var(--border)', margin: '0 6px' }} />
-
+        {/* New Chart */}
         <button
           onClick={() => { setShowForm(!showForm); if (!showForm) setActiveTab('chart') }}
           style={{
             padding: '5px 12px', borderRadius: '6px', border: 'none',
             background: 'var(--accent)', color: '#fff',
-            fontSize: '12.5px', fontWeight: '600', cursor: 'pointer', transition: 'opacity .15s',
+            fontSize: '12.5px', fontWeight: '600', cursor: 'pointer', transition: 'opacity .15s', marginRight: '10px',
           }}
           onMouseEnter={e => (e.currentTarget.style.opacity = '0.88')}
           onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
         >
-          {showForm && chart ? 'Hide form' : chart ? '+ New Chart' : showForm ? 'Hide' : '+ New Chart'}
+          {showForm && chart ? t('Hide form') : chart ? t('+ New Chart') : showForm ? t('Hide') : t('+ New Chart')}
         </button>
+
+        {user ? (
+          /* Avatar menu (logged in) */
+          <div style={{ position: 'relative' }}>
+            <button onClick={() => setAvatarOpen(o => !o)} style={{
+              width: '30px', height: '30px', borderRadius: '50%', border: '1px solid var(--border)',
+              background: 'linear-gradient(135deg,#5746AF,#8B5CF6)',
+              color: '#fff', cursor: 'pointer', fontSize: '13px', fontWeight: 700,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>{(user.name?.[0] || 'U').toUpperCase()}</button>
+            {avatarOpen && (
+              <>
+                <div onClick={() => setAvatarOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 190 }} />
+                <div style={{ ...menuBox, right: 0, left: 'auto', minWidth: '220px', zIndex: 200 }}>
+                  <div style={{ padding: '10px 12px', borderBottom: '1px solid var(--border)', marginBottom: '4px' }}>
+                    <div style={{ fontWeight: 700, fontSize: '13px' }}>{user.name}</div>
+                    <div style={{ fontSize: '11.5px', color: 'var(--text3)' }}>{user.email}</div>
+                    <div style={{ fontSize: '10.5px', color: 'var(--accent)', marginTop: '2px', textTransform: 'capitalize' }}>{t(user.role === 'user' ? 'Seeker' : 'Astrologer')} · {user.plan}</div>
+                  </div>
+                  <div onClick={() => { logout(); setAvatarOpen(false) }} style={menuItem}
+                    onMouseEnter={e => e.currentTarget.style.background = 'var(--hover)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>{t('Sign out')}</div>
+                </div>
+              </>
+            )}
+          </div>
+        ) : (
+          /* Log in (guest) */
+          <button onClick={() => setShowAuthPage(true)} style={{
+            padding: '5px 14px', borderRadius: '6px', border: '1px solid var(--accent)',
+            background: 'transparent', color: 'var(--accent)',
+            fontSize: '12.5px', fontWeight: '600', cursor: 'pointer', transition: 'all .15s',
+          }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'var(--accent)'; e.currentTarget.style.color = '#fff' }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--accent)' }}
+          >{t('Log in')}</button>
+        )}
       </header>
 
-      {showAuth && <AuthModal onClose={() => setShowAuth(false)} />}
+      {/* Save-prompt after a guest calculates a chart */}
+      {showSavePrompt && !user && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}
+             onClick={e => e.target === e.currentTarget && setShowSavePrompt(false)}>
+          <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '16px', padding: '30px', width: '380px', maxWidth: '90vw', textAlign: 'center', boxShadow: '0 20px 50px -20px rgba(0,0,0,0.4)' }}>
+            <div style={{ fontSize: '32px', marginBottom: '8px' }}>🔒</div>
+            <div style={{ fontSize: '18px', fontWeight: 800, color: 'var(--text)', marginBottom: '8px' }}>{t('Save this chart?')}</div>
+            <div style={{ fontSize: '13.5px', color: 'var(--text3)', lineHeight: 1.6, marginBottom: '22px' }}>
+              {t('Log in or create a free account to save charts, manage clients and unlock all features.')}
+            </div>
+            <button onClick={() => { setShowSavePrompt(false); setShowAuthPage(true) }} style={{
+              width: '100%', padding: '12px', background: 'var(--accent)', border: 'none', borderRadius: '9px',
+              color: '#fff', fontWeight: 700, fontSize: '14.5px', cursor: 'pointer', marginBottom: '10px',
+            }}>{t('Log in / Create account')}</button>
+            <div onClick={() => setShowSavePrompt(false)} style={{ fontSize: '13px', color: 'var(--text3)', cursor: 'pointer' }}>{t('Maybe later')}</div>
+          </div>
+        </div>
+      )}
 
       {showGemPicker && chart && birthDataRaw && (
         <GemPickerForClient
@@ -525,7 +654,7 @@ export default function App() {
                                   fontWeight: activeTab === tab.id ? '600' : '400',
                                   transition: 'background .1s',
                                   fontFamily: "'Noto Sans Devanagari', 'Mangal', sans-serif",
-                                }}>{t(tab.label)}</button>
+                                }}>{tab.icon ? tab.icon + ' ' : ''}{t(tab.label)}</button>
                               ))}
                             </div>
                           )}
@@ -534,13 +663,13 @@ export default function App() {
                     })}
                     {/* Active tab label pill */}
                     {(() => {
-                      const activeLabel = CHART_TABS.find(t => t.id === activeTab)?.label
-                      return activeLabel ? (
+                      const activeItem = CHART_TABS.find(ci => ci.id === activeTab)
+                      return activeItem ? (
                         <span style={{
                           marginLeft: 'auto', fontSize: '11.5px', color: 'var(--text3)',
                           background: 'var(--bg)', padding: '3px 10px', borderRadius: '20px',
                           border: '1px solid var(--border)',
-                        }}>{t(activeLabel)}</span>
+                        }}>{activeItem.icon ? activeItem.icon + ' ' : ''}{t(activeItem.label)}</span>
                       ) : null
                     })()}
                   </div>
@@ -566,23 +695,17 @@ export default function App() {
                           </div>
                         </div>
 
+                        {getBirthDataForCalc() && (
+                          <DivisionalBoard
+                            birthData={getBirthDataForCalc()!}
+                            chartStyle={chartStyle}
+                            d1={{ ascendant: chart.ascendant, planets: chart.planets, planet_house_map: chart.planet_house_map }}
+                            initialLayout={user?.board_layout ?? null}
+                            onSave={layout => { if (user) authApi.saveBoardLayout(layout).catch(() => {}) }}
+                          />
+                        )}
+
                         <div style={{ display: 'flex', gap: '32px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
-                          {chartStyle === 'north' ? (
-                            <NorthIndianChart
-                              ascendant={chart.ascendant} planets={chart.planets}
-                              planetHouseMap={chart.planet_house_map} size={460} title="D1 RASHI"
-                            />
-                          ) : chartStyle === 'east' ? (
-                            <EastIndianChart
-                              ascendant={chart.ascendant} planets={chart.planets}
-                              planetHouseMap={chart.planet_house_map} size={460} title="D1 RASHI"
-                            />
-                          ) : (
-                            <SouthIndianChart
-                              ascendant={chart.ascendant} planets={chart.planets}
-                              planetHouseMap={chart.planet_house_map} size={460} title="D1 RASHI"
-                            />
-                          )}
 
                           {/* Right column: planets + panchanga */}
                           <div style={{ flex: 1, minWidth: '220px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -874,6 +997,7 @@ function AstrologyOrrery() {
 }
 
 function HeroEmpty() {
+  const { t } = useLang()
   return (
     <div style={{
       flex: 1, display: 'flex', position: 'relative', overflow: 'hidden',
@@ -908,7 +1032,7 @@ function HeroEmpty() {
             }}>तिष</span>
           </div>
           <div style={{ fontSize: '11px', fontWeight: '600', color: 'var(--text3)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-            By Jyotishis · For Jyotishis
+            {t('By Jyotishis · For Jyotishis')}
           </div>
         </div>
 
@@ -931,8 +1055,7 @@ function HeroEmpty() {
         </div>
 
         <p style={{ fontSize: '15px', color: 'var(--text2)', lineHeight: 1.75, marginBottom: '36px', maxWidth: '480px' }}>
-          Sub-arcsecond planetary positions · 16 divisional charts · AI interpretation
-          rooted in classical texts. Built for serious practitioners.
+          {t('Sub-arcsecond planetary positions · 16 divisional charts · AI interpretation rooted in classical texts. Built for serious practitioners.')}
         </p>
 
         {/* Feature chips — 2 rows, grouped */}
@@ -954,7 +1077,7 @@ function HeroEmpty() {
               boxShadow: 'var(--shadow-xs)',
               display: 'flex', alignItems: 'center', gap: '6px',
             }}>
-              <span style={{ fontSize: '13px' }}>{f.icon}</span>{f.label}
+              <span style={{ fontSize: '13px' }}>{f.icon}</span>{t(f.label)}
             </span>
           ))}
         </div>
@@ -987,4 +1110,14 @@ const ghostBtnSm: React.CSSProperties = {
   border: '1px solid var(--border)', background: 'transparent',
   color: 'var(--text2)', cursor: 'pointer', fontSize: '12.5px',
   fontWeight: '500', transition: 'all .15s',
+}
+
+const menuBox: React.CSSProperties = {
+  position: 'absolute', top: '100%', left: 0, marginTop: '4px',
+  background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '10px',
+  boxShadow: '0 12px 32px -12px rgba(0,0,0,0.35)', padding: '4px', minWidth: '190px', zIndex: 200,
+}
+const menuItem: React.CSSProperties = {
+  padding: '8px 12px', borderRadius: '6px', fontSize: '13px', cursor: 'pointer',
+  color: 'var(--text)', transition: 'background .12s',
 }

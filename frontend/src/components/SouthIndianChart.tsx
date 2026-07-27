@@ -16,6 +16,8 @@ interface Props {
   size?: number
   title?: string
   onHouseSelect?: (house: number | null) => void
+  onPlanetSelect?: (planet: string) => void
+  compact?: boolean
 }
 
 const SIGNS = [
@@ -53,7 +55,7 @@ const PLANET_COLORS: Record<string, string> = {
   Jupiter: '#B45309', Venus: '#7C3AED', Saturn: '#2563EB', Rahu: '#57534E', Ketu: '#9CA3AF',
 }
 
-export default function SouthIndianChart({ ascendant, planets, size = 400, title, onHouseSelect }: Props) {
+export default function SouthIndianChart({ ascendant, planets, size = 400, title, onHouseSelect, onPlanetSelect, compact }: Props) {
   const { lang } = useLang()
   const cell = Math.floor(size / 4)
   const ascSignIdx = ascendant.sign_index
@@ -88,11 +90,12 @@ export default function SouthIndianChart({ ascendant, planets, size = 400, title
   const isCenter = (r: number, c: number) => r >= 1 && r <= 2 && c >= 1 && c <= 2
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: compact ? '100%' : undefined }}>
       {title && (
         <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text3)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{title}</div>
       )}
-      <svg width={size} height={size} style={{ fontFamily: 'inherit' }}>
+      <svg width={compact ? '100%' : size} height={compact ? undefined : size} viewBox={`0 0 ${size} ${size}`}
+        style={{ fontFamily: 'inherit', width: compact ? '100%' : size, height: compact ? 'auto' : size, aspectRatio: compact ? '1' : undefined }}>
         {/* Outer border */}
         <rect x={0} y={0} width={size} height={size} fill="var(--surface)" stroke="var(--border2)" strokeWidth={1.5} rx={4} />
 
@@ -124,9 +127,9 @@ export default function SouthIndianChart({ ascendant, planets, size = 400, title
                   {getSignLabel(SIGNS[signIdx])}
                 </text>
 
-                {/* House number */}
+                {/* Rashi (sign) number */}
                 <text x={x + cell - 5} y={y + 13} fontSize={8} fill="var(--text4)" textAnchor="end">
-                  {house}
+                  {signIdx + 1}
                 </text>
 
                 {/* Ascendant mark */}
@@ -143,7 +146,7 @@ export default function SouthIndianChart({ ascendant, planets, size = 400, title
                   const px = x + 6 + col2 * (cell / 2 - 4)
                   const py = y + (isAsc ? 34 : 22) + row2 * 18
                   return (
-                    <g key={name}>
+                    <g key={name} onClick={e => { e.stopPropagation(); onPlanetSelect?.(name) }} style={{ cursor: onPlanetSelect ? 'pointer' : 'inherit' }}>
                       <text x={px} y={py} fontSize={11} fill={PLANET_COLORS[name] || 'var(--text)'} fontWeight="700" fontFamily="'Noto Sans Devanagari',sans-serif">
                         {getPlanetLabel(name)}
                       </text>

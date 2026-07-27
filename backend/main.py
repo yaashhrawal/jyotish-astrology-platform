@@ -80,8 +80,16 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.add_middleware(CalcRateLimitMiddleware)
 
 # CORS — lock to your domain in prod via ALLOWED_ORIGINS env var
-# Dev default allows localhost. Prod: set ALLOWED_ORIGINS=https://yourdomain.com
-_raw_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173,http://localhost:3000")
+# Capacitor iOS runs as capacitor://localhost and https://localhost
+# Capacitor Android runs as http://localhost (Capacitor scheme)
+_default_origins = (
+  "http://localhost:5173,"
+  "http://localhost:3000,"
+  "http://localhost,"          # Capacitor Android
+  "https://localhost,"         # Capacitor Android (androidScheme=https)
+  "capacitor://localhost"      # Capacitor iOS
+)
+_raw_origins = os.getenv("ALLOWED_ORIGINS", _default_origins)
 ALLOWED_ORIGINS = [o.strip() for o in _raw_origins.split(",") if o.strip()]
 
 app.add_middleware(

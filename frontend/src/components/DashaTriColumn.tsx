@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { dashaApi } from '../api/client'
+import { useLang } from '../contexts/LanguageContext'
 
 interface Pratyantardasha { lord: string; start: string; end: string; years: number }
 interface Antardasha { lord: string; start: string; end: string; years: number; pratyantardashas?: Pratyantardasha[] }
@@ -36,6 +37,7 @@ const colHeader = (color: string): React.CSSProperties => ({
 })
 
 export default function DashaTriColumn({ birthData }: { birthData: any }) {
+  const { t } = useLang()
   const [dashas, setDashas] = useState<Dasha[]>([])
   const [loading, setLoading] = useState(false)
   const [selectedMaha, setSelectedMaha] = useState<number | null>(null)
@@ -57,8 +59,8 @@ export default function DashaTriColumn({ birthData }: { birthData: any }) {
     }).catch(() => {}).finally(() => setLoading(false))
   }, [birthData])
 
-  if (!birthData) return <div style={{ padding: 20, color: 'var(--text3)', fontSize: 13 }}>Enter birth data to view dasha tri-column.</div>
-  if (loading) return <div style={{ padding: 20, color: 'var(--text3)', fontSize: 13 }}>Loading dashas…</div>
+  if (!birthData) return <div style={{ padding: 20, color: 'var(--text3)', fontSize: 13 }}>{t('Enter birth data to view dasha tri-column.')}</div>
+  if (loading) return <div style={{ padding: 20, color: 'var(--text3)', fontSize: 13 }}>{t('Loading dashas…')}</div>
 
   const activeMaha = selectedMaha !== null ? dashas[selectedMaha] : null
   const antarList = activeMaha?.antardashas || []
@@ -68,12 +70,12 @@ export default function DashaTriColumn({ birthData }: { birthData: any }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
       <div>
-        <div style={{ fontSize: 15, fontWeight: 700, color: '#f59e0b' }}>Dasha — 3-Level View</div>
-        <div style={{ fontSize: 11, color: 'var(--text3)' }}>Mahadasha · Antardasha · Pratyantardasha simultaneously</div>
+        <div style={{ fontSize: 15, fontWeight: 700, color: '#f59e0b' }}>{t('Dasha — 3-Level View')}</div>
+        <div style={{ fontSize: 11, color: 'var(--text3)' }}>{t('Mahadasha · Antardasha · Pratyantardasha simultaneously')}</div>
       </div>
 
       <div style={{ display: 'flex', gap: 16, fontSize: 11, color: 'var(--text3)' }}>
-        {[['#f59e0b', 'Active now'], ['var(--text4)', 'Past'], ['var(--text3)', 'Future']].map(([c, l]) => (
+        {[['#f59e0b', t('Active now')], ['var(--text4)', t('Past')], ['var(--text3)', t('Future')]].map(([c, l]) => (
           <span key={l as string} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
             <span style={{ width: 8, height: 8, borderRadius: '50%', background: c as string, display: 'inline-block' }} />
             {l}
@@ -84,7 +86,7 @@ export default function DashaTriColumn({ birthData }: { birthData: any }) {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
         {/* Column 1: Mahadashas */}
         <div style={colStyle}>
-          <div style={colHeader('#f59e0b')}>Mahadasha</div>
+          <div style={colHeader('#f59e0b')}>{t('Mahadasha')}</div>
           <div style={{ flex: 1, overflowY: 'auto' }}>
             {dashas.map((d, i) => {
               const active = isNow(d.start, d.end)
@@ -100,7 +102,7 @@ export default function DashaTriColumn({ birthData }: { birthData: any }) {
                 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
                     <PlanetBadge lord={d.lord} sm />
-                    {active && <span style={{ fontSize: 10, color: '#f59e0b', fontWeight: 700 }}>NOW</span>}
+                    {active && <span style={{ fontSize: 10, color: '#f59e0b', fontWeight: 700 }}>{t('NOW')}</span>}
                   </div>
                   <div style={{ fontSize: 10, color: 'var(--text3)' }}>{fmtDate(d.start)} – {fmtDate(d.end)}</div>
                   <div style={{ fontSize: 10, color: 'var(--text4)' }}>{d.years}y</div>
@@ -113,10 +115,10 @@ export default function DashaTriColumn({ birthData }: { birthData: any }) {
         {/* Column 2: Antardashas */}
         <div style={colStyle}>
           <div style={colHeader('#60a5fa')}>
-            Antardasha {activeMaha && <span style={{ fontWeight: 400, color: 'var(--text3)' }}>/ {activeMaha.lord}</span>}
+            {t('Antardasha')} {activeMaha && <span style={{ fontWeight: 400, color: 'var(--text3)' }}>/ {activeMaha.lord}</span>}
           </div>
           {!activeMaha ? (
-            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, color: 'var(--text4)' }}>Select a Mahadasha</div>
+            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, color: 'var(--text4)' }}>{t('Select a Mahadasha')}</div>
           ) : (
             <div style={{ flex: 1, overflowY: 'auto' }}>
               {antarList.map((a, i) => {
@@ -133,7 +135,7 @@ export default function DashaTriColumn({ birthData }: { birthData: any }) {
                   }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
                       <PlanetBadge lord={a.lord} sm />
-                      {active && <span style={{ fontSize: 10, color: '#60a5fa', fontWeight: 700 }}>NOW</span>}
+                      {active && <span style={{ fontSize: 10, color: '#60a5fa', fontWeight: 700 }}>{t('NOW')}</span>}
                     </div>
                     <div style={{ fontSize: 10, color: 'var(--text3)' }}>{fmtDate(a.start)} – {fmtDate(a.end)}</div>
                     <div style={{ fontSize: 10, color: 'var(--text4)' }}>{a.years.toFixed(2)}y</div>
@@ -147,12 +149,12 @@ export default function DashaTriColumn({ birthData }: { birthData: any }) {
         {/* Column 3: Pratyantardashas */}
         <div style={colStyle}>
           <div style={colHeader('#22c55e')}>
-            Pratyantardasha {activeAntar && <span style={{ fontWeight: 400, color: 'var(--text3)' }}>/ {activeAntar.lord}</span>}
+            {t('Pratyantardasha')} {activeAntar && <span style={{ fontWeight: 400, color: 'var(--text3)' }}>/ {activeAntar.lord}</span>}
           </div>
           {!activeAntar ? (
-            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, color: 'var(--text4)' }}>Select an Antardasha</div>
+            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, color: 'var(--text4)' }}>{t('Select an Antardasha')}</div>
           ) : pratyaList.length === 0 ? (
-            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, color: 'var(--text4)' }}>Loading sub-periods…</div>
+            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, color: 'var(--text4)' }}>{t('Loading sub-periods…')}</div>
           ) : (
             <div style={{ flex: 1, overflowY: 'auto' }}>
               {pratyaList.map((p, i) => {
@@ -167,7 +169,7 @@ export default function DashaTriColumn({ birthData }: { birthData: any }) {
                   }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
                       <PlanetBadge lord={p.lord} sm />
-                      {active && <span style={{ fontSize: 10, color: '#22c55e', fontWeight: 700 }}>NOW</span>}
+                      {active && <span style={{ fontSize: 10, color: '#22c55e', fontWeight: 700 }}>{t('NOW')}</span>}
                     </div>
                     <div style={{ fontSize: 10, color: 'var(--text3)' }}>{fmtDate(p.start)} – {fmtDate(p.end)}</div>
                     <div style={{ fontSize: 10, color: 'var(--text4)' }}>{p.years.toFixed(3)}y</div>
@@ -183,14 +185,14 @@ export default function DashaTriColumn({ birthData }: { birthData: any }) {
       {activeMaha && (
         <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10, padding: '12px 16px', display: 'flex', flexWrap: 'wrap', gap: 16, alignItems: 'center' }}>
           <div>
-            <div style={{ fontSize: 10, color: 'var(--text3)', marginBottom: 4 }}>Mahadasha</div>
+            <div style={{ fontSize: 10, color: 'var(--text3)', marginBottom: 4 }}>{t('Mahadasha')}</div>
             <PlanetBadge lord={activeMaha.lord} />
           </div>
           {activeAntar && (
             <>
               <span style={{ color: 'var(--text4)', fontSize: 18 }}>→</span>
               <div>
-                <div style={{ fontSize: 10, color: 'var(--text3)', marginBottom: 4 }}>Antardasha</div>
+                <div style={{ fontSize: 10, color: 'var(--text3)', marginBottom: 4 }}>{t('Antardasha')}</div>
                 <PlanetBadge lord={activeAntar.lord} />
               </div>
             </>
@@ -199,7 +201,7 @@ export default function DashaTriColumn({ birthData }: { birthData: any }) {
             <span key={p.lord}>
               <span style={{ color: 'var(--text4)', fontSize: 18, marginRight: 16 }}>→</span>
               <div style={{ display: 'inline-block' }}>
-                <div style={{ fontSize: 10, color: 'var(--text3)', marginBottom: 4 }}>Pratyantardasha</div>
+                <div style={{ fontSize: 10, color: 'var(--text3)', marginBottom: 4 }}>{t('Pratyantardasha')}</div>
                 <PlanetBadge lord={p.lord} />
               </div>
             </span>

@@ -22,8 +22,10 @@ def planet_positions(jd: float, lat: float, lon: float, ayanamsa: str) -> dict:
     planets = calculate_planets(jd, ayanamsa)
     asc = calculate_houses(jd, lat, lon, ayanamsa)["ascendant"]
     result = {}
-    for p in planets:
-        result[p["name"]] = {"lon": p["longitude"], "sign": p["sign"], "sign_index": p["sign_index"], "degree": p["degree"]}
+    # calculate_planets returns {name: data}; iterate items (was iterating keys
+    # then indexing a string → TypeError, whole endpoint 500'd).
+    for name, d in planets.items():
+        result[name] = {"lon": d["longitude"], "sign": d["sign"], "sign_index": d["sign_index"], "degree": d["degree"]}
     result["Ascendant"] = {"lon": asc["longitude"], "sign": asc["sign"], "sign_index": asc["sign_index"], "degree": asc["degree"]}
     return result
 

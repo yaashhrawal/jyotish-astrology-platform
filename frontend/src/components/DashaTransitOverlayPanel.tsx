@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { dashaApi, transitApi } from '../api/client'
+import { useLang } from '../contexts/LanguageContext'
 
 const PLANET_COLORS: Record<string, string> = {
   Sun: '#D97706', Moon: '#0891B2', Mars: '#DC2626', Mercury: '#16A34A',
@@ -43,6 +44,7 @@ const INFLUENCE_COLORS: Record<string, string> = {
 interface Props { birthData: any }
 
 export default function DashaTransitOverlayPanel({ birthData }: Props) {
+  const { t } = useLang()
   const [dashas, setDashas] = useState<any[]>([])
   const [transit, setTransit] = useState<any>(null)
   const [loading, setLoading] = useState(false)
@@ -71,12 +73,12 @@ export default function DashaTransitOverlayPanel({ birthData }: Props) {
       setDashas(allDashas)
       setTransit(transitData)
       setActiveDasha(getDashaAtDate(allDashas, now))
-    }).catch(e => setErr(e?.message || 'Error'))
+    }).catch(e => setErr(e?.message || t('Error')))
     .finally(() => setLoading(false))
   }, [birthData, date])
 
-  if (!birthData) return <div style={{ padding: 20, color: 'var(--text3)', fontSize: 13 }}>Load a birth chart first.</div>
-  if (loading) return <div style={{ padding: 20, color: 'var(--text3)', fontSize: 13 }}>Computing dasha + transit overlay…</div>
+  if (!birthData) return <div style={{ padding: 20, color: 'var(--text3)', fontSize: 13 }}>{t('Load a birth chart first.')}</div>
+  if (loading) return <div style={{ padding: 20, color: 'var(--text3)', fontSize: 13 }}>{t('Computing dasha + transit overlay…')}</div>
   if (err) return <div style={{ padding: 12, background: '#FEF2F2', borderRadius: 8, color: '#DC2626', fontSize: 13 }}>{err}</div>
 
   const natalPlanets = transit?.natal || {}
@@ -100,8 +102,8 @@ export default function DashaTransitOverlayPanel({ birthData }: Props) {
       {/* Header */}
       <div style={{ padding: '14px 18px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-m)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
         <div>
-          <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '4px' }}>Dasha ↔ Transit Overlay</div>
-          <div style={{ fontSize: '12px', color: 'var(--text3)' }}>Active dasha period + current transits over natal chart — combined view</div>
+          <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '4px' }}>{t('Dasha ↔ Transit Overlay')}</div>
+          <div style={{ fontSize: '12px', color: 'var(--text3)' }}>{t('Active dasha period + current transits over natal chart — combined view')}</div>
         </div>
         <input type="date" value={date} onChange={e => setDate(e.target.value)} style={{
           padding: '8px 12px', borderRadius: 'var(--radius-m)', border: '1px solid var(--border)',
@@ -112,10 +114,10 @@ export default function DashaTransitOverlayPanel({ birthData }: Props) {
       {/* Active Dasha block */}
       {activeDasha && (
         <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-m)', padding: '16px' }}>
-          <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '10px' }}>Active Dasha Period</div>
+          <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '10px' }}>{t('Active Dasha Period')}</div>
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
             <div style={{ padding: '10px 18px', borderRadius: '10px', background: PLANET_COLORS[activeDasha.maha.lord] + '18', border: `2px solid ${PLANET_COLORS[activeDasha.maha.lord]}44` }}>
-              <div style={{ fontSize: '10px', color: 'var(--text3)' }}>Mahadasha</div>
+              <div style={{ fontSize: '10px', color: 'var(--text3)' }}>{t('Mahadasha')}</div>
               <div style={{ fontSize: '20px', fontWeight: '900', color: PLANET_COLORS[activeDasha.maha.lord] }}>{activeDasha.maha.lord}</div>
               <div style={{ fontSize: '10px', color: 'var(--text3)', marginTop: '2px' }}>{activeDasha.maha.start?.slice(0,7)} → {activeDasha.maha.end?.slice(0,7)}</div>
             </div>
@@ -123,7 +125,7 @@ export default function DashaTransitOverlayPanel({ birthData }: Props) {
               <>
                 <div style={{ fontSize: '20px', color: 'var(--text3)' }}>→</div>
                 <div style={{ padding: '10px 18px', borderRadius: '10px', background: PLANET_COLORS[activeDasha.antar.lord] + '18', border: `2px solid ${PLANET_COLORS[activeDasha.antar.lord]}44` }}>
-                  <div style={{ fontSize: '10px', color: 'var(--text3)' }}>Antardasha</div>
+                  <div style={{ fontSize: '10px', color: 'var(--text3)' }}>{t('Antardasha')}</div>
                   <div style={{ fontSize: '20px', fontWeight: '900', color: PLANET_COLORS[activeDasha.antar.lord] }}>{activeDasha.antar.lord}</div>
                   <div style={{ fontSize: '10px', color: 'var(--text3)', marginTop: '2px' }}>{activeDasha.antar.start?.slice(0,7)} → {activeDasha.antar.end?.slice(0,7)}</div>
                 </div>
@@ -133,14 +135,14 @@ export default function DashaTransitOverlayPanel({ birthData }: Props) {
 
           {/* Dasha lord transit positions */}
           <div style={{ marginTop: '12px', padding: '10px 12px', background: 'var(--surface2)', borderRadius: '8px' }}>
-            <div style={{ fontSize: '10px', color: 'var(--text3)', fontWeight: '700', marginBottom: '6px' }}>Dasha Lord Positions Today</div>
+            <div style={{ fontSize: '10px', color: 'var(--text3)', fontWeight: '700', marginBottom: '6px' }}>{t('Dasha Lord Positions Today')}</div>
             <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
               {[activeDasha.maha.lord, activeDasha.antar?.lord].filter(Boolean).map((lord: string) => {
                 const tp = transitPlanets[lord]
                 return tp ? (
                   <div key={lord} style={{ padding: '6px 12px', borderRadius: '8px', background: PLANET_COLORS[lord] + '18', fontSize: '12px' }}>
                     <span style={{ fontWeight: '700', color: PLANET_COLORS[lord] }}>{lord}</span>
-                    <span style={{ color: 'var(--text2)', marginLeft: '6px' }}>in {tp.sign} {tp.degree?.toFixed ? tp.degree.toFixed(1) : ''}°</span>
+                    <span style={{ color: 'var(--text2)', marginLeft: '6px' }}>{t('in')} {tp.sign} {tp.degree?.toFixed ? tp.degree.toFixed(1) : ''}°</span>
                     {tp.retrograde && <span style={{ color: '#F59E0B', marginLeft: '4px', fontSize: '10px' }}>℞</span>}
                   </div>
                 ) : null
@@ -152,17 +154,17 @@ export default function DashaTransitOverlayPanel({ birthData }: Props) {
 
       {/* Planet-by-planet transit table */}
       <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-m)', padding: '14px 16px' }}>
-        <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '10px' }}>Transits vs Natal ({date})</div>
+        <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '10px' }}>{t('Transits vs Natal')} ({date})</div>
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
             <thead>
               <tr style={{ borderBottom: '2px solid var(--border)' }}>
-                <th style={{ padding: '6px 8px', textAlign: 'left', fontSize: '10px', color: 'var(--text3)', fontWeight: '700', textTransform: 'uppercase' }}>Planet</th>
-                <th style={{ padding: '6px 8px', textAlign: 'left', fontSize: '10px', color: 'var(--text3)', fontWeight: '700', textTransform: 'uppercase' }}>Natal Sign</th>
-                <th style={{ padding: '6px 8px', textAlign: 'left', fontSize: '10px', color: 'var(--text3)', fontWeight: '700', textTransform: 'uppercase' }}>Transit Sign</th>
-                <th style={{ padding: '6px 8px', textAlign: 'left', fontSize: '10px', color: 'var(--text3)', fontWeight: '700', textTransform: 'uppercase' }}>House</th>
+                <th style={{ padding: '6px 8px', textAlign: 'left', fontSize: '10px', color: 'var(--text3)', fontWeight: '700', textTransform: 'uppercase' }}>{t('Planet')}</th>
+                <th style={{ padding: '6px 8px', textAlign: 'left', fontSize: '10px', color: 'var(--text3)', fontWeight: '700', textTransform: 'uppercase' }}>{t('Natal Sign')}</th>
+                <th style={{ padding: '6px 8px', textAlign: 'left', fontSize: '10px', color: 'var(--text3)', fontWeight: '700', textTransform: 'uppercase' }}>{t('Transit Sign')}</th>
+                <th style={{ padding: '6px 8px', textAlign: 'left', fontSize: '10px', color: 'var(--text3)', fontWeight: '700', textTransform: 'uppercase' }}>{t('House')}</th>
                 <th style={{ padding: '6px 8px', textAlign: 'left', fontSize: '10px', color: 'var(--text3)', fontWeight: '700', textTransform: 'uppercase' }}>℞</th>
-                <th style={{ padding: '6px 8px', textAlign: 'left', fontSize: '10px', color: 'var(--text3)', fontWeight: '700', textTransform: 'uppercase' }}>Dasha Relevance</th>
+                <th style={{ padding: '6px 8px', textAlign: 'left', fontSize: '10px', color: 'var(--text3)', fontWeight: '700', textTransform: 'uppercase' }}>{t('Dasha Relevance')}</th>
               </tr>
             </thead>
             <tbody>
@@ -175,7 +177,7 @@ export default function DashaTransitOverlayPanel({ birthData }: Props) {
                 return (
                   <tr key={p} style={{ borderBottom: '1px solid var(--border)', background: isDashaLord ? c + '08' : 'transparent' }}>
                     <td style={{ padding: '7px 8px', fontWeight: '700', color: c }}>
-                      {p} {isDashaLord && <span style={{ fontSize: '9px', padding: '1px 5px', borderRadius: '10px', background: c + '20', color: c, marginLeft: '4px' }}>dasha</span>}
+                      {p} {isDashaLord && <span style={{ fontSize: '9px', padding: '1px 5px', borderRadius: '10px', background: c + '20', color: c, marginLeft: '4px' }}>{t('dasha')}</span>}
                     </td>
                     <td style={{ padding: '7px 8px', color: 'var(--text2)' }}>{nd?.sign || '—'}</td>
                     <td style={{ padding: '7px 8px', color: 'var(--text)', fontWeight: '600' }}>{td?.sign || '—'}</td>
@@ -184,7 +186,7 @@ export default function DashaTransitOverlayPanel({ birthData }: Props) {
                     <td style={{ padding: '7px 8px' }}>
                       {isDashaLord && (
                         <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '20px', background: '#7C3AED18', color: '#7C3AED', fontWeight: '700' }}>
-                          {activeDasha?.maha.lord === p ? 'Mahadasha Lord' : 'Antardasha Lord'}
+                          {activeDasha?.maha.lord === p ? t('Mahadasha Lord') : t('Antardasha Lord')}
                         </span>
                       )}
                     </td>
@@ -199,13 +201,13 @@ export default function DashaTransitOverlayPanel({ birthData }: Props) {
       {/* Significant transits */}
       {influences.length > 0 && (
         <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-m)', padding: '14px 16px' }}>
-          <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '10px' }}>Significant Transits (non-neutral aspects)</div>
+          <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '10px' }}>{t('Significant Transits (non-neutral aspects)')}</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
             {influences.map((inf: any) => (
               <div key={inf.transit_planet} style={{ padding: '8px 12px', background: 'var(--surface2)', borderRadius: '8px' }}>
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
                   <span style={{ fontWeight: '700', color: PLANET_COLORS[inf.transit_planet], fontSize: '12px' }}>
-                    Transit {inf.transit_planet} in {inf.transit_sign}
+                    {t('Transit')} {inf.transit_planet} {t('in')} {inf.transit_sign}
                   </span>
                   <span style={{ fontSize: '10px', color: 'var(--text3)' }}>→</span>
                   {inf.checks.map((c: any) => (
@@ -214,7 +216,7 @@ export default function DashaTransitOverlayPanel({ birthData }: Props) {
                       background: INFLUENCE_COLORS[c.rel] + '18', color: INFLUENCE_COLORS[c.rel],
                       border: `1px solid ${INFLUENCE_COLORS[c.rel]}44`, fontWeight: '600',
                     }}>
-                      {c.rel} natal {c.natal_planet}
+                      {c.rel} {t('natal')} {c.natal_planet}
                     </span>
                   ))}
                 </div>
@@ -227,7 +229,7 @@ export default function DashaTransitOverlayPanel({ birthData }: Props) {
       {/* Upcoming dasha changes */}
       {dashas.length > 0 && (
         <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-m)', padding: '14px 16px' }}>
-          <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '8px' }}>Upcoming Mahadasha Changes</div>
+          <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '8px' }}>{t('Upcoming Mahadasha Changes')}</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             {dashas
               .filter(d => new Date(d.end) > new Date(date))
@@ -244,7 +246,7 @@ export default function DashaTransitOverlayPanel({ birthData }: Props) {
                       <span style={{ fontWeight: '700', color: c, fontSize: '12px' }}>{d.lord}</span>
                       <span style={{ fontSize: '11px', color: 'var(--text3)', marginLeft: '8px' }}>{d.start?.slice(0,7)} → {d.end?.slice(0,7)}</span>
                     </div>
-                    {isActive && <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '20px', background: c + '20', color: c, fontWeight: '700' }}>▶ NOW</span>}
+                    {isActive && <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '20px', background: c + '20', color: c, fontWeight: '700' }}>▶ {t('NOW')}</span>}
                   </div>
                 )
               })}

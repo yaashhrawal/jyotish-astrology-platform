@@ -5,6 +5,8 @@
  * Pure SVG.
  */
 
+import { useLang } from '../contexts/LanguageContext'
+
 const PLANET_SYMBOLS: Record<string, string> = {
   Sun: '☉', Moon: '☽', Mars: '♂', Mercury: '☿',
   Jupiter: '♃', Venus: '♀', Saturn: '♄', Rahu: '☊', Ketu: '☋',
@@ -54,6 +56,7 @@ interface Props {
 }
 
 export default function TransitWheel({ natalPlanets, transitPlanets, ascendantLon }: Props) {
+  const { t } = useLang()
   const natalEntries = Object.entries(natalPlanets).map(([n, d]) => [n, d.longitude] as [string, number])
   const transitEntries = Object.entries(transitPlanets).map(([n, d]) => [n, d.longitude] as [string, number])
 
@@ -143,9 +146,9 @@ export default function TransitWheel({ natalPlanets, transitPlanets, ascendantLo
 
         {/* Inner circle */}
         <circle cx={CX} cy={CY} r={INNER_R} fill="#0f172a" stroke="#1e293b" strokeWidth={1} />
-        <text x={CX} y={CY - 8} textAnchor="middle" fontSize={11} fill="#475569" fontWeight={700}>Transit</text>
-        <text x={CX} y={CY + 6} textAnchor="middle" fontSize={9} fill="#334155">outer ring</text>
-        <text x={CX} y={CY + 18} textAnchor="middle" fontSize={9} fill="#334155">Natal = inner</text>
+        <text x={CX} y={CY - 8} textAnchor="middle" fontSize={11} fill="#475569" fontWeight={700}>{t('Transit')}</text>
+        <text x={CX} y={CY + 6} textAnchor="middle" fontSize={9} fill="#334155">{t('outer ring')}</text>
+        <text x={CX} y={CY + 18} textAnchor="middle" fontSize={9} fill="#334155">{t('Natal = inner')}</text>
       </svg>
 
       {/* Legend */}
@@ -154,19 +157,19 @@ export default function TransitWheel({ natalPlanets, transitPlanets, ascendantLo
           <svg width={24} height={16}>
             <circle cx={12} cy={8} r={7} fill="#0f172a" stroke="#3b82f6" strokeWidth={1.5} />
           </svg>
-          Natal (inner)
+          {t('Natal (inner)')}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <svg width={24} height={16}>
             <circle cx={12} cy={8} r={7} fill="#1e293b" stroke="#3b82f6" strokeWidth={2} />
           </svg>
-          Transit (outer)
+          {t('Transit (outer)')}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <svg width={24} height={16}>
             <line x1={2} y1={8} x2={22} y2={8} stroke="#f59e0b" strokeWidth={1.5} strokeDasharray="4,3" />
           </svg>
-          Ascendant
+          {t('Ascendant')}
         </div>
       </div>
     </div>

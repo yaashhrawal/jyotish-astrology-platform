@@ -17,6 +17,7 @@ class RegisterRequest(BaseModel):
     password: str
     name: str
     phone: str = ""
+    role: str = "astrologer"   # 'astrologer' | 'user'
 
 
 class LoginRequest(BaseModel):
@@ -39,12 +40,13 @@ async def register(req: RegisterRequest):
         existing = await conn.fetchrow("SELECT id FROM users WHERE email=$1", req.email)
         if existing:
             raise HTTPException(status_code=400, detail="Email already registered")
+        role = req.role if req.role in ("astrologer", "user") else "astrologer"
         user_id = str(uuid.uuid4())
         trial_ends = datetime.utcnow() + timedelta(days=FREE_TRIAL_DAYS)
         await conn.execute(
-            """INSERT INTO users (id, email, password_hash, name, phone, plan, trial_ends_at)
-               VALUES ($1, $2, $3, $4, $5, 'trial', $6)""",
-            user_id, req.email, hash_password(req.password), req.name, req.phone, trial_ends
+            """INSERT INTO users (id, email, password_hash, name, phone, plan, trial_ends_at, role)
+               VALUES ($1, $2, $3, $4, $5, 'trial', $6, $7)""",
+            user_id, req.email, hash_password(req.password), req.name, req.phone, trial_ends, role
         )
         # Insert trial subscription record
         await conn.execute(
@@ -55,7 +57,7 @@ async def register(req: RegisterRequest):
         token = create_access_token(user_id, req.email)
         return {
             "token": token,
-            "user": {"id": user_id, "email": req.email, "name": req.name, "plan": "trial"},
+            "user": {"id": user_id, "email": req.email, "name": req.name, "plan": "trial", "role": role},
             "trial_ends_at": trial_ends.isoformat(),
             "trial_days": FREE_TRIAL_DAYS,
         }
@@ -77,6 +79,7 @@ async def login(req: LoginRequest):
                 "email": user["email"],
                 "name": user["name"],
                 "plan": user["plan"],
+                "role": user["role"],
                 "ayanamsa_pref": user["ayanamsa_pref"],
                 "chart_style": user["chart_style"],
             }
@@ -87,10 +90,41 @@ async def login(req: LoginRequest):
 async def me(current_user=Depends(get_current_user)):
     pool = await get_pool()
     async with pool.acquire() as conn:
-        user = await conn.fetchrow("SELECT id,email,name,plan,phone,ayanamsa_pref,chart_style,timezone,created_at FROM users WHERE id=$1", current_user["sub"])
+        user = await conn.fetchrow("SELECT id,email,name,plan,role,phone,ayanamsa_pref,chart_style,timezone,board_layout,created_at FROM users WHERE id=$1", current_user["sub"])
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
-        return dict(user)
+        d = dict(user)
+        # board_layout is stored as JSONB text via asyncpg — decode to a list
+        if isinstance(d.get("board_layout"), str):
+            import json as _json
+            try: d["board_layout"] = _json.loads(d["board_layout"])
+            except Exception: d["board_layout"] = None
+        return d
+
+
+class BoardLayoutRequest(BaseModel):
+    layout: list[int]
+
+
+@router.patch("/auth/board-layout")
+async def save_board_layout(req: BoardLayoutRequest, current_user=Depends(get_current_user)):
+    """Persist the user's Divisional Charts Board (list of varga divisors, e.g. [1,9,10])."""
+    import json as _json
+    # keep it sane: unique, valid divisors, D1 always first
+    valid = {1,2,3,4,5,6,7,8,9,10,11,12,16,20,24,27,30,40,45,60,81,108,144}
+    seen, layout = set(), []
+    for d in req.layout:
+        if d in valid and d not in seen:
+            seen.add(d); layout.append(d)
+    if 1 not in seen:
+        layout = [1] + layout
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        await conn.execute(
+            "UPDATE users SET board_layout=$2 WHERE id=$1",
+            current_user["sub"], _json.dumps(layout)
+        )
+    return {"ok": True, "layout": layout}
 
 
 @router.get("/auth/demo-login")
@@ -101,7 +135,7 @@ async def demo_login():
     token = create_access_token(DEMO_USER_ID, "demo@jyotish.app")
     return {
         "token": token,
-        "user": {"id": DEMO_USER_ID, "email": "demo@jyotish.app", "name": "Demo Astrologer", "plan": "professional"},
+        "user": {"id": DEMO_USER_ID, "email": "demo@jyotish.app", "name": "Demo Astrologer", "plan": "professional", "role": "astrologer"},
         "is_demo": True,
     }
 

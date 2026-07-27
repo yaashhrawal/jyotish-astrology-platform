@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
+import { useLang } from '../../contexts/LanguageContext'
 
 const fmtINR = (paise: number) => '₹' + (paise / 100).toLocaleString('en-IN')
 const BASE = import.meta.env.VITE_API_URL || ''
@@ -14,6 +15,7 @@ const STATUS_LABELS: Record<string, string> = {
 }
 
 export default function GemPurchasePage({ orderNumber }: { orderNumber: string }) {
+  const { t } = useLang()
   const [data, setData] = useState<any>(null)
   const [error, setError] = useState('')
 
@@ -25,11 +27,11 @@ export default function GemPurchasePage({ orderNumber }: { orderNumber: string }
 
   if (error) return (
     <div style={{ padding: 60, textAlign: 'center', color: '#DC2626' }}>
-      <div style={{ fontSize: 20, fontWeight: 700 }}>Order not found</div>
+      <div style={{ fontSize: 20, fontWeight: 700 }}>{t('Order not found')}</div>
       <div style={{ fontSize: 13, color: 'var(--text3)', marginTop: 6 }}>{error}</div>
     </div>
   )
-  if (!data) return <div style={{ padding: 60, textAlign: 'center', color: 'var(--text3)' }}>Loading order…</div>
+  if (!data) return <div style={{ padding: 60, textAlign: 'center', color: 'var(--text3)' }}>{t('Loading order…')}</div>
 
   const accent = '#7C2D12'
 
@@ -38,7 +40,7 @@ export default function GemPurchasePage({ orderNumber }: { orderNumber: string }
       <header style={{ borderBottom: `2px solid ${accent}`, padding: '20px 24px', background: 'var(--surface)', display: 'flex', alignItems: 'center', gap: 14 }}>
         {data.logo_url && <img src={data.logo_url} alt="" style={{ width: 50, height: 50, objectFit: 'contain' }} />}
         <div>
-          <div style={{ fontSize: 18, fontWeight: 700, color: accent }}>{data.astrologer_name || 'Astrologer'}</div>
+          <div style={{ fontSize: 18, fontWeight: 700, color: accent }}>{data.astrologer_name || t('Astrologer')}</div>
           {data.tagline && <div style={{ fontSize: 11, color: 'var(--text4)', fontStyle: 'italic' }}>{data.tagline}</div>}
         </div>
       </header>
@@ -59,14 +61,14 @@ export default function GemPurchasePage({ orderNumber }: { orderNumber: string }
                 ✓ {data.cert_authority}
               </div>
               <div style={{ marginTop: 16, fontSize: 24, fontWeight: 700 }}>{fmtINR(data.retail_price_paise)}</div>
-              <div style={{ fontSize: 11, color: 'var(--text3)' }}>{data.carat} carat · Order #{data.order_number}</div>
+              <div style={{ fontSize: 11, color: 'var(--text3)' }}>{data.carat} {t('carat')} · {t('Order')} #{data.order_number}</div>
             </div>
           </div>
 
           <div style={{ marginTop: 20, padding: 14, background: 'var(--surface2)', borderRadius: 8 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text2)', marginBottom: 4 }}>Status</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text2)', marginBottom: 4 }}>{t('Status')}</div>
             <div style={{ fontSize: 14, fontWeight: 600, color: data.status === 'paid' || data.status === 'delivered' ? '#16A34A' : accent }}>
-              {STATUS_LABELS[data.status] || data.status}
+              {STATUS_LABELS[data.status] ? t(STATUS_LABELS[data.status]) : data.status}
             </div>
           </div>
 
@@ -79,29 +81,29 @@ export default function GemPurchasePage({ orderNumber }: { orderNumber: string }
 
         {data.status === 'recommended' && (
           <div style={{ background: '#16A34A', color: '#fff', borderRadius: 12, padding: 20, textAlign: 'center' }}>
-            <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 8 }}>Ready to purchase?</div>
+            <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 8 }}>{t('Ready to purchase?')}</div>
             <div style={{ fontSize: 12, opacity: 0.9, marginBottom: 14 }}>
-              Payment integration coming soon. Contact your astrologer to complete payment.
+              {t('Payment integration coming soon. Contact your astrologer to complete payment.')}
             </div>
             <button style={{
               padding: '10px 24px', background: '#fff', color: '#16A34A',
               border: 'none', borderRadius: 6, fontSize: 14, fontWeight: 700, cursor: 'pointer',
-            }}>Pay {fmtINR(data.retail_price_paise)}</button>
+            }}>{t('Pay')} {fmtINR(data.retail_price_paise)}</button>
           </div>
         )}
 
         <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: 16 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 8 }}>Authenticity Guaranteed</div>
+          <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 8 }}>{t('Authenticity Guaranteed')}</div>
           <ul style={{ fontSize: 12, color: 'var(--text3)', margin: 0, paddingLeft: 20, lineHeight: 1.7 }}>
-            <li>Lab-certified by <strong>{data.cert_authority}</strong> — original PDF cert ships with stone</li>
-            <li>15-day return window, no questions asked</li>
-            <li>Insured shipping</li>
-            <li>80% buyback guarantee for 1 year</li>
+            <li>{t('Lab-certified by')} <strong>{data.cert_authority}</strong> {t('— original PDF cert ships with stone')}</li>
+            <li>{t('15-day return window, no questions asked')}</li>
+            <li>{t('Insured shipping')}</li>
+            <li>{t('80% buyback guarantee for 1 year')}</li>
           </ul>
         </div>
 
         <footer style={{ textAlign: 'center', padding: '20px 0', fontSize: 11, color: 'var(--text4)' }}>
-          Recommended by {data.astrologer_name || 'your astrologer'} · Powered by JyotishApp
+          {t('Recommended by')} {data.astrologer_name || t('your astrologer')} · {t('Powered by')} JyotishApp
         </footer>
       </main>
     </div>

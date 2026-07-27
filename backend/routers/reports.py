@@ -136,9 +136,13 @@ def _enrich_sections(sections: List[str], chart: dict, req) -> dict:
     if "varga_charts" in sections:
         try:
             from core.varga import get_varga_chart
-            out["varga_d9"] = get_varga_chart(planets, 9)
-            out["varga_d10"] = get_varga_chart(planets, 10)
-            out["varga_d12"] = get_varga_chart(planets, 12)
+            # Signature is (jd, ayanamsa, d, lat, lon) — was called (planets, d),
+            # which raised TypeError and silently dropped all varga sections.
+            _lat = req.latitude or 0.0
+            _lon = req.longitude or 0.0
+            out["varga_d9"]  = get_varga_chart(jd, req.ayanamsa, 9, _lat, _lon)
+            out["varga_d10"] = get_varga_chart(jd, req.ayanamsa, 10, _lat, _lon)
+            out["varga_d12"] = get_varga_chart(jd, req.ayanamsa, 12, _lat, _lon)
         except Exception:
             pass
 

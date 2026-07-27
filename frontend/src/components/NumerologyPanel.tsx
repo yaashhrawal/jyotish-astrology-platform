@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { numerologyApi } from '../api/client'
+import { useLang } from '../contexts/LanguageContext'
 
 const PLANET_COLORS: Record<string, string> = {
   Sun: '#D97706', Moon: '#0891B2', Jupiter: '#B45309', Rahu: '#57534E',
@@ -13,9 +14,10 @@ export default function NumerologyPanel() {
   const [data, setData] = useState<any>(null)
   const [loading, setLoading] = useState(false)
   const [err, setErr] = useState('')
+  const { t } = useLang()
 
   const compute = async () => {
-    if (!form.day || !form.month || !form.year) { setErr('Enter day, month and year'); return }
+    if (!form.day || !form.month || !form.year) { setErr(t('Enter day, month and year')); return }
     setErr(''); setLoading(true)
     try {
       const res = await numerologyApi.get({
@@ -23,7 +25,7 @@ export default function NumerologyPanel() {
         year: parseInt(form.year), name: form.name,
       })
       setData(res)
-    } catch (e: any) { setErr(e?.response?.data?.detail || 'Error') }
+    } catch (e: any) { setErr(e?.response?.data?.detail || t('Error')) }
     finally { setLoading(false) }
   }
 
@@ -46,19 +48,19 @@ export default function NumerologyPanel() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       {/* Header */}
       <div style={{ padding: '14px 18px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-m)' }}>
-        <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '4px' }}>Vedic Numerology</div>
+        <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '4px' }}>{t('Vedic Numerology')}</div>
         <div style={{ fontSize: '12px', color: 'var(--text3)' }}>
-          Moolank · Bhagyank · Name Numbers · Lucky Days · Karmic Debt
+          {t('Moolank · Bhagyank · Name Numbers · Lucky Days · Karmic Debt')}
         </div>
       </div>
 
       {/* Input */}
       <div style={{ display: 'grid', gridTemplateColumns: '80px 80px 100px 1fr auto', gap: '8px', alignItems: 'end' }}>
         {[
-          { label: 'Day', key: 'day', ph: '14' },
-          { label: 'Month', key: 'month', ph: '8' },
-          { label: 'Year', key: 'year', ph: '1990' },
-          { label: 'Full Name (optional)', key: 'name', ph: 'e.g. Rama Devi' },
+          { label: t('Day'), key: 'day', ph: '14' },
+          { label: t('Month'), key: 'month', ph: '8' },
+          { label: t('Year'), key: 'year', ph: '1990' },
+          { label: t('Full Name (optional)'), key: 'name', ph: t('e.g. Rama Devi') },
         ].map(({ label, key, ph }) => (
           <div key={key}>
             <div style={{ fontSize: '10px', color: 'var(--text3)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.07em' }}>{label}</div>
@@ -72,7 +74,7 @@ export default function NumerologyPanel() {
           </div>
         ))}
         <button onClick={compute} disabled={loading} style={{ padding: '9px 20px', borderRadius: 'var(--radius-m)', border: 'none', background: 'var(--accent)', color: '#fff', fontSize: '13px', fontWeight: '700', cursor: 'pointer', height: '38px' }}>
-          {loading ? '…' : 'Calculate'}
+          {loading ? '…' : t('Calculate')}
         </button>
       </div>
       {err && <div style={{ fontSize: '12px', color: '#DC2626' }}>{err}</div>}
@@ -115,18 +117,18 @@ export default function NumerologyPanel() {
           {/* Karmic debt */}
           {data.karmic_debt && (
             <div style={{ padding: '10px 14px', background: '#FEF3C7', border: '1px solid #F59E0B', borderRadius: 'var(--radius-m)', fontSize: '12px', color: '#92400E' }}>
-              ⚠ <strong>Karmic Debt Number {data.karmic_debt_number}</strong> — this birth carries karmic lessons requiring extra effort and discipline in this lifetime.
+              ⚠ <strong>{t('Karmic Debt Number')} {data.karmic_debt_number}</strong> — {t('this birth carries karmic lessons requiring extra effort and discipline in this lifetime.')}
             </div>
           )}
 
           {/* Name analysis */}
           {data.name_analysis && (
-            <Section title="Name Numbers">
+            <Section title={t('Name Numbers')}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
                 {[
-                  { label: 'Expression (Name)', val: data.name_analysis.expression_number },
-                  { label: 'Soul Urge (Vowels)', val: data.name_analysis.soul_urge },
-                  { label: 'Personality (Consonants)', val: data.name_analysis.personality },
+                  { label: t('Expression (Name)'), val: data.name_analysis.expression_number },
+                  { label: t('Soul Urge (Vowels)'), val: data.name_analysis.soul_urge },
+                  { label: t('Personality (Consonants)'), val: data.name_analysis.personality },
                 ].map(({ label, val }) => val && (
                   <div key={label} style={{ textAlign: 'center', padding: '10px 8px', background: 'var(--surface2)', borderRadius: '8px' }}>
                     <NumBadge n={val} size={40} />
@@ -141,10 +143,10 @@ export default function NumerologyPanel() {
           )}
 
           {/* Lucky */}
-          <Section title="Lucky Influences">
+          <Section title={t('Lucky Influences')}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
               <div>
-                <div style={{ fontSize: '10px', color: 'var(--text3)', marginBottom: '6px', textTransform: 'uppercase' }}>Lucky Numbers</div>
+                <div style={{ fontSize: '10px', color: 'var(--text3)', marginBottom: '6px', textTransform: 'uppercase' }}>{t('Lucky Numbers')}</div>
                 <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                   {data.lucky.numbers.map((n: number) => (
                     <div key={n} style={{ width: 32, height: 32, borderRadius: '50%', background: NUM_COLORS[n] || '#888', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: '700' }}>{n}</div>
@@ -152,7 +154,7 @@ export default function NumerologyPanel() {
                 </div>
               </div>
               <div>
-                <div style={{ fontSize: '10px', color: 'var(--text3)', marginBottom: '6px', textTransform: 'uppercase' }}>Lucky Days</div>
+                <div style={{ fontSize: '10px', color: 'var(--text3)', marginBottom: '6px', textTransform: 'uppercase' }}>{t('Lucky Days')}</div>
                 <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
                   {data.lucky.days.map((d: string) => (
                     <span key={d} style={{ fontSize: '11px', padding: '3px 10px', borderRadius: '20px', background: 'var(--surface2)', color: 'var(--text)', border: '1px solid var(--border)' }}>{d}</span>
@@ -160,7 +162,7 @@ export default function NumerologyPanel() {
                 </div>
               </div>
               <div>
-                <div style={{ fontSize: '10px', color: 'var(--text3)', marginBottom: '6px', textTransform: 'uppercase' }}>Lucky Colors</div>
+                <div style={{ fontSize: '10px', color: 'var(--text3)', marginBottom: '6px', textTransform: 'uppercase' }}>{t('Lucky Colors')}</div>
                 <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
                   {data.lucky.colors.map((c: string) => (
                     <span key={c} style={{ fontSize: '11px', padding: '3px 10px', borderRadius: '20px', background: 'var(--surface2)', color: 'var(--text)', border: '1px solid var(--border)' }}>{c}</span>
@@ -168,7 +170,7 @@ export default function NumerologyPanel() {
                 </div>
               </div>
               <div>
-                <div style={{ fontSize: '10px', color: 'var(--text3)', marginBottom: '6px', textTransform: 'uppercase' }}>Lucky Gem</div>
+                <div style={{ fontSize: '10px', color: 'var(--text3)', marginBottom: '6px', textTransform: 'uppercase' }}>{t('Lucky Gem')}</div>
                 <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text)' }}>💎 {data.lucky.gem}</span>
               </div>
             </div>
@@ -178,8 +180,8 @@ export default function NumerologyPanel() {
           <div style={{ padding: '10px 14px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-m)', display: 'flex', alignItems: 'center', gap: '12px' }}>
             <NumBadge n={data.personal_year} size={40} />
             <div>
-              <div style={{ fontSize: '10px', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>Personal Year ({data.input.year})</div>
-              <div style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text)' }}>{NUMBER_TRAITS_FRONTEND[data.personal_year]?.keyword || data.personal_year}</div>
+              <div style={{ fontSize: '10px', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>{t('Personal Year')} ({data.input.year})</div>
+              <div style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text)' }}>{t(NUMBER_TRAITS_FRONTEND[data.personal_year]?.keyword || String(data.personal_year))}</div>
             </div>
           </div>
         </>

@@ -1,34 +1,48 @@
-# Unrelated files in root
+# ── Secrets & environment ────────────────────────────────
+# Never commit real env files; only *.example placeholders are tracked.
+.env
+backend/.env
+frontend/.env
+frontend/.env.*
+!**/.env.example
+!backend/.env.demo.example
+!backend/.env.staging.example
+*.pem
+*.key
+id_rsa*
+
+# ── Python / backend ─────────────────────────────────────
+backend/venv/
+venv/
+__pycache__/
+**/__pycache__/
+*.pyc
+backend/*.log
+*.log
+
+# ── Node / frontend ──────────────────────────────────────
+frontend/node_modules/
+node_modules/
+frontend/dist/
+dist/
+frontend/android/
+frontend/ios/
+
+# ── Local docs / working files (not part of the product) ──
+docs/
 *.pdf
 *.webp
 *.jpg
 *.jpeg
 *.png
-docs/
+Jyotish_Context.md
+Jyotish_PRD.md
 
-# Python
-backend/venv/
-backend/__pycache__/
-backend/**/__pycache__/
-backend/**/*.pyc
-backend/.env
-backend/*.log
-
-# Node / Frontend
-frontend/node_modules/
-frontend/dist/
-frontend/.env.local
-frontend/.env.production
-
-# OS
+# ── OS / IDE ─────────────────────────────────────────────
 .DS_Store
 Thumbs.db
-
-# IDE
 .vscode/
 .idea/
 
-# Oracle / cloud
-*.pem
-*.key
+# ── Deploy artifacts ─────────────────────────────────────
 deploy/*.sh.bak

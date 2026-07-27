@@ -3,6 +3,8 @@
  * Uses browser print with print-specific CSS.
  */
 
+import { useLang } from '../contexts/LanguageContext'
+
 const PLANET_COLORS: Record<string, string> = {
   Sun: '#D97706', Moon: '#0891B2', Mars: '#DC2626', Mercury: '#16A34A',
   Jupiter: '#B45309', Venus: '#7C3AED', Saturn: '#2563EB', Rahu: '#57534E', Ketu: '#A8A29E'
@@ -322,11 +324,12 @@ interface Props {
 }
 
 export default function PrintExportButton({ chart, dashas = [], yogas = [], compact }: Props) {
+  const { t } = useLang()
   return (
     <div style={{ display: 'flex', gap: '8px' }}>
       <button
         onClick={() => printChart(chart, dashas, yogas)}
-        title="Print or save as PDF"
+        title={t('Print or save as PDF')}
         style={{
           display: 'flex', alignItems: 'center', gap: '6px',
           padding: compact ? '6px 12px' : '8px 16px',
@@ -339,7 +342,7 @@ export default function PrintExportButton({ chart, dashas = [], yogas = [], comp
           <polyline points="6 9 6 2 18 2 18 9" /><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
           <rect x="6" y="14" width="12" height="8" />
         </svg>
-        {compact ? 'Print' : 'Print / PDF'}
+        {compact ? t('Print') : t('Print / PDF')}
       </button>
     </div>
   )

@@ -48,7 +48,9 @@ def koota_score(nak1: int, nak2: int, rashi1: int, rashi2: int) -> dict:
 
     # 1. Varna (1 point)
     varna_order = {"Brahmin":4,"Kshatriya":3,"Vaishya":2,"Shudra":1}
-    varna_map = {0:3,1:2,2:2,3:1,4:4,5:2,6:2,7:3,8:4,9:1,10:3,11:4}  # sign->varna
+    # sign→varna (0=Aries): Brahmin(4)=Cancer/Scorpio/Pisces, Kshatriya(3)=Aries/Leo/Sag,
+    # Vaishya(2)=Taurus/Virgo/Cap, Shudra(1)=Gemini/Libra/Aquarius
+    varna_map = {0:3,1:2,2:1,3:4,4:3,5:2,6:1,7:4,8:3,9:2,10:1,11:4}  # sign->varna
     v1, v2 = varna_map.get(rashi1,1), varna_map.get(rashi2,1)
     scores["Varna"] = {"score": 1 if v1 >= v2 else 0, "max": 1}
 
@@ -71,10 +73,12 @@ def koota_score(nak1: int, nak2: int, rashi1: int, rashi2: int) -> dict:
     else:
         scores["Vashya"] = {"score": 0, "max": 2}
 
-    # 3. Tara (3 points)
-    diff = (nak2 - nak1) % 27
-    tara_num = (diff % 9) + 1
-    scores["Tara"] = {"score": 3 if tara_num in [1,3,5,7] else 1 if tara_num in [2,6,8] else 0, "max": 3}
+    # 3. Tara (3 points) — count both directions; taras 3(Vipat),5(Pratyari),7(Vadha)
+    # are the INAUSPICIOUS ones (score 0). Both counts must be auspicious for full marks.
+    def _tara_ok(a: int, b: int) -> bool:
+        return (((b - a) % 27) % 9) + 1 not in (3, 5, 7)
+    ok1, ok2 = _tara_ok(nak1, nak2), _tara_ok(nak2, nak1)
+    scores["Tara"] = {"score": 3 if (ok1 and ok2) else 1.5 if (ok1 or ok2) else 0, "max": 3}
 
     # 4. Yoni (4 points)
     y1, y2 = YONI_ANIMAL[nak1], YONI_ANIMAL[nak2]
@@ -134,12 +138,11 @@ def koota_score(nak1: int, nak2: int, rashi1: int, rashi2: int) -> dict:
     else:
         scores["Gana"] = {"score": 0, "max": 6}
 
-    # 7. Bhakoot (7 points)
-    diff_r = abs(rashi1 - rashi2)
-    bad_combos = [(2,12),(12,2),(5,9),(9,5),(6,8),(8,6)]
-    bhakoot_bad = (diff_r in [1,11]) or any(
-        (rashi1%12+1==a and rashi2%12+1==b) for a,b in bad_combos
-    )
+    # 7. Bhakoot (7 points) — dosha is an ANGULAR relation between the two Moon
+    # signs: 2/12, 5/9 or 6/8. Measure the circular distance, not literal numbers.
+    dr = (rashi1 - rashi2) % 12
+    diff_r = min(dr, 12 - dr)                 # 0..6
+    bhakoot_bad = diff_r in (1, 4, 5)         # 2/12→1, 5/9→4, 6/8→5
     scores["Bhakoot"] = {"score": 0 if bhakoot_bad else 7, "max": 7}
 
     # 8. Nadi (8 points)

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { gemsApi } from '../../api/client'
+import { useLang } from '../../contexts/LanguageContext'
 import toast from 'react-hot-toast'
 
 const fmtINR = (paise: number) => '₹' + (paise / 100).toLocaleString('en-IN')
@@ -14,6 +15,7 @@ const STATUS_COLORS: Record<string, string> = {
 }
 
 export default function EarningsPanel() {
+  const { t } = useLang()
   const [data, setData] = useState<any>(null)
   const [orders, setOrders] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -29,47 +31,47 @@ export default function EarningsPanel() {
 
   useEffect(reload, [filter])
 
-  if (loading || !data) return <div style={{ padding: 40, color: 'var(--text3)' }}>Loading earnings…</div>
+  if (loading || !data) return <div style={{ padding: 40, color: 'var(--text3)' }}>{t('Loading earnings…')}</div>
 
   const s = data.summary
 
   const updateStatus = async (id: string, status: string) => {
     await gemsApi.updateStatus(id, status)
-    toast.success(`Status → ${status}`)
+    toast.success(`${t('Status')} → ${status}`)
     reload()
   }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div>
-        <div style={{ fontSize: 16, fontWeight: 700 }}>💰 Gem Commission Earnings</div>
+        <div style={{ fontSize: 16, fontWeight: 700 }}>💰 {t('Gem Commission Earnings')}</div>
         <div style={{ fontSize: 12, color: 'var(--text3)' }}>
-          Plan: <strong>{s.plan}</strong>{s.plan_boost_pct > 0 && <span> (+{s.plan_boost_pct}% boost)</span>}
-          {s.volume_bonus_active && <span style={{ color: '#16A34A', fontWeight: 600 }}> · Volume bonus active +2%</span>}
+          {t('Plan:')} <strong>{s.plan}</strong>{s.plan_boost_pct > 0 && <span> (+{s.plan_boost_pct}% {t('boost')})</span>}
+          {s.volume_bonus_active && <span style={{ color: '#16A34A', fontWeight: 600 }}> · {t('Volume bonus active')} +2%</span>}
         </div>
       </div>
 
       {/* Stat cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12 }}>
         <div style={card}>
-          <div style={{ fontSize: 10, color: 'var(--text3)' }}>PENDING</div>
+          <div style={{ fontSize: 10, color: 'var(--text3)' }}>{t('PENDING')}</div>
           <div style={{ fontSize: 22, fontWeight: 700, color: '#D97706' }}>{fmtINR(s.pending_paise)}</div>
-          <div style={{ fontSize: 10, color: 'var(--text4)' }}>Awaiting clearance</div>
+          <div style={{ fontSize: 10, color: 'var(--text4)' }}>{t('Awaiting clearance')}</div>
         </div>
         <div style={card}>
-          <div style={{ fontSize: 10, color: 'var(--text3)' }}>PAID OUT</div>
+          <div style={{ fontSize: 10, color: 'var(--text3)' }}>{t('PAID OUT')}</div>
           <div style={{ fontSize: 22, fontWeight: 700, color: '#16A34A' }}>{fmtINR(s.paid_paise)}</div>
-          <div style={{ fontSize: 10, color: 'var(--text4)' }}>Settled to your account</div>
+          <div style={{ fontSize: 10, color: 'var(--text4)' }}>{t('Settled to your account')}</div>
         </div>
         <div style={card}>
-          <div style={{ fontSize: 10, color: 'var(--text3)' }}>LIFETIME</div>
+          <div style={{ fontSize: 10, color: 'var(--text3)' }}>{t('LIFETIME')}</div>
           <div style={{ fontSize: 22, fontWeight: 700 }}>{fmtINR(s.lifetime_paise)}</div>
-          <div style={{ fontSize: 10, color: 'var(--text4)' }}>{s.total_orders} orders</div>
+          <div style={{ fontSize: 10, color: 'var(--text4)' }}>{s.total_orders} {t('orders')}</div>
         </div>
         <div style={card}>
-          <div style={{ fontSize: 10, color: 'var(--text3)' }}>VOLUME BONUS @ {fmtINR(s.next_volume_threshold_paise)}</div>
+          <div style={{ fontSize: 10, color: 'var(--text3)' }}>{t('VOLUME BONUS @')} {fmtINR(s.next_volume_threshold_paise)}</div>
           <div style={{ fontSize: 13, fontWeight: 700, color: s.volume_bonus_active ? '#16A34A' : 'var(--text3)' }}>
-            {s.volume_bonus_active ? 'ACTIVE +2%' : `${Math.min(100, Math.round(s.lifetime_paise / s.next_volume_threshold_paise * 100))}% to unlock`}
+            {s.volume_bonus_active ? t('ACTIVE +2%') : `${Math.min(100, Math.round(s.lifetime_paise / s.next_volume_threshold_paise * 100))}% ${t('to unlock')}`}
           </div>
           <div style={{ height: 4, background: 'var(--surface2)', borderRadius: 2, marginTop: 6 }}>
             <div style={{
@@ -84,7 +86,7 @@ export default function EarningsPanel() {
       {/* Orders */}
       <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden' }}>
         <div style={{ padding: '12px 18px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ fontSize: 13, fontWeight: 700 }}>Recent Orders</div>
+          <div style={{ fontSize: 13, fontWeight: 700 }}>{t('Recent Orders')}</div>
           <div style={{ display: 'flex', gap: 4 }}>
             {['', 'recommended', 'paid', 'shipped', 'delivered'].map(f => (
               <button key={f} onClick={() => setFilter(f)} style={{
@@ -93,7 +95,7 @@ export default function EarningsPanel() {
                 background: filter === f ? 'var(--accent)' : 'var(--surface2)',
                 color: filter === f ? '#fff' : 'var(--text3)',
                 cursor: 'pointer',
-              }}>{f || 'All'}</button>
+              }}>{f || t('All')}</button>
             ))}
           </div>
         </div>
@@ -101,14 +103,14 @@ export default function EarningsPanel() {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
             <thead>
               <tr style={{ background: 'var(--surface2)' }}>
-                {['Order #','Gem','Client','Carat','Retail','Commission','Status','Actions'].map(h => (
+                {[t('Order #'),t('Gem'),t('Client'),t('Carat'),t('Retail'),t('Commission'),t('Status'),t('Actions')].map(h => (
                   <th key={h} style={{ padding: '8px 12px', textAlign: 'left', fontSize: 10, color: 'var(--text3)', fontWeight: 600 }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {orders.length === 0 ? (
-                <tr><td colSpan={8} style={{ padding: 20, color: 'var(--text4)', textAlign: 'center' }}>No orders yet — recommend a gem from the catalog.</td></tr>
+                <tr><td colSpan={8} style={{ padding: 20, color: 'var(--text4)', textAlign: 'center' }}>{t('No orders yet — recommend a gem from the catalog.')}</td></tr>
               ) : orders.map(o => (
                 <tr key={o.id} style={{ borderBottom: '1px solid var(--border)', cursor: 'pointer' }} onClick={() => gemsApi.order(o.id).then(setDrillOrder)}>
                   <td style={{ padding: '8px 12px', fontFamily: 'monospace', fontSize: 11, color: 'var(--accent)' }}>{o.order_number}</td>
@@ -124,9 +126,9 @@ export default function EarningsPanel() {
                   </td>
                   <td style={{ padding: '8px 12px' }} onClick={e => e.stopPropagation()}>
                     <div style={{ display: 'flex', gap: 4 }}>
-                      {o.status === 'recommended' && <button onClick={() => updateStatus(o.id, 'paid')} style={actionBtn}>Mark paid</button>}
-                      {o.status === 'paid' && <button onClick={() => updateStatus(o.id, 'shipped')} style={actionBtn}>Mark shipped</button>}
-                      {o.status === 'shipped' && <button onClick={() => updateStatus(o.id, 'delivered')} style={actionBtn}>Mark delivered</button>}
+                      {o.status === 'recommended' && <button onClick={() => updateStatus(o.id, 'paid')} style={actionBtn}>{t('Mark paid')}</button>}
+                      {o.status === 'paid' && <button onClick={() => updateStatus(o.id, 'shipped')} style={actionBtn}>{t('Mark shipped')}</button>}
+                      {o.status === 'shipped' && <button onClick={() => updateStatus(o.id, 'delivered')} style={actionBtn}>{t('Mark delivered')}</button>}
                     </div>
                   </td>
                 </tr>
@@ -149,7 +151,7 @@ export default function EarningsPanel() {
 
             {/* Timeline */}
             <div style={{ marginBottom: 16, padding: 14, background: 'var(--surface2)', borderRadius: 8 }}>
-              <div style={{ fontSize: 10, color: 'var(--text3)', fontWeight: 700, marginBottom: 10 }}>ORDER TIMELINE</div>
+              <div style={{ fontSize: 10, color: 'var(--text3)', fontWeight: 700, marginBottom: 10 }}>{t('ORDER TIMELINE')}</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
                 {(['recommended', 'paid', 'shipped', 'delivered'] as const).map((step, i, arr) => {
                   const stepStates = ['recommended', 'paid', 'shipped', 'delivered']
@@ -183,39 +185,39 @@ export default function EarningsPanel() {
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '140px 1fr', gap: 6, fontSize: 12 }}>
-              <div style={{ color: 'var(--text3)' }}>Gem:</div><div><strong>{drillOrder.gem_name}</strong> ({drillOrder.gem_tier}) · {drillOrder.carat} ct</div>
-              <div style={{ color: 'var(--text3)' }}>Cert:</div><div>{drillOrder.gem_cert_authority}</div>
-              <div style={{ color: 'var(--text3)' }}>Client:</div><div>{drillOrder.client_name || '—'}{drillOrder.client_phone && <span style={{ color: 'var(--text4)' }}> · {drillOrder.client_phone}</span>}</div>
-              <div style={{ color: 'var(--text3)' }}>Retail:</div><div>{fmtINR(drillOrder.retail_price_paise)}</div>
-              <div style={{ color: 'var(--text3)' }}>Commission:</div><div style={{ color: '#16A34A', fontWeight: 600 }}>{fmtINR(drillOrder.commission_amount_paise)} ({drillOrder.commission_pct}%)</div>
-              <div style={{ color: 'var(--text3)' }}>Created:</div><div>{new Date(drillOrder.created_at).toLocaleString()}</div>
-              {drillOrder.paid_at && <><div style={{ color: 'var(--text3)' }}>Paid:</div><div>{new Date(drillOrder.paid_at).toLocaleString()}</div></>}
-              {drillOrder.shipped_at && <><div style={{ color: 'var(--text3)' }}>Shipped:</div><div>{new Date(drillOrder.shipped_at).toLocaleString()} · {drillOrder.courier} {drillOrder.tracking_number}</div></>}
-              {drillOrder.delivered_at && <><div style={{ color: 'var(--text3)' }}>Delivered:</div><div>{new Date(drillOrder.delivered_at).toLocaleString()}</div></>}
+              <div style={{ color: 'var(--text3)' }}>{t('Gem:')}</div><div><strong>{drillOrder.gem_name}</strong> ({drillOrder.gem_tier}) · {drillOrder.carat} ct</div>
+              <div style={{ color: 'var(--text3)' }}>{t('Cert:')}</div><div>{drillOrder.gem_cert_authority}</div>
+              <div style={{ color: 'var(--text3)' }}>{t('Client:')}</div><div>{drillOrder.client_name || '—'}{drillOrder.client_phone && <span style={{ color: 'var(--text4)' }}> · {drillOrder.client_phone}</span>}</div>
+              <div style={{ color: 'var(--text3)' }}>{t('Retail:')}</div><div>{fmtINR(drillOrder.retail_price_paise)}</div>
+              <div style={{ color: 'var(--text3)' }}>{t('Commission:')}</div><div style={{ color: '#16A34A', fontWeight: 600 }}>{fmtINR(drillOrder.commission_amount_paise)} ({drillOrder.commission_pct}%)</div>
+              <div style={{ color: 'var(--text3)' }}>{t('Created:')}</div><div>{new Date(drillOrder.created_at).toLocaleString()}</div>
+              {drillOrder.paid_at && <><div style={{ color: 'var(--text3)' }}>{t('Paid:')}</div><div>{new Date(drillOrder.paid_at).toLocaleString()}</div></>}
+              {drillOrder.shipped_at && <><div style={{ color: 'var(--text3)' }}>{t('Shipped:')}</div><div>{new Date(drillOrder.shipped_at).toLocaleString()} · {drillOrder.courier} {drillOrder.tracking_number}</div></>}
+              {drillOrder.delivered_at && <><div style={{ color: 'var(--text3)' }}>{t('Delivered:')}</div><div>{new Date(drillOrder.delivered_at).toLocaleString()}</div></>}
             </div>
 
             {drillOrder.recommendation_reason && (
               <div style={{ marginTop: 14, padding: 12, background: 'var(--surface2)', borderRadius: 8 }}>
-                <div style={{ fontSize: 10, color: 'var(--text3)', fontWeight: 700, marginBottom: 4 }}>RECOMMENDATION REASON</div>
+                <div style={{ fontSize: 10, color: 'var(--text3)', fontWeight: 700, marginBottom: 4 }}>{t('RECOMMENDATION REASON')}</div>
                 <div style={{ fontSize: 12 }}>{drillOrder.recommendation_reason}</div>
               </div>
             )}
             {drillOrder.astrologer_notes && (
               <div style={{ marginTop: 8, padding: 12, background: 'var(--surface2)', borderRadius: 8 }}>
-                <div style={{ fontSize: 10, color: 'var(--text3)', fontWeight: 700, marginBottom: 4 }}>WEARING INSTRUCTIONS</div>
+                <div style={{ fontSize: 10, color: 'var(--text3)', fontWeight: 700, marginBottom: 4 }}>{t('WEARING INSTRUCTIONS')}</div>
                 <div style={{ fontSize: 12 }}>{drillOrder.astrologer_notes}</div>
               </div>
             )}
 
             {drillOrder.certificate && (
               <div style={{ marginTop: 14, padding: 12, background: '#fef3c7', borderRadius: 8 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#92400e' }}>✓ Certificate {drillOrder.certificate.cert_number}</div>
-                <div style={{ fontSize: 11, color: '#78350f' }}>Issued by {drillOrder.certificate.cert_authority} on {drillOrder.certificate.issued_on}</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#92400e' }}>✓ {t('Certificate')} {drillOrder.certificate.cert_number}</div>
+                <div style={{ fontSize: 11, color: '#78350f' }}>{t('Issued by')} {drillOrder.certificate.cert_authority} {t('on')} {drillOrder.certificate.issued_on}</div>
               </div>
             )}
 
             <div style={{ marginTop: 14, padding: 12, background: 'var(--surface2)', borderRadius: 8 }}>
-              <div style={{ fontSize: 10, color: 'var(--text3)', fontWeight: 700, marginBottom: 4 }}>CLIENT PURCHASE LINK</div>
+              <div style={{ fontSize: 10, color: 'var(--text3)', fontWeight: 700, marginBottom: 4 }}>{t('CLIENT PURCHASE LINK')}</div>
               <div style={{ fontSize: 11, fontFamily: 'monospace', wordBreak: 'break-all' }}>
                 {window.location.origin}/gem-purchase/{drillOrder.order_number}
               </div>

@@ -12,6 +12,8 @@ interface Props {
   size?: number
   title?: string
   onHouseSelect?: (house: number | null) => void
+  onPlanetSelect?: (planet: string) => void
+  compact?: boolean          // board mode: responsive width, no inline side panel
   bhavaMadhya?: BhavaMadhyaEntry[]
 }
 
@@ -110,7 +112,7 @@ function getAspectHighlights(hoveredPlanet: string | null, planets: Record<strin
   return new Set(aspectedHouses(p.house, hoveredPlanet))
 }
 
-export default function NorthIndianChart({ ascendant, planets, planetHouseMap, size = 420, title, onHouseSelect, bhavaMadhya }: Props) {
+export default function NorthIndianChart({ ascendant, planets, planetHouseMap, size = 420, title, onHouseSelect, onPlanetSelect, compact, bhavaMadhya }: Props) {
   const { lang } = useLang()
   const [selectedHouse, setSelectedHouse] = useState<number | null>(null)
   const [hoveredPlanet, setHoveredPlanet] = useState<string | null>(null)
@@ -147,8 +149,8 @@ export default function NorthIndianChart({ ascendant, planets, planetHouseMap, s
   const aspectHighlights = getAspectHighlights(hoveredPlanet, planets)
 
   return (
-    <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
-      <div style={{ flexShrink: 0 }}>
+    <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start', flexWrap: 'wrap', width: compact ? '100%' : undefined }}>
+      <div style={{ flexShrink: compact ? 1 : 0, width: compact ? '100%' : undefined }}>
         {title && (
           <div style={{
             fontSize: '10.5px', fontWeight: '600', letterSpacing: '1.5px',
@@ -157,10 +159,11 @@ export default function NorthIndianChart({ ascendant, planets, planetHouseMap, s
           }}>{title}</div>
         )}
         <svg
-          width={size} height={size} viewBox="0 0 400 400"
+          width={compact ? '100%' : size} height={compact ? undefined : size} viewBox="0 0 400 400"
           style={{
             border: '1px solid var(--border)', borderRadius: '10px',
             background: 'var(--surface)', boxShadow: 'var(--shadow-m)', display: 'block',
+            width: compact ? '100%' : size, height: compact ? 'auto' : size, aspectRatio: compact ? '1' : undefined,
           }}
         >
           {/* Grid lines */}
@@ -198,7 +201,7 @@ export default function NorthIndianChart({ ascendant, planets, planetHouseMap, s
             else if (isKendra) fillColor = '#FAFAF8'
 
             return (
-              <g key={h} onClick={() => { const next = isSelected ? null : h; setSelectedHouse(next); onHouseSelect?.(next) }} style={{ cursor: 'pointer' }}>
+              <g key={h} onClick={() => { if (compact) { onHouseSelect?.(h); return } const next = isSelected ? null : h; setSelectedHouse(next); onHouseSelect?.(next) }} style={{ cursor: 'pointer' }}>
                 <polygon
                   points={cell.pts}
                   fill={fillColor}
@@ -206,9 +209,9 @@ export default function NorthIndianChart({ ascendant, planets, planetHouseMap, s
                   strokeWidth={isSelected || isAspectTarget ? 1.5 : 1}
                   style={{ transition: 'fill .2s, stroke .2s' }}
                 />
-                {/* House number */}
+                {/* Rashi (sign) number — traditional North Indian convention */}
                 <text x={cell.cx} y={cell.cy - 9} textAnchor="middle" fill="#C4C0B8" fontSize="8" fontFamily="Inter,sans-serif">
-                  {h}
+                  {SIGNS.indexOf(sign) + 1}
                 </text>
                 {/* Sign */}
                 <text x={cell.cx} y={cell.cy + 3} textAnchor="middle" fill="#A8A29E" fontSize="9" fontFamily="'Noto Sans Devanagari',Inter,sans-serif" fontWeight="500">
@@ -241,6 +244,7 @@ export default function NorthIndianChart({ ascendant, planets, planetHouseMap, s
                     style={{ cursor: 'pointer' }}
                     onMouseEnter={e => { e.stopPropagation(); setHoveredPlanet(planet) }}
                     onMouseLeave={() => setHoveredPlanet(null)}
+                    onClick={e => { e.stopPropagation(); onPlanetSelect?.(planet) }}
                   >
                     {getPlanetSym(planet)}
                     {planets[planet]?.retrograde ? 'ᴿ' : ''}
@@ -264,7 +268,7 @@ export default function NorthIndianChart({ ascendant, planets, planetHouseMap, s
       </div>
 
       {/* House detail panel */}
-      {selectedHouse !== null && (
+      {!compact && selectedHouse !== null && (
         <div className="anim-scale-in" style={{
           background: 'var(--surface)', border: '1px solid var(--border)',
           borderRadius: '12px', padding: '18px', minWidth: '240px', maxWidth: '280px',

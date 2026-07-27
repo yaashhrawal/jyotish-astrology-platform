@@ -53,7 +53,10 @@ NAKSHATRA_LORDS = [
     "Ketu","Venus","Sun","Moon","Mars","Rahu","Jupiter","Saturn","Mercury"
 ]
 
-HORA_SEQUENCE = ["Sun","Venus","Mercury","Moon","Saturn","Jupiter","Mars"]
+# Planetary hours advance in CHALDEAN order (slowest → fastest graha),
+# repeating every 7. The FIRST hora of the day (at sunrise) is ruled by the
+# weekday lord; each subsequent hora steps forward in this sequence.
+CHALDEAN_ORDER = ["Saturn", "Jupiter", "Mars", "Sun", "Venus", "Mercury", "Moon"]
 
 
 def get_tithi(sun_lon: float, moon_lon: float):
@@ -65,10 +68,27 @@ def get_tithi(sun_lon: float, moon_lon: float):
 
 
 def get_vara(jd: float, tz_offset: float):
-    # Day of week from JD
+    # Fallback (civil, midnight boundary). Prefer get_vara_sunrise below.
     local_jd = jd + tz_offset / 24.0
     day_of_week = int(local_jd + 1.5) % 7
     return VARAS[day_of_week], VARA_LORDS[day_of_week]
+
+
+def get_vara_sunrise(year, month, day, tz_offset, lat, lon, query_jd):
+    """Vedic weekday — changes at SUNRISE, not midnight. Before sunrise the
+    running vara still belongs to the previous day."""
+    def _wd(sr):
+        return int((sr + tz_offset / 24.0) + 1.5) % 7
+    try:
+        sr, _, _ = _sun_rise_set(birth_to_jd(year, month, day, 0, 0, tz_offset), lat, lon)
+        if query_jd < sr:  # before today's sunrise → previous Vedic day
+            sr_prev, _, _ = _sun_rise_set(birth_to_jd(year, month, day - 1, 0, 0, tz_offset), lat, lon)
+            wd = _wd(sr_prev)
+        else:
+            wd = _wd(sr)
+        return VARAS[wd], VARA_LORDS[wd]
+    except Exception:
+        return get_vara(query_jd, tz_offset)
 
 
 def get_nakshatra_pada(moon_lon: float):
@@ -105,22 +125,76 @@ def get_karana(sun_lon: float, moon_lon: float):
     return name, inauspicious
 
 
-def get_hora(jd: float, tz_offset: float):
-    local_jd = jd + tz_offset / 24.0
-    day_of_week = int(local_jd + 1.5) % 7
-    # Hour of day (local)
-    fractional_day = (local_jd + 0.5) % 1
-    hour_of_day = int(fractional_day * 24)
-    # Hora lord: day lord starts at sunrise (hora 0), each hora = 1 hour
-    day_lord_idx = day_of_week
-    hora_idx = (day_lord_idx * 24 + hour_of_day) % 7
-    return HORA_SEQUENCE[hora_idx]
+def _jd_to_local_hm(jd: float, tz_offset: float) -> str:
+    """Julian Day (UT) → local HH:MM string."""
+    local = jd + tz_offset / 24.0
+    frac = (local + 0.5) % 1.0        # 0 = local midnight
+    total_min = round(frac * 24 * 60)
+    return f"{(total_min // 60) % 24:02d}:{total_min % 60:02d}"
+
+
+def _sun_rise_set(day_start_ut: float, lat: float, lon: float):
+    """Return (sunrise, sunset, next_sunrise) as UT Julian Days for the local day.
+    Falls back to 06:00/18:00 if Swiss Ephemeris rise/set can't be computed
+    (e.g. polar latitudes)."""
+    def _find(rsmi: int, start: float) -> float:
+        # Signature: rise_trans(tjdut, body, rsmi, geopos=(lon,lat,alt), atpress, attemp, flags)
+        res = swe.rise_trans(start, swe.SUN, rsmi, (lon, lat, 0), 0, 0, swe.FLG_MOSEPH)
+        return res[1][0]  # (retflag, (tret, ...))
+    sr = _find(swe.CALC_RISE, day_start_ut)
+    ss = _find(swe.CALC_SET, sr)
+    nsr = _find(swe.CALC_RISE, ss)
+    return sr, ss, nsr
+
+
+def get_hora_schedule(year, month, day, tz_offset, lat, lon, query_jd):
+    """Correct planetary-hours (hora) schedule.
+    Day (sunrise→sunset) split into 12 unequal horas, night (sunset→next
+    sunrise) into 12. First day-hora ruled by the weekday lord, then Chaldean.
+    Returns (current_lord, schedule, sun_times)."""
+    midnight_ut = birth_to_jd(year, month, day, 0, 0, tz_offset)  # local midnight in UT
+    try:
+        sr, ss, nsr = _sun_rise_set(midnight_ut, lat, lon)
+        if not (sr < ss < nsr):
+            raise ValueError("bad rise/set order")
+    except Exception:
+        sr = birth_to_jd(year, month, day, 6, 0, tz_offset)
+        ss = birth_to_jd(year, month, day, 18, 0, tz_offset)
+        nsr = birth_to_jd(year, month, day + 1, 6, 0, tz_offset)
+
+    # Weekday at SUNRISE (Vedic day begins at sunrise) → its lord starts the horas
+    weekday = int((sr + tz_offset / 24.0) + 1.5) % 7
+    start_idx = CHALDEAN_ORDER.index(VARA_LORDS[weekday])
+
+    day_h = (ss - sr) / 12.0
+    night_h = (nsr - ss) / 12.0
+    schedule = []
+    current_lord = None
+    for i in range(24):
+        if i < 12:
+            h_start, h_end, is_night = sr + i * day_h, sr + (i + 1) * day_h, False
+        else:
+            j = i - 12
+            h_start, h_end, is_night = ss + j * night_h, ss + (j + 1) * night_h, True
+        lord = CHALDEAN_ORDER[(start_idx + i) % 7]
+        is_current = h_start <= query_jd < h_end
+        if is_current:
+            current_lord = lord
+        schedule.append({
+            "index": i, "lord": lord, "is_night": is_night,
+            "start": _jd_to_local_hm(h_start, tz_offset),
+            "end": _jd_to_local_hm(h_end, tz_offset),
+            "current": is_current,
+        })
+    sun_times = {"sunrise": _jd_to_local_hm(sr, tz_offset), "sunset": _jd_to_local_hm(ss, tz_offset)}
+    return current_lord, schedule, sun_times
 
 
 def get_sun_moon_positions(jd: float, ayanamsa: str):
     ayan = get_ayanamsa(jd, ayanamsa)
-    sun_r, _ = swe.calc_ut(jd, swe.SUN, swe.FLG_SWIEPH)
-    moon_r, _ = swe.calc_ut(jd, swe.MOON, swe.FLG_SWIEPH)
+    # Use Moshier (FLG_MOSEPH) to match core/engine.py — no ephemeris files shipped.
+    sun_r, _ = swe.calc_ut(jd, swe.SUN, swe.FLG_MOSEPH)
+    moon_r, _ = swe.calc_ut(jd, swe.MOON, swe.FLG_MOSEPH)
     sun_sid = (sun_r[0] - ayan) % 360
     moon_sid = (moon_r[0] - ayan) % 360
     return sun_sid, moon_sid
@@ -132,22 +206,18 @@ def get_panchanga(data: PanchangaRequest):
     sun_lon, moon_lon = get_sun_moon_positions(jd, data.ayanamsa)
 
     tithi_num, tithi_name, paksha = get_tithi(sun_lon, moon_lon)
-    vara, vara_lord = get_vara(jd, data.tz_offset)
+    vara, vara_lord = get_vara_sunrise(data.year, data.month, data.day, data.tz_offset, data.latitude, data.longitude, jd)
     nakshatra, nak_lord, nak_idx, pada = get_nakshatra_pada(moon_lon)
     yoga_name, yoga_inauspicious = get_yoga(sun_lon, moon_lon)
     karana_name, karana_inauspicious = get_karana(sun_lon, moon_lon)
-    hora_lord = get_hora(jd, data.tz_offset)
 
-    # Full 24-hora schedule for the day
-    local_jd = jd + data.tz_offset / 24.0
-    day_of_week = int(local_jd + 1.5) % 7
-    hora_schedule = []
-    for h in range(24):
-        hora_idx = (day_of_week * 24 + h) % 7
-        hora_schedule.append({"hour": h, "lord": HORA_SEQUENCE[hora_idx], "time": f"{h:02d}:00"})
+    # Correct sunrise-based planetary hours (Chaldean order from weekday lord)
+    hora_lord, hora_schedule, sun_times = get_hora_schedule(
+        data.year, data.month, data.day, data.tz_offset, data.latitude, data.longitude, jd
+    )
 
     # Moon speed for waxing/waning
-    moon_r, _ = swe.calc_ut(jd, swe.MOON, swe.FLG_SWIEPH | swe.FLG_SPEED)
+    moon_r, _ = swe.calc_ut(jd, swe.MOON, swe.FLG_MOSEPH | swe.FLG_SPEED)
     is_waxing = tithi_num <= 15
 
     return {
@@ -156,7 +226,7 @@ def get_panchanga(data: PanchangaRequest):
         "nakshatra": {"name": nakshatra, "lord": nak_lord, "pada": pada, "index": nak_idx},
         "yoga": {"name": yoga_name, "inauspicious": yoga_inauspicious},
         "karana": {"name": karana_name, "inauspicious": karana_inauspicious},
-        "hora": {"lord": hora_lord, "schedule": hora_schedule},
+        "hora": {"lord": hora_lord, "schedule": hora_schedule, **sun_times},
         "moon": {"longitude": round(moon_lon, 4), "is_waxing": is_waxing, "speed": round(moon_r[3], 4)},
         "sun": {"longitude": round(sun_lon, 4)},
         "date": f"{data.year}-{data.month:02d}-{data.day:02d} {data.hour:02d}:{data.minute:02d}",

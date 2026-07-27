@@ -3,6 +3,8 @@
  * Supports both Parashari (sign-based) and Western (degree-based) aspects.
  */
 
+import { useLang } from '../contexts/LanguageContext'
+
 const PLANETS = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn','Rahu','Ketu']
 const PLANET_SYMBOLS: Record<string, string> = {
   Sun: '☉', Moon: '☽', Mars: '♂', Mercury: '☿',
@@ -62,6 +64,7 @@ interface Props {
 }
 
 export default function AspectWheel({ westernAspects = [], parashariAspects = [], mode = 'western', planetLongitudes }: Props) {
+  const { t } = useLang()
   // Order planets by zodiac position if available, else fixed order
   const orderedPlanets = planetLongitudes
     ? [...PLANETS].sort((a, b) => (planetLongitudes[a] ?? 0) - (planetLongitudes[b] ?? 0))
@@ -145,7 +148,7 @@ export default function AspectWheel({ westernAspects = [], parashariAspects = []
           {lines.length}
         </text>
         <text x={CX} y={CY + 12} textAnchor="middle" dominantBaseline="middle" fontSize={8} fill="#475569">
-          aspects
+          {t('aspects')}
         </text>
       </svg>
 

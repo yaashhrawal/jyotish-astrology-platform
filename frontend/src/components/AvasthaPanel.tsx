@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { avasthasApi } from '../api/client'
+import { useLang } from '../contexts/LanguageContext'
 
 const PLANET_COLORS: Record<string, string> = {
   Sun: '#D97706', Moon: '#0891B2', Mars: '#DC2626', Mercury: '#16A34A',
@@ -24,18 +25,19 @@ export default function AvasthaPanel({ birthData }: Props) {
   const [err, setErr] = useState('')
   const [expanded, setExpanded] = useState<string | null>(null)
   const [view, setView] = useState<'cards' | 'table'>('cards')
+  const { t } = useLang()
 
   useEffect(() => {
     if (!birthData) return
     setLoading(true); setErr('')
     avasthasApi.get(birthData)
       .then(setData)
-      .catch(e => setErr(e?.message || 'Error'))
+      .catch(e => setErr(e?.message || t('Error')))
       .finally(() => setLoading(false))
   }, [birthData])
 
-  if (!birthData) return <div style={{ padding: 20, color: 'var(--text3)', fontSize: 13 }}>Load birth chart first.</div>
-  if (loading) return <div style={{ padding: 20, color: 'var(--text3)', fontSize: 13 }}>Computing avasthas…</div>
+  if (!birthData) return <div style={{ padding: 20, color: 'var(--text3)', fontSize: 13 }}>{t('Load birth chart first.')}</div>
+  if (loading) return <div style={{ padding: 20, color: 'var(--text3)', fontSize: 13 }}>{t('Computing avasthas…')}</div>
   if (err) return <div style={{ padding: 12, background: '#FEF2F2', borderRadius: 8, color: '#DC2626', fontSize: 13 }}>{err}</div>
   if (!data) return null
 
@@ -55,13 +57,13 @@ export default function AvasthaPanel({ birthData }: Props) {
       {/* Header */}
       <div style={{ padding: '14px 18px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-m)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '2px' }}>Avasthas — Planetary States</div>
-          <div style={{ fontSize: '12px', color: 'var(--text3)' }}>Baladi · Jagradi · Lajjitadi · Deeptadi · Saptadhatu — BPHS Ch. 45–47</div>
+          <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '2px' }}>{t('Avasthas — Planetary States')}</div>
+          <div style={{ fontSize: '12px', color: 'var(--text3)' }}>{t('Baladi · Jagradi · Lajjitadi · Deeptadi · Saptadhatu — BPHS Ch. 45–47')}</div>
         </div>
         <div style={{ display: 'flex', gap: '6px' }}>
           {(['cards','table'] as const).map(v => (
             <button key={v} onClick={() => setView(v)} style={{ padding: '6px 12px', borderRadius: '8px', border: '1px solid var(--border)', background: view === v ? 'var(--accent)' : 'var(--surface)', color: view === v ? '#fff' : 'var(--text3)', fontSize: '12px', cursor: 'pointer' }}>
-              {v === 'cards' ? 'Cards' : 'Table'}
+              {v === 'cards' ? t('Cards') : t('Table')}
             </button>
           ))}
         </div>
@@ -74,7 +76,7 @@ export default function AvasthaPanel({ birthData }: Props) {
             <thead>
               <tr style={{ borderBottom: '2px solid var(--border)' }}>
                 {['Planet','Sign','H','Baladi','Str%','Jagradi','Deeptadi','Score'].map(h => (
-                  <th key={h} style={{ padding: '8px 10px', textAlign: 'left', fontSize: '10px', color: 'var(--text3)', fontWeight: '700', textTransform: 'uppercase' }}>{h}</th>
+                  <th key={h} style={{ padding: '8px 10px', textAlign: 'left', fontSize: '10px', color: 'var(--text3)', fontWeight: '700', textTransform: 'uppercase' }}>{t(h)}</th>
                 ))}
               </tr>
             </thead>
@@ -123,7 +125,7 @@ export default function AvasthaPanel({ birthData }: Props) {
                     </div>
                     <div style={{ textAlign: 'right' }}>
                       <div style={{ fontSize: '18px', fontWeight: '900', color: av.overall_score >= 70 ? '#16A34A' : av.overall_score >= 40 ? '#F59E0B' : '#DC2626' }}>{av.overall_score}</div>
-                      <div style={{ fontSize: '9px', color: 'var(--text4)' }}>score</div>
+                      <div style={{ fontSize: '9px', color: 'var(--text4)' }}>{t('score')}</div>
                     </div>
                   </div>
 
@@ -146,25 +148,25 @@ export default function AvasthaPanel({ birthData }: Props) {
                   <div style={{ borderTop: '1px solid var(--border)', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                     {/* Baladi */}
                     <div>
-                      <div style={{ fontSize: '10px', fontWeight: '700', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '4px' }}>Baladi Avastha (Age State)</div>
+                      <div style={{ fontSize: '10px', fontWeight: '700', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '4px' }}>{t('Baladi Avastha (Age State)')}</div>
                       <div style={{ padding: '8px 10px', background: bc + '10', borderRadius: '8px', border: `1px solid ${bc}30` }}>
-                        <div style={{ fontSize: '12px', fontWeight: '700', color: bc }}>{av.baladi.state} — {av.baladi.strength_percent}% strength</div>
+                        <div style={{ fontSize: '12px', fontWeight: '700', color: bc }}>{av.baladi.state} — {av.baladi.strength_percent}% {t('strength')}</div>
                         <div style={{ fontSize: '11px', color: 'var(--text2)', marginTop: '3px' }}>{av.baladi.description}</div>
                       </div>
                     </div>
 
                     {/* Jagradi */}
                     <div>
-                      <div style={{ fontSize: '10px', fontWeight: '700', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '4px' }}>Jagradi Avastha (Awakening State)</div>
+                      <div style={{ fontSize: '10px', fontWeight: '700', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '4px' }}>{t('Jagradi Avastha (Awakening State)')}</div>
                       <div style={{ padding: '8px 10px', background: 'var(--surface2)', borderRadius: '8px' }}>
-                        <div style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text)' }}>{av.jagradi.state} — {av.jagradi.strength}% strength</div>
+                        <div style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text)' }}>{av.jagradi.state} — {av.jagradi.strength}% {t('strength')}</div>
                         <div style={{ fontSize: '11px', color: 'var(--text2)', marginTop: '3px' }}>{av.jagradi.description}</div>
                       </div>
                     </div>
 
                     {/* Lajjitadi */}
                     <div>
-                      <div style={{ fontSize: '10px', fontWeight: '700', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '4px' }}>Lajjitadi Avastha (Emotional States)</div>
+                      <div style={{ fontSize: '10px', fontWeight: '700', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '4px' }}>{t('Lajjitadi Avastha (Emotional States)')}</div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                         {av.lajjitadi.map((lj: any, i: number) => (
                           <div key={i} style={{ padding: '6px 10px', background: EFFECT_COLORS[lj.effect] + '10', borderRadius: '6px', border: `1px solid ${EFFECT_COLORS[lj.effect]}30` }}>
@@ -177,7 +179,7 @@ export default function AvasthaPanel({ birthData }: Props) {
 
                     {/* Deeptadi */}
                     <div>
-                      <div style={{ fontSize: '10px', fontWeight: '700', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '4px' }}>Deeptadi Avastha</div>
+                      <div style={{ fontSize: '10px', fontWeight: '700', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '4px' }}>{t('Deeptadi Avastha')}</div>
                       <div style={{ padding: '6px 10px', background: 'var(--surface2)', borderRadius: '6px', fontSize: '11px', color: 'var(--text2)' }}>
                         <strong>{av.deeptadi.state}</strong> — {av.deeptadi.description}
                       </div>
@@ -186,11 +188,11 @@ export default function AvasthaPanel({ birthData }: Props) {
                     {/* Saptadhatu */}
                     {av.saptadhatu?.dhatu && (
                       <div>
-                        <div style={{ fontSize: '10px', fontWeight: '700', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '4px' }}>Saptadhatu (Body Tissue)</div>
+                        <div style={{ fontSize: '10px', fontWeight: '700', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '4px' }}>{t('Saptadhatu (Body Tissue)')}</div>
                         <div style={{ padding: '8px 10px', background: c + '08', borderRadius: '8px', border: `1px solid ${c}20` }}>
                           <div style={{ fontSize: '11px', fontWeight: '700', color: c }}>{av.saptadhatu.dhatu}</div>
-                          <div style={{ fontSize: '10.5px', color: 'var(--text2)', marginTop: '2px' }}>Governs: {av.saptadhatu.body}</div>
-                          <div style={{ fontSize: '10.5px', color: '#DC2626', marginTop: '2px' }}>If afflicted: {av.saptadhatu.disease_when_afflicted}</div>
+                          <div style={{ fontSize: '10.5px', color: 'var(--text2)', marginTop: '2px' }}>{t('Governs')}: {av.saptadhatu.body}</div>
+                          <div style={{ fontSize: '10.5px', color: '#DC2626', marginTop: '2px' }}>{t('If afflicted')}: {av.saptadhatu.disease_when_afflicted}</div>
                         </div>
                       </div>
                     )}
@@ -198,7 +200,7 @@ export default function AvasthaPanel({ birthData }: Props) {
                     {/* Conjuncts */}
                     {av.conjunct_planets.length > 0 && (
                       <div style={{ fontSize: '11px', color: 'var(--text3)' }}>
-                        Conjunct: {av.conjunct_planets.map((cp: string) => (
+                        {t('Conjunct')}: {av.conjunct_planets.map((cp: string) => (
                           <span key={cp} style={{ display: 'inline-block', margin: '0 4px 0 0', padding: '1px 7px', borderRadius: '20px', background: (PLANET_COLORS[cp] || '#888') + '18', color: PLANET_COLORS[cp] || '#888', fontWeight: '600' }}>{cp}</span>
                         ))}
                       </div>

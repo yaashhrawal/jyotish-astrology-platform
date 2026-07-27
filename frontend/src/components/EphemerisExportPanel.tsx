@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { api } from '../api/client'
+import { useLang } from '../contexts/LanguageContext'
 
 const PLANETS = ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn', 'Rahu', 'Ketu']
 
@@ -20,6 +21,7 @@ function daysInMonth(year: number, month: number) {
 }
 
 export default function EphemerisExportPanel() {
+  const { t } = useLang()
   const [form, setForm] = useState({
     year: new Date().getFullYear(),
     month: new Date().getMonth() + 1,
@@ -45,7 +47,7 @@ export default function EphemerisExportPanel() {
 
     for (let i = 0; i < dates.length; i++) {
       const { y, m, d } = dates[i]
-      setProgress(`Processing ${d}/${m}/${y} (${i + 1}/${dates.length})…`)
+      setProgress(`${t('Processing')} ${d}/${m}/${y} (${i + 1}/${dates.length})…`)
       try {
         const data = await fetchDay(y, m, d)
         const planets = data.planets || {}
@@ -87,13 +89,13 @@ export default function EphemerisExportPanel() {
         ? `ephemeris_${form.year}_${String(form.month).padStart(2,'0')}.csv`
         : `ephemeris_${form.year}.csv`
       downloadCSV(filename, csv)
-      setProgress(`Done! ${rows.length - 1} rows exported.`)
-    } catch (e: any) { setErr(e?.message || 'Export failed') }
+      setProgress(`${t('Done!')} ${rows.length - 1} ${t('rows exported.')}`)
+    } catch (e: any) { setErr(e?.message || t('Export failed')) }
     finally { setLoading(false) }
   }
 
   const exportDashaCSV = async () => {
-    setLoading(true); setErr(''); setProgress('Fetching dasha data…')
+    setLoading(true); setErr(''); setProgress(t('Fetching dasha data…'))
     try {
       const res = await api.post('/api/calc/dasha', {
         year: form.year, month: form.month, day: 1, hour: 12, minute: 0,
@@ -107,8 +109,8 @@ export default function EphemerisExportPanel() {
         rows.push([d.lord, d.start?.slice(0,10), d.end?.slice(0,10), d.years?.toFixed(1), antars])
       }
       downloadCSV(`dasha_${form.year}_${form.month}.csv`, toCSV(rows))
-      setProgress('Dasha CSV exported.')
-    } catch (e: any) { setErr(e?.message || 'Failed') }
+      setProgress(t('Dasha CSV exported.'))
+    } catch (e: any) { setErr(e?.message || t('Failed')) }
     finally { setLoading(false) }
   }
 
@@ -125,38 +127,38 @@ export default function EphemerisExportPanel() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       {/* Header */}
       <div style={{ padding: '14px 18px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-m)' }}>
-        <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '4px' }}>Ephemeris & Data Export</div>
-        <div style={{ fontSize: '12px', color: 'var(--text3)' }}>Export planetary positions for any date range as CSV · suitable for Excel / Google Sheets</div>
+        <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '4px' }}>{t('Ephemeris & Data Export')}</div>
+        <div style={{ fontSize: '12px', color: 'var(--text3)' }}>{t('Export planetary positions for any date range as CSV · suitable for Excel / Google Sheets')}</div>
       </div>
 
       {/* Config */}
       <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-m)', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-          <F label="Export Mode">
+          <F label={t('Export Mode')}>
             <select value={form.mode} onChange={e => setForm(f => ({ ...f, mode: e.target.value as any }))} style={inp}>
-              <option value="month">Single Month</option>
-              <option value="year">Full Year</option>
+              <option value="month">{t('Single Month')}</option>
+              <option value="year">{t('Full Year')}</option>
             </select>
           </F>
-          <F label="Step (days)">
+          <F label={t('Step (days)')}>
             <select value={form.step} onChange={e => setForm(f => ({ ...f, step: e.target.value }))} style={inp}>
-              <option value="1">Every day</option>
-              <option value="3">Every 3 days</option>
-              <option value="7">Weekly</option>
-              <option value="15">Fortnightly</option>
+              <option value="1">{t('Every day')}</option>
+              <option value="3">{t('Every 3 days')}</option>
+              <option value="7">{t('Weekly')}</option>
+              <option value="15">{t('Fortnightly')}</option>
             </select>
           </F>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-          <F label="Year">
+          <F label={t('Year')}>
             <input type="number" value={form.year} onChange={e => setForm(f => ({ ...f, year: parseInt(e.target.value) }))} style={inp} min="1800" max="2100" />
           </F>
           {form.mode === 'month' && (
-            <F label="Month">
+            <F label={t('Month')}>
               <select value={form.month} onChange={e => setForm(f => ({ ...f, month: parseInt(e.target.value) }))} style={inp}>
                 {['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map((m,i) => (
-                  <option key={m} value={i+1}>{m}</option>
+                  <option key={m} value={i+1}>{t(m)}</option>
                 ))}
               </select>
             </F>
@@ -164,27 +166,27 @@ export default function EphemerisExportPanel() {
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '10px' }}>
-          <F label="Latitude">
+          <F label={t('Latitude')}>
             <input type="number" value={form.lat} onChange={e => setForm(f => ({ ...f, lat: parseFloat(e.target.value) }))} style={inp} step="0.0001" />
           </F>
-          <F label="Longitude">
+          <F label={t('Longitude')}>
             <input type="number" value={form.lon} onChange={e => setForm(f => ({ ...f, lon: parseFloat(e.target.value) }))} style={inp} step="0.0001" />
           </F>
-          <F label="TZ Offset">
+          <F label={t('TZ Offset')}>
             <input type="number" value={form.tz} onChange={e => setForm(f => ({ ...f, tz: parseFloat(e.target.value) }))} style={inp} step="0.5" />
           </F>
-          <F label="Ayanamsa">
+          <F label={t('Ayanamsa')}>
             <select value={form.ayanamsa} onChange={e => setForm(f => ({ ...f, ayanamsa: e.target.value }))} style={inp}>
-              <option value="lahiri">Lahiri</option>
-              <option value="raman">B.V. Raman</option>
-              <option value="krishnamurti">KP</option>
-              <option value="yukteshwar">Yukteshwar</option>
+              <option value="lahiri">{t('Lahiri')}</option>
+              <option value="raman">{t('B.V. Raman')}</option>
+              <option value="krishnamurti">{t('KP')}</option>
+              <option value="yukteshwar">{t('Yukteshwar')}</option>
             </select>
           </F>
         </div>
 
         <div style={{ padding: '10px 12px', background: 'var(--surface2)', borderRadius: '8px', fontSize: '11.5px', color: 'var(--text3)' }}>
-          ℹ Columns exported: Date, Julian Day, and for each planet: Sign, Longitude (decimal), Nakshatra, Status · Plus Ascendant sign at 12:00 noon for the location
+          ℹ {t('Columns exported: Date, Julian Day, and for each planet: Sign, Longitude (decimal), Nakshatra, Status · Plus Ascendant sign at 12:00 noon for the location')}
         </div>
       </div>
 
@@ -195,14 +197,14 @@ export default function EphemerisExportPanel() {
           background: 'var(--accent)', color: '#fff', fontSize: '13px', fontWeight: '700', cursor: 'pointer',
           opacity: loading ? 0.6 : 1,
         }}>
-          📊 Export Ephemeris CSV
+          📊 {t('Export Ephemeris CSV')}
         </button>
         <button onClick={exportDashaCSV} disabled={loading} style={{
           padding: '11px 20px', borderRadius: 'var(--radius-m)', border: '1px solid var(--border)',
           background: 'var(--surface)', color: 'var(--text)', fontSize: '13px', fontWeight: '600', cursor: 'pointer',
           opacity: loading ? 0.6 : 1,
         }}>
-          🌀 Export Dasha CSV
+          🌀 {t('Export Dasha CSV')}
         </button>
       </div>
 
@@ -216,14 +218,14 @@ export default function EphemerisExportPanel() {
 
       {/* Format info */}
       <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-m)', padding: '14px 16px' }}>
-        <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '8px' }}>CSV Column Structure</div>
+        <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '8px' }}>{t('CSV Column Structure')}</div>
         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
           {['Date', 'JD', 'Sun Sign', 'Sun Lon', 'Sun Nakshatra', 'Sun Status', '… ×9 planets …', 'Asc Sign'].map(c => (
             <span key={c} style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '20px', background: 'var(--surface2)', color: 'var(--text3)', border: '1px solid var(--border)' }}>{c}</span>
           ))}
         </div>
         <div style={{ fontSize: '11px', color: 'var(--text3)', marginTop: '8px' }}>
-          Total columns: <strong>38</strong> (2 + 4 per planet × 9 + 1 ascendant)
+          {t('Total columns:')} <strong>38</strong> (2 + 4 per planet × 9 + 1 ascendant)
         </div>
       </div>
     </div>

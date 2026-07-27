@@ -4,6 +4,8 @@
  * Also shows Bhinnashtakavarga for a selected planet.
  */
 
+import { useLang } from '../contexts/LanguageContext'
+
 const SIGNS_SHORT = ['Ari','Tau','Gem','Can','Leo','Vir','Lib','Sco','Sag','Cap','Aqu','Pis']
 const SIGNS_FULL  = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces']
 const CX = 180, CY = 180, OUTER_R = 155, INNER_R = 80, LABEL_R = 170
@@ -36,6 +38,7 @@ interface Props {
 }
 
 export default function AshtakavargaWheel({ sarva, bhinnashtaka, selectedPlanet, ascendantSign }: Props) {
+  const { t } = useLang()
   const sourceData = (selectedPlanet && bhinnashtaka?.[selectedPlanet])
     ? bhinnashtaka[selectedPlanet]
     : sarva
@@ -104,19 +107,19 @@ export default function AshtakavargaWheel({ sarva, bhinnashtaka, selectedPlanet,
 
         {/* Center text */}
         <text x={CX} y={CY - 10} textAnchor="middle" fontSize={11} fill="#94a3b8" fontWeight={600}>
-          {selectedPlanet || 'Sarva'}
+          {selectedPlanet || t('Sarva')}
         </text>
         <text x={CX} y={CY + 8} textAnchor="middle" fontSize={22} fill="#f1f5f9" fontWeight={800}>
           {values.reduce((a, b) => a + b, 0)}
         </text>
         <text x={CX} y={CY + 24} textAnchor="middle" fontSize={10} fill="#64748b">
-          total bindus
+          {t('total bindus')}
         </text>
 
         {/* Ascendant label */}
         {ascendantSign && (
           <text x={CX} y={CY + 40} textAnchor="middle" fontSize={9} fill="#f59e0b">
-            ▲ Lagna: {ascendantSign}
+            ▲ {t('Lagna')}: {ascendantSign}
           </text>
         )}
       </svg>
@@ -124,10 +127,10 @@ export default function AshtakavargaWheel({ sarva, bhinnashtaka, selectedPlanet,
       {/* Color legend */}
       <div style={{ display: 'flex', gap: 12, fontSize: 11, flexWrap: 'wrap', justifyContent: 'center' }}>
         {[
-          { color: '#ef4444', label: `Weak (<${Math.round(maxVal * 0.35)})` },
-          { color: '#eab308', label: `Average (${Math.round(maxVal * 0.35)}–${Math.round(maxVal * 0.5)})` },
-          { color: '#3b82f6', label: `Good (${Math.round(maxVal * 0.5)}–${Math.round(maxVal * 0.75)})` },
-          { color: '#22c55e', label: `Excellent (${Math.round(maxVal * 0.75)}+)` },
+          { color: '#ef4444', label: `${t('Weak')} (<${Math.round(maxVal * 0.35)})` },
+          { color: '#eab308', label: `${t('Average')} (${Math.round(maxVal * 0.35)}–${Math.round(maxVal * 0.5)})` },
+          { color: '#3b82f6', label: `${t('Good')} (${Math.round(maxVal * 0.5)}–${Math.round(maxVal * 0.75)})` },
+          { color: '#22c55e', label: `${t('Excellent')} (${Math.round(maxVal * 0.75)}+)` },
         ].map(l => (
           <div key={l.label} style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#94a3b8' }}>
             <span style={{ width: 10, height: 10, borderRadius: 2, background: l.color, display: 'inline-block' }} />

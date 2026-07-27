@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { vargaDashaApi } from '../api/client'
+import { useLang } from '../contexts/LanguageContext'
 
 const PLANET_COLORS: Record<string, string> = {
   Sun:'#D97706', Moon:'#0891B2', Mars:'#DC2626', Mercury:'#16A34A',
@@ -21,6 +22,7 @@ const VARGA_OPTIONS = [
 interface Props { birthData: any }
 
 function DashaRow({ d }: { d: any }) {
+  const { t } = useLang()
   const [open, setOpen] = useState(d.is_active)
   const color = PLANET_COLORS[d.lord] || '#888'
   return (
@@ -28,10 +30,10 @@ function DashaRow({ d }: { d: any }) {
       <div onClick={() => setOpen((o: boolean) => !o)} style={{ padding: '10px 14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }}>
         <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: color + '20', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '800', fontSize: '12px', color }}>{d.lord.slice(0,2)}</div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: '13px', fontWeight: '700', color }}>{d.lord} Dasha</div>
+          <div style={{ fontSize: '13px', fontWeight: '700', color }}>{d.lord} {t('Dasha')}</div>
           <div style={{ fontSize: '11px', color: 'var(--text3)' }}>{d.start?.slice(0,7)} → {d.end?.slice(0,7)} · {d.years}y</div>
         </div>
-        {d.is_active && <span style={{ fontSize: '10px', fontWeight: '700', color, background: color + '18', padding: '2px 8px', borderRadius: '20px' }}>◉ Active</span>}
+        {d.is_active && <span style={{ fontSize: '10px', fontWeight: '700', color, background: color + '18', padding: '2px 8px', borderRadius: '20px' }}>◉ {t('Active')}</span>}
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform .2s', color: 'var(--text3)' }}>
           <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
         </svg>
@@ -56,6 +58,7 @@ function DashaRow({ d }: { d: any }) {
 }
 
 export default function VargaDashaPanel({ birthData }: Props) {
+  const { t } = useLang()
   const [selectedD, setSelectedD] = useState(9)
   const [cache, setCache] = useState<Record<number, any>>({})
   const [loading, setLoading] = useState(false)
@@ -82,8 +85,8 @@ export default function VargaDashaPanel({ birthData }: Props) {
             background: selectedD === o.d ? 'var(--accent)' : 'var(--surface)',
             color: selectedD === o.d ? '#fff' : 'var(--text)',
           }}>
-            <div style={{ fontSize: '12px', fontWeight: '700' }}>{o.label}</div>
-            <div style={{ fontSize: '10px', opacity: 0.75, marginTop: '1px' }}>{o.domain}</div>
+            <div style={{ fontSize: '12px', fontWeight: '700' }}>{t(o.label)}</div>
+            <div style={{ fontSize: '10px', opacity: 0.75, marginTop: '1px' }}>{t(o.domain)}</div>
           </button>
         ))}
       </div>
@@ -92,16 +95,16 @@ export default function VargaDashaPanel({ birthData }: Props) {
       {data && (
         <div style={{ padding: '12px 16px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-m)' }}>
           <div style={{ fontSize: '13px', fontWeight: '700', marginBottom: '4px' }}>
-            Vimshottari from {data.varga_name} Lagna — {data.domain}
+            {t('Vimshottari from')} {data.varga_name} {t('Lagna')} — {data.domain}
           </div>
           <div style={{ fontSize: '12px', color: 'var(--text3)' }}>
-            {data.varga_name} Lagna nakshatra: <strong>{data.varga_lagna}</strong> (lord: <strong>{data.varga_lagna_lord}</strong>)
+            {data.varga_name} {t('Lagna nakshatra')}: <strong>{data.varga_lagna}</strong> ({t('lord')}: <strong>{data.varga_lagna_lord}</strong>)
           </div>
           <div style={{ fontSize: '11px', color: 'var(--text3)', marginTop: '4px' }}>{data.note}</div>
         </div>
       )}
 
-      {loading && <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text3)', fontSize: '13px' }}>Calculating…</div>}
+      {loading && <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text3)', fontSize: '13px' }}>{t('Calculating…')}</div>}
       {error && <div style={{ padding: '12px', color: 'var(--red)', fontSize: '13px' }}>{error}</div>}
 
       {data && (

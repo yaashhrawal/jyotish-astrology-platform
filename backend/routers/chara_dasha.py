@@ -30,13 +30,12 @@ MOVEABLE_SIGNS = {"Aries", "Cancer", "Libra", "Capricorn"}
 
 
 def count_signs(from_sign_idx: int, to_sign_idx: int, direction: str = "forward") -> int:
-    """Count signs from one to another (inclusive)."""
+    """Chara dasha distance = EXCLUSIVE count (classical: signs counted minus one).
+    Lord in the sign itself → 0 here → treated as 12 years by the caller."""
     if direction == "forward":
-        diff = (to_sign_idx - from_sign_idx) % 12
-        return diff + 1
+        return (to_sign_idx - from_sign_idx) % 12
     else:
-        diff = (from_sign_idx - to_sign_idx) % 12
-        return diff + 1
+        return (from_sign_idx - to_sign_idx) % 12
 
 
 def get_chara_years(sign_idx: int, planets: dict, asc_idx: int) -> int:
@@ -63,12 +62,7 @@ def get_chara_years(sign_idx: int, planets: dict, asc_idx: int) -> int:
     else:
         years = count_signs(lord_sign_idx, sign_idx, "backward")
 
-    # Adjustment for Aquarius (Saturn's dual lordship with Rahu)
-    rahu_data = planets.get("Rahu")
-    if rahu_data and rahu_data["sign_index"] == lord_sign_idx:
-        years = max(1, years - 1)
-
-    # Cap at 12
+    # Own-sign (distance 0) → 12 years; otherwise the exclusive distance.
     years = years % 12
     if years == 0:
         years = 12

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { gemsApi, type Gem } from '../../api/client'
+import { useLang } from '../../contexts/LanguageContext'
 import GemRecommendModal from './GemRecommendModal'
 
 const PLANETS = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn','Rahu','Ketu']
@@ -17,6 +18,7 @@ const PLANET_COLORS: Record<string, string> = {
 const fmtINR = (paise: number) => '₹' + (paise / 100).toLocaleString('en-IN')
 
 export default function GemShopPanel() {
+  const { t } = useLang()
   const [gems, setGems] = useState<Gem[]>([])
   const [planet, setPlanet] = useState<string>('')
   const [tier, setTier] = useState<string>('all')
@@ -34,16 +36,16 @@ export default function GemShopPanel() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div>
-        <div style={{ fontSize: 16, fontWeight: 700 }}>💎 Gemstone Marketplace</div>
+        <div style={{ fontSize: 16, fontWeight: 700 }}>💎 {t('Gemstone Marketplace')}</div>
         <div style={{ fontSize: 12, color: 'var(--text3)' }}>
-          Authentic gems, lab-certified. Recommend → we ship → you earn 20–25% commission.
+          {t('Authentic gems, lab-certified. Recommend → we ship → you earn 20–25% commission.')}
         </div>
       </div>
 
       {/* Planet filter */}
       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
-        <span style={{ fontSize: 11, color: 'var(--text3)', fontWeight: 600 }}>Planet:</span>
-        <button onClick={() => setPlanet('')} style={chipStyle(!planet)}>All</button>
+        <span style={{ fontSize: 11, color: 'var(--text3)', fontWeight: 600 }}>{t('Planet:')}</span>
+        <button onClick={() => setPlanet('')} style={chipStyle(!planet)}>{t('All')}</button>
         {PLANETS.map(p => (
           <button key={p} onClick={() => setPlanet(p)} style={{
             ...chipStyle(planet === p), color: planet === p ? '#fff' : PLANET_COLORS[p],
@@ -55,18 +57,18 @@ export default function GemShopPanel() {
 
       {/* Tier filter */}
       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
-        <span style={{ fontSize: 11, color: 'var(--text3)', fontWeight: 600 }}>Tier:</span>
-        {TIERS.map(t => (
-          <button key={t.id} onClick={() => setTier(t.id)} style={chipStyle(tier === t.id)}>
-            {t.label}{t.sub && <span style={{ fontSize: 9, opacity: 0.7, marginLeft: 4 }}>({t.sub})</span>}
+        <span style={{ fontSize: 11, color: 'var(--text3)', fontWeight: 600 }}>{t('Tier:')}</span>
+        {TIERS.map(tierOpt => (
+          <button key={tierOpt.id} onClick={() => setTier(tierOpt.id)} style={chipStyle(tier === tierOpt.id)}>
+            {t(tierOpt.label)}{tierOpt.sub && <span style={{ fontSize: 9, opacity: 0.7, marginLeft: 4 }}>({t(tierOpt.sub)})</span>}
           </button>
         ))}
       </div>
 
       {loading ? (
-        <div style={{ padding: 40, color: 'var(--text3)', textAlign: 'center' }}>Loading catalog…</div>
+        <div style={{ padding: 40, color: 'var(--text3)', textAlign: 'center' }}>{t('Loading catalog…')}</div>
       ) : gems.length === 0 ? (
-        <div style={{ padding: 40, color: 'var(--text3)', textAlign: 'center' }}>No gems match.</div>
+        <div style={{ padding: 40, color: 'var(--text3)', textAlign: 'center' }}>{t('No gems match.')}</div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 14 }}>
           {gems.map(g => (
@@ -97,21 +99,21 @@ export default function GemShopPanel() {
               <div style={{ padding: '10px 16px', flex: 1, fontSize: 11, color: 'var(--text3)' }}>
                 {g.description}
                 <div style={{ marginTop: 8, color: 'var(--text4)' }}>
-                  Cert: <strong>{g.cert_authority}</strong> · Carat {g.carat_min}–{g.carat_max}
+                  {t('Cert:')} <strong>{g.cert_authority}</strong> · {t('Carat')} {g.carat_min}–{g.carat_max}
                 </div>
               </div>
               <div style={{ padding: '10px 16px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <div style={{ fontSize: 11, color: 'var(--text4)' }}>Retail</div>
+                  <div style={{ fontSize: 11, color: 'var(--text4)' }}>{t('Retail')}</div>
                   <div style={{ fontSize: 16, fontWeight: 700 }}>{fmtINR(g.retail_price_paise)}</div>
                   <div style={{ fontSize: 10, color: '#16A34A', fontWeight: 600 }}>
-                    Earn {g.base_commission_pct}% = {fmtINR(Math.floor(g.retail_price_paise * Number(g.base_commission_pct) / 100))}+
+                    {t('Earn')} {g.base_commission_pct}% = {fmtINR(Math.floor(g.retail_price_paise * Number(g.base_commission_pct) / 100))}+
                   </div>
                 </div>
                 <button onClick={() => setRecGem(g)} style={{
                   padding: '7px 14px', background: 'var(--accent)', color: '#fff',
                   border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer',
-                }}>Recommend</button>
+                }}>{t('Recommend')}</button>
               </div>
             </div>
           ))}

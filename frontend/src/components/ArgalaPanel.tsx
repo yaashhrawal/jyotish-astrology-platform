@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { apiPost } from '../api/client'
+import { useLang } from '../contexts/LanguageContext'
 
 interface BirthData {
   year: number; month: number; day: number
@@ -35,6 +36,7 @@ export default function ArgalaPanel({ birthData }: { birthData: BirthData | null
   const [error, setError] = useState('')
   const [expandedHouse, setExpandedHouse] = useState<number | null>(1)
   const [viewMode, setViewMode] = useState<'grid' | 'detail'>('grid')
+  const { t } = useLang()
 
   const compute = async () => {
     if (!birthData) return
@@ -43,30 +45,30 @@ export default function ArgalaPanel({ birthData }: { birthData: BirthData | null
       const res = await apiPost('/api/calc/argala', birthData)
       setData(res)
     } catch (e: any) {
-      setError(e?.response?.data?.detail || 'Computation failed')
+      setError(e?.response?.data?.detail || t('Computation failed'))
     } finally { setLoading(false) }
   }
 
-  if (!birthData) return <div style={{ padding: 20, color: 'var(--text3)', fontSize: 13 }}>Enter birth data to compute Argala.</div>
+  if (!birthData) return <div style={{ padding: 20, color: 'var(--text3)', fontSize: 13 }}>{t('Enter birth data to compute Argala.')}</div>
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       {/* Title row */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
         <div>
-          <div style={{ fontSize: 15, fontWeight: 700, color: '#f97316' }}>Argala & Virodha Argala</div>
-          <div style={{ fontSize: 11, color: 'var(--text3)' }}>Jaimini Sutras 1.4 — House Interventions</div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: '#f97316' }}>{t('Argala & Virodha Argala')}</div>
+          <div style={{ fontSize: 11, color: 'var(--text3)' }}>{t('Jaimini Sutras 1.4 — House Interventions')}</div>
         </div>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
           <button onClick={() => setViewMode(viewMode === 'grid' ? 'detail' : 'grid')} style={{
             padding: '7px 14px', background: 'var(--surface2)', border: '1px solid var(--border)',
             borderRadius: 8, fontSize: 12, cursor: 'pointer', color: 'var(--text2)',
-          }}>{viewMode === 'grid' ? 'Detail View' : 'Grid View'}</button>
+          }}>{viewMode === 'grid' ? t('Detail View') : t('Grid View')}</button>
           <button onClick={compute} disabled={loading} style={{
             padding: '8px 20px', background: 'var(--accent)', color: '#fff',
             border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600,
             cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1,
-          }}>{loading ? 'Computing…' : 'Compute'}</button>
+          }}>{loading ? t('Computing…') : t('Compute')}</button>
         </div>
       </div>
 
@@ -77,9 +79,9 @@ export default function ArgalaPanel({ birthData }: { birthData: BirthData | null
           {/* Summary */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
             {[
-              { label: 'Supported Houses', key: 'strongly_supported', color: '#16A34A' },
-              { label: 'Afflicted Houses', key: 'afflicted', color: '#DC2626' },
-              { label: 'Independent', key: 'independent', color: 'var(--text3)' },
+              { label: t('Supported Houses'), key: 'strongly_supported', color: '#16A34A' },
+              { label: t('Afflicted Houses'), key: 'afflicted', color: '#DC2626' },
+              { label: t('Independent'), key: 'independent', color: 'var(--text3)' },
             ].map(({ label, key, color }) => (
               <div key={key} style={{ ...card, textAlign: 'center', background: color + '10', borderColor: color + '33' }}>
                 <div style={{ fontSize: 11, color, marginBottom: 4 }}>{label}</div>
@@ -104,7 +106,7 @@ export default function ArgalaPanel({ birthData }: { birthData: BirthData | null
                   <div key={h} onClick={() => { setExpandedHouse(h); setViewMode('detail') }}
                     style={{ padding: '12px 14px', borderRadius: 10, border: `1px solid ${bc}`, background: bg, cursor: 'pointer' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                      <span style={{ fontWeight: 700, fontSize: 13, color: tc }}>{ORDINALS[h]} House</span>
+                      <span style={{ fontWeight: 700, fontSize: 13, color: tc }}>{ORDINALS[h]} {t('House')}</span>
                       <span style={{ fontSize: 11, color: 'var(--text3)' }}>{house.sign}</span>
                     </div>
                     <div style={{ fontSize: 11, color: 'var(--text3)', marginBottom: 8, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -151,11 +153,11 @@ export default function ArgalaPanel({ birthData }: { birthData: BirthData | null
                     <div style={{ ...card, background: STRENGTH_BG[s], borderColor: STRENGTH_BORDER[s] }}>
                       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' }}>
                         <div>
-                          <div style={{ fontSize: 20, fontWeight: 800, color: '#f97316' }}>{ORDINALS[house.house]} House</div>
+                          <div style={{ fontSize: 20, fontWeight: 800, color: '#f97316' }}>{ORDINALS[house.house]} {t('House')}</div>
                           <div style={{ fontSize: 13, color: 'var(--text2)' }}>{house.sign}</div>
                         </div>
                         <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: 11, color: 'var(--text3)', marginBottom: 4 }}>Signifies</div>
+                          <div style={{ fontSize: 11, color: 'var(--text3)', marginBottom: 4 }}>{t('Signifies')}</div>
                           <div style={{ fontSize: 13 }}>{house.signification}</div>
                         </div>
                         <div style={{ padding: '4px 12px', borderRadius: 8, border: `1px solid ${STRENGTH_BORDER[s]}`, color: STRENGTH_COLOR[s], fontSize: 12, fontWeight: 700 }}>
@@ -171,18 +173,18 @@ export default function ArgalaPanel({ birthData }: { birthData: BirthData | null
                           <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 10, background: a.type === 'primary' ? '#f9731618' : 'var(--surface2)', color: a.type === 'primary' ? '#f97316' : 'var(--text3)', fontWeight: 600 }}>
                             {a.type}
                           </span>
-                          <span style={{ fontWeight: 600, fontSize: 13 }}>+{a.argala_house}H Argala ({a.nature_of_house})</span>
-                          {a.is_cancelled && <span style={{ marginLeft: 'auto', fontSize: 11, color: '#DC2626', fontWeight: 700 }}>✗ CANCELLED</span>}
+                          <span style={{ fontWeight: 600, fontSize: 13 }}>+{a.argala_house}H {t('Argala')} ({a.nature_of_house})</span>
+                          {a.is_cancelled && <span style={{ marginLeft: 'auto', fontSize: 11, color: '#DC2626', fontWeight: 700 }}>✗ {t('CANCELLED')}</span>}
                           {a.effective && <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 700, color: a.argala_nature === 'benefic' ? '#16A34A' : '#DC2626' }}>
                             ✓ {a.argala_nature.toUpperCase()}
                           </span>}
-                          {!a.effective && !a.is_cancelled && <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--text4)' }}>no planets</span>}
+                          {!a.effective && !a.is_cancelled && <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--text4)' }}>{t('no planets')}</span>}
                         </div>
 
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                           {[
-                            { label: `Argala from ${a.argala_sign}`, planets: a.argala_planets },
-                            { label: `Virodha from ${a.virodha_sign}`, planets: a.virodha_planets },
+                            { label: `${t('Argala from')} ${a.argala_sign}`, planets: a.argala_planets },
+                            { label: `${t('Virodha from')} ${a.virodha_sign}`, planets: a.virodha_planets },
                           ].map(({ label, planets }) => (
                             <div key={label}>
                               <div style={{ fontSize: 11, color: 'var(--text3)', marginBottom: 6 }}>{label}</div>
@@ -192,7 +194,7 @@ export default function ArgalaPanel({ birthData }: { birthData: BirthData | null
                                     <span key={p} style={{ padding: '2px 8px', borderRadius: 6, fontSize: 11, fontWeight: 600, background: PLANET_COLORS[p] + '22', color: PLANET_COLORS[p] }}>{p}</span>
                                   ))}
                                 </div>
-                              ) : <span style={{ fontSize: 11, color: 'var(--text4)' }}>empty</span>}
+                              ) : <span style={{ fontSize: 11, color: 'var(--text4)' }}>{t('empty')}</span>}
                             </div>
                           ))}
                         </div>

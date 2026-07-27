@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { sthiraDashaApi, moolaDashaApi, taraDashaApi } from '../api/client'
+import { useLang } from '../contexts/LanguageContext'
 
 const PLANET_COLORS: Record<string, string> = {
   Sun: '#D97706', Moon: '#0891B2', Mars: '#DC2626', Mercury: '#16A34A',
@@ -40,7 +41,8 @@ function DashaRow({ d }: { d: any }) {
 }
 
 function DashaList({ data, loading, error }: { data: any; loading: boolean; error: string }) {
-  if (loading) return <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text3)', fontSize: '13px' }}>Calculating…</div>
+  const { t } = useLang()
+  if (loading) return <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text3)', fontSize: '13px' }}>{t('Calculating…')}</div>
   if (error) return <div style={{ padding: '20px', color: 'var(--red)', fontSize: '13px' }}>{error}</div>
   if (!data) return null
 
@@ -48,7 +50,7 @@ function DashaList({ data, loading, error }: { data: any; loading: boolean; erro
     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
       {/* Header */}
       <div style={{ padding: '10px 14px', display: 'grid', gridTemplateColumns: '140px 1fr 1fr auto', gap: '10px' }}>
-        {['Lord / Sign', 'Start', 'End', 'Duration'].map(h => (
+        {[t('Lord / Sign'), t('Start'), t('End'), t('Duration')].map(h => (
           <div key={h} style={{ fontSize: '10px', fontWeight: '700', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>{h}</div>
         ))}
       </div>
@@ -58,6 +60,7 @@ function DashaList({ data, loading, error }: { data: any; loading: boolean; erro
 }
 
 export default function MiscDashaPanel({ birthData }: Props) {
+  const { t } = useLang()
   const [mode, setMode] = useState<Mode>('sthira')
   const [sthira, setSthira] = useState<any>(null)
   const [moola, setMoola] = useState<any>(null)
@@ -80,9 +83,9 @@ export default function MiscDashaPanel({ birthData }: Props) {
   }, [mode, birthData])
 
   const MODES: { id: Mode; label: string; sub: string }[] = [
-    { id: 'sthira', label: 'Sthira Dasha', sub: '7y per sign from Lagna · 84y cycle' },
-    { id: 'moola',  label: 'Moola Dasha',  sub: 'Vimshottari from Lagna nakshatra · 120y' },
-    { id: 'tara',   label: 'Tara Dasha',   sub: '9 Taras × 9y from Moon nakshatra · 81y' },
+    { id: 'sthira', label: t('Sthira Dasha'), sub: t('7y per sign from Lagna · 84y cycle') },
+    { id: 'moola',  label: t('Moola Dasha'),  sub: t('Vimshottari from Lagna nakshatra · 120y') },
+    { id: 'tara',   label: t('Tara Dasha'),   sub: t('9 Taras × 9y from Moon nakshatra · 81y') },
   ]
 
   const current = { sthira, moola, tara }[mode]
@@ -111,9 +114,9 @@ export default function MiscDashaPanel({ birthData }: Props) {
           borderRadius: 'var(--radius-m)', fontSize: '12px', color: 'var(--text2)',
         }}>
           <strong>{current.system}</strong>
-          {current.lagna_sign && <span> · Lagna: {current.lagna_sign}</span>}
-          {current.moon_nakshatra && <span> · Moon Nakshatra: {current.moon_nakshatra}</span>}
-          {current.lagna_nakshatra && <span> · Lagna Nakshatra: {current.lagna_nakshatra}</span>}
+          {current.lagna_sign && <span> · {t('Lagna')}: {current.lagna_sign}</span>}
+          {current.moon_nakshatra && <span> · {t('Moon Nakshatra')}: {current.moon_nakshatra}</span>}
+          {current.lagna_nakshatra && <span> · {t('Lagna Nakshatra')}: {current.lagna_nakshatra}</span>}
         </div>
       )}
 

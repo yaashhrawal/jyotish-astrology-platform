@@ -85,7 +85,7 @@ def find_solar_return_jd(natal_sun_lon: float, birth_jd: float, target_year: int
     approx_jd = birth_jd + (target_year) * 365.25 - 10
     # Iterate to refine
     for _ in range(50):
-        result, _ = swe.calc_ut(approx_jd, swe.SUN, swe.FLG_SWIEPH | swe.FLG_SPEED)
+        result, _ = swe.calc_ut(approx_jd, swe.SUN, swe.FLG_MOSEPH | swe.FLG_SPEED)
         trop_sun = result[0]
         speed = result[3]
         # target tropical = natal sidereal + ayanamsa at birth (use current ayan for simplicity)

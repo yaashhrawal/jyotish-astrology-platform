@@ -76,8 +76,8 @@ def compute_pancha_pakshi(req: PanchaPakshiRequest):
 
     # Tithi (waxing/waning) for query time
     ayan = get_ayanamsa(jd, req.ayanamsa)
-    sun_r, _ = swe.calc_ut(jd, swe.SUN, swe.FLG_SWIEPH)
-    moon_r, _ = swe.calc_ut(jd, swe.MOON, swe.FLG_SWIEPH)
+    sun_r, _ = swe.calc_ut(jd, swe.SUN, swe.FLG_MOSEPH)
+    moon_r, _ = swe.calc_ut(jd, swe.MOON, swe.FLG_MOSEPH)
     sun_sid = (sun_r[0] - ayan) % 360
     moon_sid = (moon_r[0] - ayan) % 360
     diff = (moon_sid - sun_sid) % 360

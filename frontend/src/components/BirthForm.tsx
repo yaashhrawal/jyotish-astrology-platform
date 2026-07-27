@@ -102,21 +102,26 @@ function NumInput({
   onChange: (v: number) => void; highlight?: boolean
 }) {
   const [raw, setRaw] = useState(String(value))
-  useEffect(() => { setRaw(String(value)) }, [value])
+  const [focused, setFocused] = useState(false)
+  // Don't overwrite what the user is typing; only sync from parent when unfocused.
+  useEffect(() => { if (!focused) setRaw(String(value)) }, [value, focused])
 
   return (
     <input
       type="text"
       inputMode="numeric"
       value={raw}
-      onFocus={e => e.target.select()}
+      onFocus={e => { setFocused(true); e.target.select() }}
       onChange={e => {
         const v = e.target.value
         setRaw(v)
+        // Only propagate a value that is already in range — never clamp mid-typing
+        // (typing "2" toward "2000" must not snap to the min).
         const n = parseFloat(v)
-        if (!isNaN(n)) onChange(Math.min(max, Math.max(min, n)))
+        if (!isNaN(n) && n >= min && n <= max) onChange(n)
       }}
       onBlur={() => {
+        setFocused(false)
         const n = parseFloat(raw)
         const clamped = isNaN(n) ? min : Math.min(max, Math.max(min, n))
         setRaw(String(clamped))
@@ -247,6 +252,7 @@ export default function BirthForm({ onSubmit, loading }: Props) {
   const [showSug, setShowSug] = useState(false)
   const [searching, setSearching] = useState(false)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const justSelectedRef = useRef(false)   // skip the re-search triggered by selectCity
   const sugRef = useRef<HTMLDivElement>(null)
 
   const set = useCallback(<K extends keyof typeof form>(key: K, value: typeof form[K]) =>
@@ -254,6 +260,8 @@ export default function BirthForm({ onSubmit, loading }: Props) {
 
   // City autocomplete
   useEffect(() => {
+    // A city was just picked — don't re-open the dropdown for the filled-in name.
+    if (justSelectedRef.current) { justSelectedRef.current = false; return }
     if (cityQuery.length < 2) { setSuggestions([]); setShowSug(false); return }
     if (debounceRef.current) clearTimeout(debounceRef.current)
     debounceRef.current = setTimeout(async () => {
@@ -286,6 +294,7 @@ export default function BirthForm({ onSubmit, loading }: Props) {
     const tz = guessTimezone(lon, r.address?.country_code)
     const { name, region, country } = parsePlaceName(r)
     const displayName = [name, region, country].filter(Boolean).join(', ')
+    justSelectedRef.current = true      // block the re-search this setCityQuery would trigger
     setCityQuery(name)
     setForm(f => ({ ...f, place: displayName, latitude: lat, longitude: lon, tz_offset: tz }))
     setShowSug(false)

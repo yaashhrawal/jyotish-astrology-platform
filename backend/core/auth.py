@@ -2,9 +2,10 @@
 JWT auth utilities.
 """
 import os
-from datetime import datetime, timedelta
+import uuid
+from datetime import datetime, timedelta, timezone
 from typing import Optional
-from jose import JWTError, jwt
+from jose import JWTError, jwt, ExpiredSignatureError
 from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
@@ -28,9 +29,16 @@ def verify_password(plain: str, hashed: str) -> bool:
 
 
 def create_access_token(user_id: str, email: str) -> str:
-    expire = datetime.utcnow() + timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS)
+    now = datetime.now(timezone.utc)
+    expire = now + timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS)
     return jwt.encode(
-        {"sub": user_id, "email": email, "exp": expire},
+        {
+            "sub": user_id,
+            "email": email,
+            "exp": expire,
+            "iat": now,
+            "jti": str(uuid.uuid4()),
+        },
         SECRET_KEY,
         algorithm=ALGORITHM,
     )
@@ -39,9 +47,17 @@ def create_access_token(user_id: str, email: str) -> str:
 def decode_token(token: str) -> dict:
     try:
         return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    except ExpiredSignatureError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token expired"
+        )
     except JWTError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token"
+        )
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme)) -> dict:
+def get_current_user(token: str = Depends(oauth2_scheme)) -> dict:
     return decode_token(token)

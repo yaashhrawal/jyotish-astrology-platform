@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { vimshopakaBhavaApi } from '../api/client'
+import { useLang } from '../contexts/LanguageContext'
 
 const PLANET_COLORS: Record<string, string> = {
   Sun:'#D97706', Moon:'#0891B2', Mars:'#DC2626', Mercury:'#16A34A',
@@ -19,6 +20,7 @@ function Bar({ value, max, color }: { value: number; max: number; color: string 
 type View = 'vimshopaka' | 'bhava'
 
 export default function VimshopakaBhavaPanel({ birthData }: Props) {
+  const { t } = useLang()
   const [data, setData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -34,7 +36,7 @@ export default function VimshopakaBhavaPanel({ birthData }: Props) {
       .finally(() => setLoading(false))
   }, [birthData])
 
-  if (loading) return <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text3)', fontSize: '13px' }}>Calculating…</div>
+  if (loading) return <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text3)', fontSize: '13px' }}>{t('Calculating…')}</div>
   if (error) return <div style={{ padding: '20px', color: 'var(--red)', fontSize: '13px' }}>{error}</div>
   if (!data) return null
 
@@ -42,8 +44,8 @@ export default function VimshopakaBhavaPanel({ birthData }: Props) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       {/* View toggle */}
       <div style={{ display: 'flex', gap: '8px' }}>
-        {([['vimshopaka', 'Vimshopaka Bala', '16-varga strength · max 20 pts'],
-           ['bhava', 'Bhava Bala', 'House strength from lords + aspects']] as const).map(([id, label, sub]) => (
+        {([['vimshopaka', t('Vimshopaka Bala'), t('16-varga strength · max 20 pts')],
+           ['bhava', t('Bhava Bala'), t('House strength from lords + aspects')]] as const).map(([id, label, sub]) => (
           <button key={id} onClick={() => setView(id)} style={{
             padding: '10px 16px', borderRadius: 'var(--radius-m)', cursor: 'pointer', textAlign: 'left',
             border: `1px solid ${view === id ? 'var(--accent)' : 'var(--border)'}`,
@@ -100,13 +102,13 @@ export default function VimshopakaBhavaPanel({ birthData }: Props) {
               <div key={houseNum} style={{ padding: '12px 14px', background: 'var(--surface)', border: `1px solid var(--border)`, borderLeft: `4px solid ${color}`, borderRadius: 'var(--radius-m)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                   <div>
-                    <span style={{ fontSize: '13px', fontWeight: '700' }}>House {houseNum}</span>
+                    <span style={{ fontSize: '13px', fontWeight: '700' }}>{t('House')} {houseNum}</span>
                     <span style={{ fontSize: '11px', color: 'var(--text3)', marginLeft: '8px' }}>{hdata.sign}</span>
                   </div>
                   <span style={{ fontSize: '11px', fontWeight: '700', color, padding: '2px 8px', borderRadius: '20px', background: color + '18' }}>{strength}</span>
                 </div>
                 <Bar value={hdata.score} max={20} color={color} />
-                <div style={{ fontSize: '11px', fontWeight: '700', color, marginTop: '4px' }}>{hdata.score} pts</div>
+                <div style={{ fontSize: '11px', fontWeight: '700', color, marginTop: '4px' }}>{hdata.score} {t('pts')}</div>
                 {hdata.notes.length > 0 && (
                   <div style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
                     {hdata.notes.map((n: string, i: number) => (

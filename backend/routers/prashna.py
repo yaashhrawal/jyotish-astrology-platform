@@ -108,7 +108,7 @@ def get_gulika(jd: float, lat: float, lon: float, ayanamsa: str, is_day: bool) -
     """Calculate Gulika (Mandi) position."""
     import swisseph as swe
 
-    dt_utc = datetime(2000, 1, 1, tzinfo=timezone.utc) + timedelta(days=jd - 2451545.0)
+    dt_utc = datetime(2000, 1, 1, tzinfo=timezone.utc) + timedelta(days=jd - 2451544.5)
     weekday = dt_utc.weekday()
 
     parts = GULIKA_DAY_PART if is_day else GULIKA_NIGHT_PART
@@ -121,7 +121,7 @@ def get_gulika(jd: float, lat: float, lon: float, ayanamsa: str, is_day: bool) -
     ) - timedelta(hours=tz_offset)
 
     gulika_dt = local_sunrise + timedelta(minutes=(portion - 1) * 90)
-    gulika_jd = 2451545.0 + (gulika_dt - datetime(2000, 1, 1, tzinfo=timezone.utc)).total_seconds() / 86400
+    gulika_jd = 2451544.5 + (gulika_dt - datetime(2000, 1, 1, tzinfo=timezone.utc)).total_seconds() / 86400
 
     swe.set_sid_mode(AYANAMSA_MAP.get(ayanamsa, swe.SIDM_LAHIRI))
     try:

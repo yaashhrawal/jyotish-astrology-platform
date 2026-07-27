@@ -3,6 +3,8 @@
  * Pure SVG, no external deps.
  */
 
+import { useLang } from '../contexts/LanguageContext'
+
 const PLANETS = ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn']
 const PLANET_COLORS: Record<string, string> = {
   Sun: '#f59e0b', Moon: '#8b5cf6', Mars: '#ef4444',
@@ -40,6 +42,7 @@ interface Props {
 }
 
 export default function ShadbalaRadar({ data, selected, onSelect }: Props) {
+  const { t } = useLang()
   // Normalize each value 0→1 relative to max per axis
   function normalizedValue(planet: string, axisIdx: number): number {
     const ax = AXES[axisIdx]
@@ -85,7 +88,7 @@ export default function ShadbalaRadar({ data, selected, onSelect }: Props) {
               <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#475569" strokeWidth={1} />
               <text x={lx} y={ly} textAnchor="middle" dominantBaseline="middle"
                 fontSize={10} fill="#94a3b8" fontWeight={600}>
-                {ax.label}
+                {t(ax.label)}
               </text>
             </g>
           )

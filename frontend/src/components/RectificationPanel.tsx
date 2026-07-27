@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { rectificationApi } from '../api/client'
+import { useLang } from '../contexts/LanguageContext'
 
 const EVENT_TYPES = [
   { value: 'marriage',     label: '💍 Marriage' },
@@ -20,6 +21,7 @@ interface LifeEvent { year: number; month: number; day: number; event_type: stri
 interface Props { birthData: any }
 
 export default function RectificationPanel({ birthData }: Props) {
+  const { t } = useLang()
   const [events, setEvents] = useState<LifeEvent[]>([{ year: 2000, month: 1, day: 1, event_type: 'marriage', description: '' }])
   const [rangeMins, setRangeMins] = useState(60)
   const [stepMins, setStepMins] = useState(2)
@@ -59,9 +61,9 @@ export default function RectificationPanel({ birthData }: Props) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       {/* Header */}
       <div style={{ padding: '14px 18px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-m)' }}>
-        <div style={{ fontSize: '14px', fontWeight: '700', marginBottom: '4px' }}>Birth Time Rectification</div>
+        <div style={{ fontSize: '14px', fontWeight: '700', marginBottom: '4px' }}>{t('Birth Time Rectification')}</div>
         <div style={{ fontSize: '12px', color: 'var(--text3)', lineHeight: 1.5 }}>
-          Enter known life events. The tool tests birth times ±{rangeMins} minutes around your given time and scores each by how well events align with dashas and transits.
+          {t('Enter known life events. The tool tests birth times')} ±{rangeMins} {t('minutes around your given time and scores each by how well events align with dashas and transits.')}
         </div>
       </div>
 
@@ -69,18 +71,18 @@ export default function RectificationPanel({ birthData }: Props) {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
         <div>
           <label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.07em', display: 'block', marginBottom: '4px' }}>
-            Search Range (±minutes)
+            {t('Search Range (±minutes)')}
           </label>
           <select value={rangeMins} onChange={e => setRangeMins(+e.target.value)} style={inp}>
-            {[15, 30, 60, 90, 120].map(v => <option key={v} value={v}>±{v} minutes</option>)}
+            {[15, 30, 60, 90, 120].map(v => <option key={v} value={v}>±{v} {t('minutes')}</option>)}
           </select>
         </div>
         <div>
           <label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.07em', display: 'block', marginBottom: '4px' }}>
-            Step Size
+            {t('Step Size')}
           </label>
           <select value={stepMins} onChange={e => setStepMins(+e.target.value)} style={inp}>
-            {[1, 2, 5, 10].map(v => <option key={v} value={v}>{v} minute{v > 1 ? 's' : ''}</option>)}
+            {[1, 2, 5, 10].map(v => <option key={v} value={v}>{v} {t('minute')}{v > 1 ? 's' : ''}</option>)}
           </select>
         </div>
       </div>
@@ -88,35 +90,35 @@ export default function RectificationPanel({ birthData }: Props) {
       {/* Events */}
       <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-m)', overflow: 'hidden' }}>
         <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ fontSize: '13px', fontWeight: '700' }}>Life Events ({events.length})</div>
+          <div style={{ fontSize: '13px', fontWeight: '700' }}>{t('Life Events')} ({events.length})</div>
           <button onClick={addEvent} style={{ padding: '5px 12px', borderRadius: '20px', border: '1px solid var(--accent)', background: 'var(--accent)', color: '#fff', fontSize: '11px', cursor: 'pointer', fontWeight: '700' }}>
-            + Add Event
+            + {t('Add Event')}
           </button>
         </div>
         {events.map((ev, i) => (
           <div key={i} style={{ padding: '12px 16px', borderBottom: i < events.length - 1 ? '1px solid var(--border)' : 'none' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr auto auto auto 1fr auto', gap: '8px', alignItems: 'end' }}>
               <div>
-                <label style={{ fontSize: '10px', fontWeight: '700', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.07em', display: 'block', marginBottom: '3px' }}>Year</label>
+                <label style={{ fontSize: '10px', fontWeight: '700', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.07em', display: 'block', marginBottom: '3px' }}>{t('Year')}</label>
                 <input type="number" value={ev.year} min={1900} max={2100} onChange={e => updateEvent(i, 'year', +e.target.value)} style={inp} />
               </div>
               <div>
-                <label style={{ fontSize: '10px', fontWeight: '700', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.07em', display: 'block', marginBottom: '3px' }}>Mon</label>
+                <label style={{ fontSize: '10px', fontWeight: '700', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.07em', display: 'block', marginBottom: '3px' }}>{t('Mon')}</label>
                 <input type="number" value={ev.month} min={1} max={12} onChange={e => updateEvent(i, 'month', +e.target.value)} style={{ ...inp, width: '50px' }} />
               </div>
               <div>
-                <label style={{ fontSize: '10px', fontWeight: '700', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.07em', display: 'block', marginBottom: '3px' }}>Day</label>
+                <label style={{ fontSize: '10px', fontWeight: '700', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.07em', display: 'block', marginBottom: '3px' }}>{t('Day')}</label>
                 <input type="number" value={ev.day} min={1} max={31} onChange={e => updateEvent(i, 'day', +e.target.value)} style={{ ...inp, width: '50px' }} />
               </div>
               <div style={{ gridColumn: 'span 1' }}>
-                <label style={{ fontSize: '10px', fontWeight: '700', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.07em', display: 'block', marginBottom: '3px' }}>Type</label>
+                <label style={{ fontSize: '10px', fontWeight: '700', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.07em', display: 'block', marginBottom: '3px' }}>{t('Type')}</label>
                 <select value={ev.event_type} onChange={e => updateEvent(i, 'event_type', e.target.value)} style={inp}>
-                  {EVENT_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+                  {EVENT_TYPES.map(et => <option key={et.value} value={et.value}>{t(et.label)}</option>)}
                 </select>
               </div>
               <div>
-                <label style={{ fontSize: '10px', fontWeight: '700', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.07em', display: 'block', marginBottom: '3px' }}>Notes</label>
-                <input type="text" value={ev.description} placeholder="Optional description" onChange={e => updateEvent(i, 'description', e.target.value)} style={inp} />
+                <label style={{ fontSize: '10px', fontWeight: '700', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.07em', display: 'block', marginBottom: '3px' }}>{t('Notes')}</label>
+                <input type="text" value={ev.description} placeholder={t('Optional description')} onChange={e => updateEvent(i, 'description', e.target.value)} style={inp} />
               </div>
               <button onClick={() => removeEvent(i)} disabled={events.length === 1} style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid var(--border)', background: 'transparent', color: 'var(--text3)', cursor: events.length === 1 ? 'not-allowed' : 'pointer', fontSize: '14px', marginBottom: '1px' }}>
                 ✕
@@ -132,7 +134,7 @@ export default function RectificationPanel({ birthData }: Props) {
         background: loading ? 'var(--surface2)' : 'linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%)',
         color: '#fff', fontSize: '14px', fontWeight: '700',
       }}>
-        {loading ? 'Analyzing…' : `🔍 Rectify Birth Time (testing ${Math.floor(rangeMins * 2 / stepMins)} candidates)`}
+        {loading ? t('Analyzing…') : `🔍 ${t('Rectify Birth Time')} (${t('testing')} ${Math.floor(rangeMins * 2 / stepMins)} ${t('candidates')})`}
       </button>
 
       {error && <div style={{ padding: '12px', background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: 'var(--radius-m)', color: '#DC2626', fontSize: '13px' }}>{error}</div>}
@@ -141,32 +143,32 @@ export default function RectificationPanel({ birthData }: Props) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {/* Best result */}
           <div style={{ padding: '16px 20px', background: '#F0FDF4', border: '2px solid #16A34A', borderRadius: 'var(--radius-m)' }}>
-            <div style={{ fontSize: '13px', fontWeight: '700', color: '#16A34A', marginBottom: '8px' }}>✓ Best Match</div>
+            <div style={{ fontSize: '13px', fontWeight: '700', color: '#16A34A', marginBottom: '8px' }}>✓ {t('Best Match')}</div>
             <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
               <div>
                 <div style={{ fontSize: '28px', fontWeight: '800', color: '#16A34A' }}>{result.best_time.time}</div>
                 <div style={{ fontSize: '11px', color: '#16A34A', opacity: 0.8 }}>
-                  {result.best_time.offset_minutes >= 0 ? '+' : ''}{result.best_time.offset_minutes} min from given time
+                  {result.best_time.offset_minutes >= 0 ? '+' : ''}{result.best_time.offset_minutes} {t('min from given time')}
                 </div>
               </div>
               <div style={{ borderLeft: '1px solid #16A34A40', paddingLeft: '24px' }}>
-                <div style={{ fontSize: '13px', fontWeight: '700' }}>Lagna: {result.best_time.lagna}</div>
-                <div style={{ fontSize: '11px', color: 'var(--text3)' }}>{result.best_time.lagna_degree}° in sign</div>
+                <div style={{ fontSize: '13px', fontWeight: '700' }}>{t('Lagna')}: {result.best_time.lagna}</div>
+                <div style={{ fontSize: '11px', color: 'var(--text3)' }}>{result.best_time.lagna_degree}° {t('in sign')}</div>
               </div>
               <div style={{ borderLeft: '1px solid #16A34A40', paddingLeft: '24px' }}>
                 <div style={{ fontSize: '22px', fontWeight: '800', color: '#16A34A' }}>{result.best_time.score}</div>
-                <div style={{ fontSize: '11px', color: 'var(--text3)' }}>Score</div>
+                <div style={{ fontSize: '11px', color: 'var(--text3)' }}>{t('Score')}</div>
               </div>
             </div>
           </div>
 
           {/* Top 10 */}
           <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-m)', overflow: 'hidden' }}>
-            <div style={{ padding: '10px 16px', borderBottom: '1px solid var(--border)', fontSize: '12px', fontWeight: '700' }}>Top Candidates</div>
+            <div style={{ padding: '10px 16px', borderBottom: '1px solid var(--border)', fontSize: '12px', fontWeight: '700' }}>{t('Top Candidates')}</div>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: 'var(--surface2)' }}>
-                  {['#', 'Time', 'Offset', 'Lagna', 'Score'].map(h => (
+                  {['#', t('Time'), t('Offset'), t('Lagna'), t('Score')].map(h => (
                     <th key={h} style={{ padding: '8px 12px', textAlign: 'left', fontSize: '10px', fontWeight: '700', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.07em', border: '1px solid var(--border)' }}>{h}</th>
                   ))}
                 </tr>
@@ -186,7 +188,7 @@ export default function RectificationPanel({ birthData }: Props) {
           </div>
 
           <div style={{ padding: '10px 14px', background: 'var(--surface2)', borderRadius: 'var(--radius-m)', fontSize: '11.5px', color: 'var(--text3)' }}>
-            ⚠ {result.note} Tested {result.all_candidates?.length} candidates across {result.events_tested} events.
+            ⚠ {result.note} {t('Tested')} {result.all_candidates?.length} {t('candidates across')} {result.events_tested} {t('events')}.
           </div>
         </div>
       )}

@@ -172,7 +172,7 @@ def check_sadesati(natal_moon_sign_idx: int, birth_jd: float, ayanamsa_str: str)
     now_jd = swe_module.julday(now.year, now.month, now.day, now.hour + now.minute/60.0)
 
     ayan = get_ayanamsa(now_jd, ayanamsa_str)
-    saturn_r, _ = swe_module.calc_ut(now_jd, swe_module.SATURN, swe_module.FLG_SWIEPH)
+    saturn_r, _ = swe_module.calc_ut(now_jd, swe_module.SATURN, swe_module.FLG_MOSEPH)
     saturn_sid = tropical_to_sidereal(saturn_r[0], ayan)
     _, _, saturn_sign_idx = get_sign_and_degree(saturn_sid)
 
@@ -260,24 +260,20 @@ def calculate_upagrahas(jd: float, lat: float, lon: float, tz_offset: float, aya
     gulika_part = GULIKA_PART[day_of_week]
     gulika_jd = sunrise_jd + gulika_part * part_duration + part_duration / 2
 
-    gulika_r, _ = swe_module.calc_ut(gulika_jd, swe_module.SATURN, swe_module.FLG_SWIEPH)
-    gulika_trop = gulika_r[0]
+    # Gulika/Mandi = the LAGNA (ascendant) RISING at that moment — NOT Saturn's
+    # own longitude. Compute the rising sidereal longitude via house cusps.
+    def _rising_sid(t: float) -> float:
+        _cusps, ascmc = swe_module.houses(t, lat, lon, b'P')
+        return tropical_to_sidereal(ascmc[0], ayan)
 
-    # Gulika longitude = Saturn's longitude at Gulika time (approximation)
-    # More accurate: Gulika = (gulika_jd - birth_jd) * 360 / 29.5 / 365.25 ... complex
-    # Use standard formula: Gulika longitude based on portion
-    gulika_lon = (gulika_part * 45 + 22.5) % 360  # simplified BPHS method
-    gulika_sid = (gulika_lon + ayan) % 360  # this is tropical already — skip correction for simplified
-    # Actually compute properly from Saturn position
-    gulika_sid = tropical_to_sidereal(gulika_trop, ayan)
+    gulika_sid = _rising_sid(gulika_jd)
     g_sign, g_deg, g_sign_idx = get_sign_and_degree(gulika_sid)
 
-    # Mandi = same as Gulika in many traditions, different part
+    # Mandi — different day-portion, same rising-lagna method
     MANDI_PART = [7, 6, 5, 4, 3, 2, 1]
     mandi_part = MANDI_PART[day_of_week]
     mandi_jd = sunrise_jd + mandi_part * part_duration + part_duration / 2
-    mandi_r, _ = swe_module.calc_ut(mandi_jd, swe_module.SATURN, swe_module.FLG_SWIEPH)
-    mandi_sid = tropical_to_sidereal(mandi_r[0], ayan)
+    mandi_sid = _rising_sid(mandi_jd)
     m_sign, m_deg, m_sign_idx = get_sign_and_degree(mandi_sid)
 
     house_data = calculate_houses(jd, lat, lon, ayanamsa_str)

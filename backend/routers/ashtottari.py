@@ -17,13 +17,23 @@ ASHTO_SEQUENCE = ["Sun", "Moon", "Mars", "Mercury", "Saturn", "Jupiter", "Rahu",
 ASHTO_YEARS = {"Sun": 6, "Moon": 15, "Mars": 8, "Mercury": 17, "Saturn": 10, "Jupiter": 19, "Rahu": 12, "Venus": 21}
 ASHTO_TOTAL = 108
 
-# Which nakshatra starts which planet's dasha
-# Ashtottari: each nakshatra maps to a ruling planet
-# Pattern: Sun rules naks 1,9,17,25 | Moon:2,10,18,26 | Mars:3,11,19,27 | Merc:4,12,20 | Sat:5,13,21 | Jup:6,14,22 | Rahu:7,15,23 | Venus:8,16,24
+# Ashtottari nakshatra→lord allocation (classical). The groups are UNEVEN
+# (3 or 4 nakshatras each) and begin at Ardra (nak index 5), NOT a mod-8 cycle.
+# Nak indices: Ashwini=0 … Revati=26.
+_ASHTO_GROUPS = [
+    ("Sun",     [5, 6, 7]),            # Ardra, Punarvasu, Pushya
+    ("Moon",    [8, 9, 10, 11]),       # Ashlesha, Magha, P.Phalguni, U.Phalguni
+    ("Mars",    [12, 13, 14]),         # Hasta, Chitra, Swati
+    ("Mercury", [15, 16, 17, 18]),     # Vishakha, Anuradha, Jyeshtha, Mula
+    ("Saturn",  [19, 20, 21]),         # P.Ashadha, U.Ashadha, Shravana
+    ("Jupiter", [22, 23, 24, 25]),     # Dhanishta, Shatabhisha, P.Bhadra, U.Bhadra
+    ("Rahu",    [26, 0, 1]),           # Revati, Ashwini, Bharani
+    ("Venus",   [2, 3, 4]),            # Krittika, Rohini, Mrigashira
+]
 ASHTO_NAK_LORDS = {}
-planet_cycle = ["Sun", "Moon", "Mars", "Mercury", "Saturn", "Jupiter", "Rahu", "Venus"]
-for i in range(27):
-    ASHTO_NAK_LORDS[i] = planet_cycle[i % 8]
+for _lord, _idxs in _ASHTO_GROUPS:
+    for _i in _idxs:
+        ASHTO_NAK_LORDS[_i] = _lord
 
 
 def jd_to_dt(jd: float) -> datetime:

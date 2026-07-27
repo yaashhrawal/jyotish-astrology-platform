@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { gemsApi, crmApi, type Gem } from '../../api/client'
+import { useLang } from '../../contexts/LanguageContext'
 import toast from 'react-hot-toast'
 
 interface Props {
@@ -13,6 +14,7 @@ interface Props {
 const fmtINR = (paise: number) => '₹' + (paise / 100).toLocaleString('en-IN')
 
 export default function GemRecommendModal({ gem, clientId, clientName, clientWhatsApp, onClose }: Props) {
+  const { t } = useLang()
   const [carat, setCarat] = useState(gem.carat_default || gem.carat_min)
   const [reason, setReason] = useState('')
   const [notes, setNotes] = useState('')
@@ -31,7 +33,7 @@ export default function GemRecommendModal({ gem, clientId, clientName, clientWha
   }, [gem.id, clientId])
 
   const submit = async () => {
-    if (!selectedClientId && !adhocName) { toast.error('Pick a client or enter name'); return }
+    if (!selectedClientId && !adhocName) { toast.error(t('Pick a client or enter name')); return }
     setSubmitting(true)
     try {
       const payload: any = {
@@ -46,9 +48,9 @@ export default function GemRecommendModal({ gem, clientId, clientName, clientWha
       }
       const res = await gemsApi.recommend(payload)
       setSuccess(res)
-      toast.success(`Recommended! Order ${res.order_number}`)
+      toast.success(`${t('Recommended! Order')} ${res.order_number}`)
     } catch (e: any) {
-      toast.error(e?.response?.data?.detail || 'Failed')
+      toast.error(e?.response?.data?.detail || t('Failed'))
     } finally { setSubmitting(false) }
   }
 
@@ -84,8 +86,8 @@ export default function GemRecommendModal({ gem, clientId, clientName, clientWha
       <div style={panel} onClick={e => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
           <div>
-            <div style={{ fontSize: 16, fontWeight: 700 }}>Recommend {gem.name}</div>
-            <div style={{ fontSize: 11, color: 'var(--text3)' }}>{gem.cert_authority} · For {gem.planet}</div>
+            <div style={{ fontSize: 16, fontWeight: 700 }}>{t('Recommend')} {gem.name}</div>
+            <div style={{ fontSize: 11, color: 'var(--text3)' }}>{gem.cert_authority} · {t('For')} {gem.planet}</div>
           </div>
           <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', color: 'var(--text3)' }}>×</button>
         </div>
@@ -94,88 +96,88 @@ export default function GemRecommendModal({ gem, clientId, clientName, clientWha
           <>
             {!clientId && (
               <>
-                <div style={label}>Client</div>
+                <div style={label}>{t('Client')}</div>
                 <select style={input} value={selectedClientId} onChange={e => setSelectedClientId(e.target.value)}>
-                  <option value="">— Select Client (or enter ad-hoc below) —</option>
+                  <option value="">{t('— Select Client (or enter ad-hoc below) —')}</option>
                   {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
                 {!selectedClientId && (
                   <div style={{ marginTop: 8 }}>
-                    <input style={input} placeholder="Client name" value={adhocName} onChange={e => setAdhocName(e.target.value)} />
-                    <input style={{ ...input, marginTop: 6 }} placeholder="Phone / WhatsApp" value={adhocPhone} onChange={e => setAdhocPhone(e.target.value)} />
-                    <input style={{ ...input, marginTop: 6 }} placeholder="Email" value={adhocEmail} onChange={e => setAdhocEmail(e.target.value)} />
+                    <input style={input} placeholder={t('Client name')} value={adhocName} onChange={e => setAdhocName(e.target.value)} />
+                    <input style={{ ...input, marginTop: 6 }} placeholder={t('Phone / WhatsApp')} value={adhocPhone} onChange={e => setAdhocPhone(e.target.value)} />
+                    <input style={{ ...input, marginTop: 6 }} placeholder={t('Email')} value={adhocEmail} onChange={e => setAdhocEmail(e.target.value)} />
                   </div>
                 )}
               </>
             )}
 
-            <div style={label}>Carat ({gem.carat_min}–{gem.carat_max})</div>
+            <div style={label}>{t('Carat')} ({gem.carat_min}–{gem.carat_max})</div>
             <input style={input} type="number" min={gem.carat_min} max={gem.carat_max} step={0.5}
                    value={carat} onChange={e => setCarat(parseFloat(e.target.value) || gem.carat_min)} />
 
-            <div style={label}>Reason for Recommendation (visible to client)</div>
-            <textarea style={{ ...input, minHeight: 60 }} placeholder="e.g., Weak Jupiter in 6th house, transiting Saturn over natal Jupiter…"
+            <div style={label}>{t('Reason for Recommendation (visible to client)')}</div>
+            <textarea style={{ ...input, minHeight: 60 }} placeholder={t('e.g., Weak Jupiter in 6th house, transiting Saturn over natal Jupiter…')}
                       value={reason} onChange={e => setReason(e.target.value)} />
 
-            <div style={label}>Wearing Instructions / Notes</div>
-            <textarea style={{ ...input, minHeight: 60 }} placeholder="e.g., Wear on right index finger, Thursday morning, after sunrise puja."
+            <div style={label}>{t('Wearing Instructions / Notes')}</div>
+            <textarea style={{ ...input, minHeight: 60 }} placeholder={t('e.g., Wear on right index finger, Thursday morning, after sunrise puja.')}
                       value={notes} onChange={e => setNotes(e.target.value)} />
 
             {commissionPreview && (
               <div style={{ marginTop: 14, padding: 12, background: '#16A34A18', border: '1px solid #16A34A44', borderRadius: 8 }}>
-                <div style={{ fontSize: 11, color: 'var(--text3)' }}>Your commission preview</div>
+                <div style={{ fontSize: 11, color: 'var(--text3)' }}>{t('Your commission preview')}</div>
                 <div style={{ fontSize: 18, fontWeight: 700, color: '#16A34A' }}>
                   {fmtINR(commissionPreview.paise)} <span style={{ fontSize: 12, fontWeight: 400, color: 'var(--text3)' }}>({commissionPreview.pct}%)</span>
                 </div>
                 <div style={{ fontSize: 10, color: 'var(--text4)' }}>
-                  Retail {fmtINR(gem.retail_price_paise)}. Paid on delivery. Auto-approved after 15-day return window.
+                  {t('Retail')} {fmtINR(gem.retail_price_paise)}. {t('Paid on delivery. Auto-approved after 15-day return window.')}
                 </div>
               </div>
             )}
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
-              <button onClick={onClose} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid var(--border)', background: 'var(--surface2)', cursor: 'pointer', fontSize: 13 }}>Cancel</button>
+              <button onClick={onClose} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid var(--border)', background: 'var(--surface2)', cursor: 'pointer', fontSize: 13 }}>{t('Cancel')}</button>
               <button onClick={submit} disabled={submitting} style={{
                 padding: '8px 20px', background: 'var(--accent)', color: '#fff', border: 'none',
                 borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: submitting ? 'not-allowed' : 'pointer',
                 opacity: submitting ? 0.6 : 1,
-              }}>{submitting ? 'Creating…' : 'Create Recommendation'}</button>
+              }}>{submitting ? t('Creating…') : t('Create Recommendation')}</button>
             </div>
           </>
         ) : (
           <div>
             <div style={{ padding: 14, background: '#16A34A18', border: '1px solid #16A34A44', borderRadius: 8, marginBottom: 14 }}>
-              <div style={{ fontSize: 12, color: '#16A34A', fontWeight: 700 }}>✓ Order {success.order_number} created</div>
+              <div style={{ fontSize: 12, color: '#16A34A', fontWeight: 700 }}>✓ {t('Order')} {success.order_number} {t('created')}</div>
               <div style={{ fontSize: 11, color: 'var(--text3)', marginTop: 4 }}>
-                Commission: {fmtINR(success.commission_paise)} ({success.commission_pct}%)
+                {t('Commission')}: {fmtINR(success.commission_paise)} ({success.commission_pct}%)
               </div>
             </div>
 
-            <div style={{ fontSize: 12, color: 'var(--text2)', marginBottom: 8 }}>Share purchase link with client:</div>
+            <div style={{ fontSize: 12, color: 'var(--text2)', marginBottom: 8 }}>{t('Share purchase link with client:')}</div>
             <div style={{ padding: 10, background: 'var(--surface2)', borderRadius: 6, fontSize: 12, wordBreak: 'break-all', marginBottom: 14 }}>
               {window.location.origin}{success.purchase_url_path}
             </div>
 
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}${success.purchase_url_path}`); toast.success('Copied') }}
+              <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}${success.purchase_url_path}`); toast.success(t('Copied')) }}
                       style={{ padding: '8px 14px', borderRadius: 6, border: '1px solid var(--border)', background: 'var(--surface2)', cursor: 'pointer', fontSize: 12 }}>
-                Copy Link
+                {t('Copy Link')}
               </button>
               {(adhocPhone || clientWhatsApp) && (
                 <>
                   <button onClick={() => sendWA('warm')} style={{ padding: '8px 14px', borderRadius: 6, background: '#25D366', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
-                    WA Warm 🙏
+                    {t('WA Warm')} 🙏
                   </button>
                   <button onClick={() => sendWA('formal')} style={{ padding: '8px 14px', borderRadius: 6, background: '#128C7E', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
-                    WA Formal
+                    {t('WA Formal')}
                   </button>
                   <button onClick={() => sendWA('concise')} style={{ padding: '8px 14px', borderRadius: 6, background: '#075E54', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
-                    WA Concise
+                    {t('WA Concise')}
                   </button>
                 </>
               )}
               <button onClick={onClose} style={{ marginLeft: 'auto', padding: '8px 16px', borderRadius: 6, background: 'var(--accent)', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
-                Done
+                {t('Done')}
               </button>
             </div>
           </div>

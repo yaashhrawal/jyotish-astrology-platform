@@ -13,8 +13,8 @@ router = APIRouter()
 
 def get_tithi_angle(jd: float, ayan: float) -> float:
     """Moon - Sun sidereal longitude (0–360), each 12° = 1 tithi."""
-    sun_r, _ = swe.calc_ut(jd, swe.SUN, swe.FLG_SWIEPH)
-    moon_r, _ = swe.calc_ut(jd, swe.MOON, swe.FLG_SWIEPH)
+    sun_r, _ = swe.calc_ut(jd, swe.SUN, swe.FLG_MOSEPH)
+    moon_r, _ = swe.calc_ut(jd, swe.MOON, swe.FLG_MOSEPH)
     sun_sid = (sun_r[0] - ayan) % 360
     moon_sid = (moon_r[0] - ayan) % 360
     return (moon_sid - sun_sid) % 360

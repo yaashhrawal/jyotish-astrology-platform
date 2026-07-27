@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { apiPost } from '../api/client'
+import { useLang } from '../contexts/LanguageContext'
 
 interface BirthData {
   year: number; month: number; day: number
@@ -36,6 +37,7 @@ function ScoreBar({ score }: { score: number }) {
 }
 
 export default function UpapadaPanel({ birthData }: { birthData: BirthData | null }) {
+  const { t } = useLang()
   const [data, setData] = useState<any>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -47,25 +49,25 @@ export default function UpapadaPanel({ birthData }: { birthData: BirthData | nul
       const res = await apiPost('/api/calc/upapada_analysis', birthData)
       setData(res)
     } catch (e: any) {
-      setError(e?.response?.data?.detail || 'Computation failed')
+      setError(e?.response?.data?.detail || t('Computation failed'))
     } finally { setLoading(false) }
   }
 
-  if (!birthData) return <div style={{ padding: 20, color: 'var(--text3)', fontSize: 13 }}>Enter birth data to compute Upapada analysis.</div>
+  if (!birthData) return <div style={{ padding: 20, color: 'var(--text3)', fontSize: 13 }}>{t('Enter birth data to compute Upapada analysis.')}</div>
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       {/* Title row */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
         <div>
-          <div style={{ fontSize: 15, fontWeight: 700, color: '#ec4899' }}>Upapada Lagna (UL)</div>
-          <div style={{ fontSize: 11, color: 'var(--text3)' }}>A12 — Marriage Timing · Jaimini</div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: '#ec4899' }}>{t('Upapada Lagna (UL)')}</div>
+          <div style={{ fontSize: 11, color: 'var(--text3)' }}>{t('A12 — Marriage Timing · Jaimini')}</div>
         </div>
         <button onClick={compute} disabled={loading} style={{
           marginLeft: 'auto', padding: '8px 20px', background: 'var(--accent)', color: '#fff',
           border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600,
           cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1,
-        }}>{loading ? 'Computing…' : 'Compute'}</button>
+        }}>{loading ? t('Computing…') : t('Compute')}</button>
       </div>
 
       {error && <div style={{ padding: 10, background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: 8, color: '#DC2626', fontSize: 13 }}>{error}</div>}
@@ -76,10 +78,10 @@ export default function UpapadaPanel({ birthData }: { birthData: BirthData | nul
           <div style={card}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 16 }}>
               {[
-                { label: 'Upapada Lagna', val: data.upapada_lagna?.sign, sub: ORDINALS[data.upapada_lagna?.house_in_d1] + ' house', color: '#ec4899' },
-                { label: 'UL Lord', val: data.upapada_lagna?.lord, sub: `in ${data.ul_lord_analysis?.sign} (${ORDINALS[data.ul_lord_analysis?.house]}H)`, color: PLANET_COLORS[data.upapada_lagna?.lord] || 'var(--accent)' },
-                { label: 'Darakaraka', val: data.darakaraka, sub: "Soul's spouse indicator", color: PLANET_COLORS[data.darakaraka] || 'var(--accent)' },
-                { label: 'Separation Risk', val: data.seventh_from_ul?.separation_risk, sub: '7th from UL', color: RISK_COLOR[data.seventh_from_ul?.separation_risk] || 'var(--text3)' },
+                { label: t('Upapada Lagna'), val: data.upapada_lagna?.sign, sub: ORDINALS[data.upapada_lagna?.house_in_d1] + ' ' + t('house'), color: '#ec4899' },
+                { label: t('UL Lord'), val: data.upapada_lagna?.lord, sub: `${t('in')} ${data.ul_lord_analysis?.sign} (${ORDINALS[data.ul_lord_analysis?.house]}H)`, color: PLANET_COLORS[data.upapada_lagna?.lord] || 'var(--accent)' },
+                { label: t('Darakaraka'), val: data.darakaraka, sub: t("Soul's spouse indicator"), color: PLANET_COLORS[data.darakaraka] || 'var(--accent)' },
+                { label: t('Separation Risk'), val: data.seventh_from_ul?.separation_risk, sub: t('7th from UL'), color: RISK_COLOR[data.seventh_from_ul?.separation_risk] || 'var(--text3)' },
               ].map(({ label, val, sub, color }) => (
                 <div key={label}>
                   <div style={{ fontSize: 11, color: 'var(--text3)', marginBottom: 4 }}>{label}</div>
@@ -89,7 +91,7 @@ export default function UpapadaPanel({ birthData }: { birthData: BirthData | nul
               ))}
             </div>
             <div>
-              <div style={{ fontSize: 11, color: 'var(--text3)', marginBottom: 6 }}>Marriage Quality Score</div>
+              <div style={{ fontSize: 11, color: 'var(--text3)', marginBottom: 6 }}>{t('Marriage Quality Score')}</div>
               <ScoreBar score={data.marriage_quality_score || 0} />
             </div>
           </div>
@@ -97,14 +99,14 @@ export default function UpapadaPanel({ birthData }: { birthData: BirthData | nul
           {/* UL sign interpretation */}
           {data.ul_sign_interpretation && (
             <div style={card}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#ec4899', marginBottom: 12 }}>UL in {data.upapada_lagna?.sign} — Marriage Profile</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#ec4899', marginBottom: 12 }}>{t('UL in')} {data.upapada_lagna?.sign} — {t('Marriage Profile')}</div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                 <div>
-                  <div style={{ fontSize: 11, color: 'var(--text3)', marginBottom: 4 }}>Spouse Nature</div>
+                  <div style={{ fontSize: 11, color: 'var(--text3)', marginBottom: 4 }}>{t('Spouse Nature')}</div>
                   <div style={{ fontSize: 13, color: 'var(--text2)', lineHeight: 1.5 }}>{data.ul_sign_interpretation.spouse_nature}</div>
                 </div>
                 <div>
-                  <div style={{ fontSize: 11, color: 'var(--text3)', marginBottom: 4 }}>Marriage Character</div>
+                  <div style={{ fontSize: 11, color: 'var(--text3)', marginBottom: 4 }}>{t('Marriage Character')}</div>
                   <div style={{ fontSize: 13, color: 'var(--text2)', lineHeight: 1.5 }}>{data.ul_sign_interpretation.marriage}</div>
                 </div>
               </div>
@@ -114,7 +116,7 @@ export default function UpapadaPanel({ birthData }: { birthData: BirthData | nul
           {/* Planets in UL */}
           {data.ul_planet_readings?.length > 0 && (
             <div style={card}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#ec4899', marginBottom: 12 }}>Planets in Upapada Lagna</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#ec4899', marginBottom: 12 }}>{t('Planets in Upapada Lagna')}</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {data.ul_planet_readings.map((p: any) => (
                   <div key={p.planet} style={{ padding: '10px 12px', borderRadius: 8, background: EFFECT_BG[p.effect] || 'var(--surface2)', border: `1px solid ${EFFECT_BORDER[p.effect] || 'var(--border)'}` }}>
@@ -131,12 +133,12 @@ export default function UpapadaPanel({ birthData }: { birthData: BirthData | nul
 
           {/* UL Lord */}
           <div style={card}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#ec4899', marginBottom: 12 }}>UL Lord — {data.ul_lord_analysis?.planet}</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#ec4899', marginBottom: 12 }}>{t('UL Lord')} — {data.ul_lord_analysis?.planet}</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 12 }}>
               {[
-                ['Sign', data.ul_lord_analysis?.sign],
-                ['House', ORDINALS[data.ul_lord_analysis?.house]],
-                ['Dignity', (data.ul_lord_analysis?.status || '').replace('_', ' ')],
+                [t('Sign'), data.ul_lord_analysis?.sign],
+                [t('House'), ORDINALS[data.ul_lord_analysis?.house]],
+                [t('Dignity'), (data.ul_lord_analysis?.status || '').replace('_', ' ')],
               ].map(([label, val]) => (
                 <div key={label as string}>
                   <div style={{ fontSize: 11, color: 'var(--text3)', marginBottom: 2 }}>{label}</div>
@@ -150,8 +152,8 @@ export default function UpapadaPanel({ birthData }: { birthData: BirthData | nul
           {/* Gaunapada + 7th */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             {[
-              { label: `2nd from UL — Gaunapada (${data.gaunapada?.sign})`, data: data.gaunapada, color: '#60a5fa' },
-              { label: `7th from UL (${data.seventh_from_ul?.sign})`, data: data.seventh_from_ul, color: '#f97316' },
+              { label: `${t('2nd from UL — Gaunapada')} (${data.gaunapada?.sign})`, data: data.gaunapada, color: '#60a5fa' },
+              { label: `${t('7th from UL')} (${data.seventh_from_ul?.sign})`, data: data.seventh_from_ul, color: '#f97316' },
             ].map(({ label, data: d, color }) => (
               <div key={label} style={card}>
                 <div style={{ fontSize: 13, fontWeight: 700, color, marginBottom: 10 }}>{label}</div>
@@ -162,11 +164,11 @@ export default function UpapadaPanel({ birthData }: { birthData: BirthData | nul
                     ))}
                   </div>
                 )}
-                {!d?.planets?.length && <div style={{ fontSize: 11, color: 'var(--text4)', marginBottom: 8 }}>No planets</div>}
+                {!d?.planets?.length && <div style={{ fontSize: 11, color: 'var(--text4)', marginBottom: 8 }}>{t('No planets')}</div>}
                 <div style={{ fontSize: 13, color: 'var(--text2)', lineHeight: 1.5 }}>{d?.reading}</div>
                 {d?.separation_risk && (
                   <div style={{ fontSize: 11, marginTop: 8, fontWeight: 700, color: RISK_COLOR[d.separation_risk] }}>
-                    Separation risk: {d.separation_risk}
+                    {t('Separation risk')}: {d.separation_risk}
                   </div>
                 )}
               </div>
@@ -174,8 +176,7 @@ export default function UpapadaPanel({ birthData }: { birthData: BirthData | nul
           </div>
 
           <div style={{ ...card, fontSize: 12, color: 'var(--text3)', lineHeight: 1.6 }}>
-            <strong style={{ color: 'var(--text2)' }}>Classical source:</strong> Jaimini Sutras Ch. 1.2, BPHS Ch. 80–81.
-            Upapada = Arudha of 12th house (A12). UL indicates the manifest form of marriage. Combine with 7H, 7L, Venus, Darakaraka.
+            <strong style={{ color: 'var(--text2)' }}>{t('Classical source')}:</strong> {t('Jaimini Sutras Ch. 1.2, BPHS Ch. 80–81. Upapada = Arudha of 12th house (A12). UL indicates the manifest form of marriage. Combine with 7H, 7L, Venus, Darakaraka.')}
           </div>
         </>
       )}

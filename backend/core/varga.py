@@ -52,22 +52,15 @@ def d3(lon: float) -> int:
 
 
 def d4(lon: float) -> int:
-    """D4 Chaturthamsha.
-    Each sign divided into 4 parts of 7.5°.
-    Movable signs: 1st=same, 2nd=4th, 3rd=7th, 4th=10th
-    Fixed signs: 1st=4th, 2nd=7th, 3rd=10th, 4th=same
-    Dual signs: 1st=7th, 2nd=10th, 3rd=same, 4th=4th
+    """D4 Chaturthamsha (BPHS).
+    Each sign divided into 4 parts of 7.5°. The four quarters are ruled by the
+    1st, 4th, 7th and 10th signs FROM that sign — uniformly for ALL signs
+    (not modality-dependent).
     """
     sign = int(lon / 30) % 12
     deg = lon % 30
     part = int(deg / 7.5)  # 0-3
-    if sign in MOVABLE:
-        offsets = [0, 3, 6, 9]
-    elif sign in FIXED:
-        offsets = [3, 6, 9, 0]
-    else:
-        offsets = [6, 9, 0, 3]
-    return (sign + offsets[part]) % 12
+    return (sign + [0, 3, 6, 9][part]) % 12
 
 
 def d7(lon: float) -> int:
@@ -235,9 +228,9 @@ def d40(lon: float) -> int:
 
 
 def d45(lon: float) -> int:
-    """D45 Akshavedamsha — paternal lineage.
-    Movable: from Aries, Fixed: from Capricorn, Dual: from Libra.
-    45 parts of 0°40' each.
+    """D45 Akshavedamsha — paternal lineage (BPHS).
+    45 parts of 0°40' each. Starting sign by modality (same anchor pattern as
+    D16): Movable→Aries, Fixed→Leo, Dual→Sagittarius.
     """
     sign = int(lon / 30) % 12
     deg = lon % 30
@@ -245,23 +238,22 @@ def d45(lon: float) -> int:
     if sign in MOVABLE:
         start = 0   # Aries
     elif sign in FIXED:
-        start = 9   # Capricorn
+        start = 4   # Leo
     else:
-        start = 6   # Libra
+        start = 8   # Sagittarius
     return (start + part) % 12
 
 
 def d60(lon: float) -> int:
-    """D60 Shashtyamsha — most subtle, past karma.
-    Odd: from Aries, Even: from Libra.
-    60 parts of 0°30' each.
+    """D60 Shashtyamsha — most subtle, past karma (BPHS).
+    60 parts of 0°30' each, counted FROM THE SIGN ITSELF (not anchored to
+    Aries/Libra): shashtyamsha index = int(degrees_in_sign * 2), that many
+    signs from the natal sign.
     """
     sign = int(lon / 30) % 12
     deg = lon % 30
-    part = int(deg / 0.5)  # 0-59
-    is_odd = (sign % 2 == 0)
-    start = 0 if is_odd else 6   # Aries or Libra
-    return (start + part) % 12
+    part = int(deg * 2)  # 0-59
+    return (sign + part) % 12
 
 
 def make_dn(n: int):
@@ -313,6 +305,7 @@ def calculate_varga(planets: dict, ascendant_lon: float, d: int) -> dict:
     asc_sign_idx = fn(ascendant_lon)
     result_planets = {}
 
+    from core.engine import get_planet_status
     for name, p in planets.items():
         lon = p["longitude"]
         varga_sign_idx = fn(lon)
@@ -328,7 +321,9 @@ def calculate_varga(planets: dict, ascendant_lon: float, d: int) -> dict:
             "nakshatra_lord": p.get("nakshatra_lord", ""),
             "pada": p.get("pada", 1),
             "degree": p.get("degree", 0),
-            "status": "neutral",
+            # Real dignity IN THE VARGA sign (was hardcoded "neutral", which
+            # made Vimshopaka bala meaningless).
+            "status": get_planet_status(name, varga_sign),
         }
 
     # Planet house map for rendering
@@ -361,13 +356,14 @@ def check_vargottama(d1_planets: dict, d9_planets: dict) -> list:
     return vargottama
 
 
-def get_varga_chart(jd: float, ayanamsa: str, d: int) -> dict:
-    """Helper: compute varga chart from JD. Returns {planet_name: {sign, sign_index, ...}}."""
+def get_varga_chart(jd: float, ayanamsa: str, d: int, lat: float = 0.0, lon: float = 0.0) -> dict:
+    """Helper: compute varga chart from JD. Returns {planet_name: {sign, ...}}.
+    Pass real lat/lon so the varga ASCENDANT (and hence house numbers) are
+    correct — with lat/lon=0 the ascendant is computed for the equator/Greenwich.
+    """
     from core.engine import calculate_planets, calculate_houses
     planets = calculate_planets(jd, ayanamsa)
-    house_data = calculate_houses(jd, 0, 0, ayanamsa)  # lat/lon not needed for varga signs
-    asc_lon = planets.get("Sun", {}).get("longitude", 0)  # fallback
-    # Use actual ascendant longitude
+    house_data = calculate_houses(jd, lat, lon, ayanamsa)
     asc_lon = house_data["ascendant"]["longitude"]
     result = calculate_varga(planets, asc_lon, d)
     return result["planets"]

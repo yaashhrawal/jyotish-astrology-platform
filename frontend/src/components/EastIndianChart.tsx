@@ -14,6 +14,9 @@ interface Props {
   planetHouseMap: Record<string, string[]>
   size?: number
   title?: string
+  onHouseSelect?: (house: number | null) => void
+  onPlanetSelect?: (planet: string) => void
+  compact?: boolean
 }
 
 const PLANET_SYMBOL: Record<string, string> = {
@@ -47,10 +50,11 @@ const SIGN_SHORT_HI: Record<string, string> = {
   Sagittarius:'धनु', Capricorn:'मकर', Aquarius:'कुम्भ', Pisces:'मीन',
 }
 
-export default function EastIndianChart({ ascendant, planets, size = 400, title }: Props) {
+export default function EastIndianChart({ ascendant, planets, size = 400, title, onHouseSelect, onPlanetSelect, compact }: Props) {
   const { lang } = useLang()
   const cell = Math.floor(size / 4)
   const asc = ascendant.sign_index
+  const totalH = size + (title ? 24 : 0)
 
   // Build sign → planets
   const signPlanets: Record<number, string[]> = {}
@@ -66,7 +70,8 @@ export default function EastIndianChart({ ascendant, planets, size = 400, title 
   }
 
   return (
-    <svg width={size} height={size + (title ? 24 : 0)} style={{ fontFamily: 'var(--font)', display: 'block' }}>
+    <svg width={compact ? '100%' : size} height={compact ? undefined : totalH} viewBox={`0 0 ${size} ${totalH}`}
+      style={{ fontFamily: 'var(--font)', display: 'block', width: compact ? '100%' : size, height: compact ? 'auto' : totalH }}>
       {title && <text x={size / 2} y={16} textAnchor="middle" fontSize={11} fontWeight="700" fill="var(--text3)">{title}</text>}
       <g transform={title ? 'translate(0,24)' : ''}>
         {/* Outer border */}
@@ -81,15 +86,15 @@ export default function EastIndianChart({ ascendant, planets, size = 400, title 
           const y = row * cell
           const isAsc = signIdx === asc
           const planetsHere = signPlanets[signIdx] || []
-          const houseNum = ((signIdx - asc + 12) % 12) + 1
 
+          const houseNum = ((signIdx - asc + 12) % 12) + 1
           return (
-            <g key={signIdx}>
+            <g key={signIdx} onClick={() => onHouseSelect?.(houseNum)} style={{ cursor: onHouseSelect ? 'pointer' : 'inherit' }}>
               <rect x={x} y={y} width={cell} height={cell}
                 fill={isAsc ? 'var(--accent)18' : 'transparent'}
                 stroke="var(--border)" strokeWidth={1} />
-              {/* House number */}
-              <text x={x + 4} y={y + 13} fontSize={9} fontWeight="700" fill="var(--text3)">{houseNum}</text>
+              {/* Rashi (sign) number */}
+              <text x={x + 4} y={y + 13} fontSize={9} fontWeight="700" fill="var(--text3)">{signIdx + 1}</text>
               {/* Sign label */}
               <text x={x + cell / 2} y={y + 24} textAnchor="middle" fontSize={9} fontWeight="600" fill={isAsc ? 'var(--accent)' : 'var(--text3)'}>
                 {getSignLabel(sign)}
@@ -101,7 +106,8 @@ export default function EastIndianChart({ ascendant, planets, size = 400, title 
                 const color = PLANET_COLORS[pName] || '#888'
                 const sym = PLANET_SYMBOL[pName] || pName.slice(0, 2)
                 return (
-                  <text key={pi} x={x + cell / 2} y={y + 38 + pi * 13} textAnchor="middle" fontSize={10} fill={color} fontWeight="600">
+                  <text key={pi} x={x + cell / 2} y={y + 38 + pi * 13} textAnchor="middle" fontSize={10} fill={color} fontWeight="600"
+                    onClick={e => { e.stopPropagation(); onPlanetSelect?.(pName) }} style={{ cursor: onPlanetSelect ? 'pointer' : 'inherit' }}>
                     {sym}{pStr.includes('(R)') ? 'ᴿ' : ''}
                   </text>
                 )

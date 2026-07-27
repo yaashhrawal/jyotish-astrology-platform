@@ -26,7 +26,9 @@ TOTAL_CYCLE = 36  # 1+2+3+4+5+6+7+8
 # Nakshatra → Yogini (each yogini rules 27/8 ≈ 3.375 nakshatras, but actually 3 each with some sharing)
 # Standard: nakshatra index mod 8 → yogini index
 def nak_to_yogini_idx(nak_idx: int) -> int:
-    return nak_idx % 8
+    # Classical: (janma nakshatra number + 3) mod 8, remainder 1=Mangala…8/0=Sankata.
+    # With 0-based nak_idx this is (nak_idx + 3) % 8 (was nak_idx % 8 — off by 3).
+    return (nak_idx + 3) % 8
 
 
 def get_yogini_dashas(moon_lon: float, birth_jd: float) -> list:

@@ -36,15 +36,19 @@ def get_transit(data: TransitRequest):
     )
     natal_planets = calculate_planets(natal_jd, data.ayanamsa)
 
-    # Transit date (now if not provided)
+    # Transit date. If the user supplied one, treat its time as LOCAL (their
+    # transit_tz_offset). Otherwise use "now" in UTC — and pass tz_offset=0 so
+    # birth_to_jd doesn't subtract the offset a second time (was double-counting
+    # ~5.5h and putting the transit chart in the past).
     now = datetime.now(timezone.utc)
-    ty = data.transit_year or now.year
-    tm = data.transit_month or now.month
-    td = data.transit_day or now.day
-    th = data.transit_hour or now.hour
-    tmin = data.transit_minute or now.minute
-
-    transit_jd = birth_to_jd(ty, tm, td, th, tmin, data.transit_tz_offset)
+    if data.transit_year:
+        ty, tm, td = data.transit_year, data.transit_month or now.month, data.transit_day or now.day
+        th = data.transit_hour if data.transit_hour is not None else 12
+        tmin = data.transit_minute if data.transit_minute is not None else 0
+        transit_jd = birth_to_jd(ty, tm, td, th, tmin, data.transit_tz_offset)
+    else:
+        ty, tm, td, th, tmin = now.year, now.month, now.day, now.hour, now.minute
+        transit_jd = birth_to_jd(ty, tm, td, th, tmin, 0.0)
     transit_planets = calculate_planets(transit_jd, data.ayanamsa)
 
     return {

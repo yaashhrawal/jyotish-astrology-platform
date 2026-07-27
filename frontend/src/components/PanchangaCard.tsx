@@ -102,29 +102,46 @@ export default function PanchangaCard({ birthData }: Props) {
         </div>
       </div>
 
-      {/* Hora schedule */}
+      {/* Hora schedule — sunrise-based, Chaldean order */}
       {data.hora?.schedule && (
         <div style={{ padding: '12px 18px', borderTop: '1px solid var(--border)' }}>
-          <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '8px' }}>
-            Planetary Hours (Hora) — Today
+          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '8px', flexWrap: 'wrap', gap: '6px' }}>
+            <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
+              {t('Planetary Hours (Hora)')}
+            </span>
+            {(data.hora.sunrise || data.hora.sunset) && (
+              <span style={{ fontSize: '10px', color: 'var(--text4)' }}>
+                ☀ {t('Sunrise')} {data.hora.sunrise} · {t('Sunset')} {data.hora.sunset}
+              </span>
+            )}
           </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-            {data.hora.schedule.map((h: any) => {
-              const c = PLANET_COLORS[h.lord] || '#888'
-              const isCurrent = h.hour === new Date().getHours()
-              return (
-                <div key={h.hour} style={{
-                  padding: '4px 8px', borderRadius: '6px', fontSize: '10.5px',
-                  background: isCurrent ? c + '25' : 'var(--surface2)',
-                  border: isCurrent ? `1px solid ${c}66` : '1px solid var(--border)',
-                  minWidth: '48px', textAlign: 'center',
-                }}>
-                  <div style={{ fontSize: '9px', color: 'var(--text4)' }}>{h.time}</div>
-                  <div style={{ fontWeight: '700', color: isCurrent ? c : 'var(--text3)', fontFamily: "'Noto Sans Devanagari', sans-serif" }}>{t(h.lord).slice(0, 3)}</div>
+          {(['day', 'night'] as const).map(part => {
+            const rows = data.hora.schedule.filter((h: any) => part === 'night' ? h.is_night : !h.is_night)
+            if (!rows.length) return null
+            return (
+              <div key={part} style={{ marginBottom: part === 'day' ? '8px' : 0 }}>
+                <div style={{ fontSize: '9px', color: 'var(--text4)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '4px' }}>
+                  {part === 'day' ? `🌞 ${t('Day')}` : `🌙 ${t('Night')}`}
                 </div>
-              )
-            })}
-          </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                  {rows.map((h: any) => {
+                    const c = PLANET_COLORS[h.lord] || '#888'
+                    return (
+                      <div key={h.index} title={`${h.start}–${h.end}`} style={{
+                        padding: '4px 8px', borderRadius: '6px', fontSize: '10.5px',
+                        background: h.current ? c + '25' : 'var(--surface2)',
+                        border: h.current ? `1.5px solid ${c}` : '1px solid var(--border)',
+                        minWidth: '52px', textAlign: 'center',
+                      }}>
+                        <div style={{ fontSize: '9px', color: 'var(--text4)' }}>{h.start}</div>
+                        <div style={{ fontWeight: '700', color: h.current ? c : 'var(--text3)', fontFamily: "'Noto Sans Devanagari', sans-serif" }}>{t(h.lord).slice(0, 3)}</div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )
+          })}
         </div>
       )}
     </div>

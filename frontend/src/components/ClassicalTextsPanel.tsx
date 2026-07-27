@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import { classicalSearchApi } from '../api/client'
+import { useLang } from '../contexts/LanguageContext'
 
 const SOURCES = ['All', 'BPHS', 'Saravali', 'Phaladeepika', 'Lal Kitab', 'Jataka Parijata']
 
@@ -21,6 +22,7 @@ export default function ClassicalTextsPanel() {
   const [loading, setLoading] = useState(false)
   const [searched, setSearched] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
+  const { t } = useLang()
 
   const search = async (q: string = query) => {
     if (!q.trim()) return
@@ -36,9 +38,9 @@ export default function ClassicalTextsPanel() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       {/* Header */}
       <div style={{ padding: '14px 18px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-m)' }}>
-        <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '4px' }}>Classical Jyotish Text Search</div>
+        <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '4px' }}>{t('Classical Jyotish Text Search')}</div>
         <div style={{ fontSize: '12px', color: 'var(--text3)' }}>
-          Search BPHS · Saravali · Phaladeepika · Lal Kitab · Jataka Parijata — shlokas and classical interpretations
+          {t('Search BPHS · Saravali · Phaladeepika · Lal Kitab · Jataka Parijata — shlokas and classical interpretations')}
         </div>
       </div>
 
@@ -49,7 +51,7 @@ export default function ClassicalTextsPanel() {
           value={query}
           onChange={e => setQuery(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && search()}
-          placeholder="e.g. Saturn in 7th house, Raja yoga, Moon exaltation…"
+          placeholder={t('e.g. Saturn in 7th house, Raja yoga, Moon exaltation…')}
           style={{
             flex: 1, padding: '10px 14px', borderRadius: 'var(--radius-m)',
             border: '1px solid var(--border)', background: 'var(--surface)',
@@ -60,13 +62,13 @@ export default function ClassicalTextsPanel() {
           padding: '10px 10px', borderRadius: 'var(--radius-m)', border: '1px solid var(--border)',
           background: 'var(--surface)', color: 'var(--text)', fontSize: '12px', cursor: 'pointer',
         }}>
-          {SOURCES.map(s => <option key={s} value={s}>{s}</option>)}
+          {SOURCES.map(s => <option key={s} value={s}>{t(s)}</option>)}
         </select>
         <button onClick={() => search()} disabled={loading || !query.trim()} style={{
           padding: '10px 20px', borderRadius: 'var(--radius-m)', border: 'none',
           background: 'var(--accent)', color: '#fff', fontSize: '13px', fontWeight: '700', cursor: 'pointer',
         }}>
-          {loading ? '…' : '🔍 Search'}
+          {loading ? '…' : `🔍 ${t('Search')}`}
         </button>
       </div>
 
@@ -84,7 +86,7 @@ export default function ClassicalTextsPanel() {
       {/* Results */}
       {searched && !loading && results.length === 0 && (
         <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text3)', fontSize: '13px' }}>
-          No results found. Try different keywords.
+          {t('No results found. Try different keywords.')}
         </div>
       )}
 
@@ -98,7 +100,7 @@ export default function ClassicalTextsPanel() {
                   {r.source}
                 </span>
                 <span style={{ fontSize: '11px', color: 'var(--text3)' }}>{r.chapter}</span>
-                <span style={{ fontSize: '10px', color: 'var(--text4)', marginLeft: 'auto' }}>Score: {r.relevance_score}</span>
+                <span style={{ fontSize: '10px', color: 'var(--text4)', marginLeft: 'auto' }}>{t('Score')}: {r.relevance_score}</span>
               </div>
               <div style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text)', marginBottom: '8px' }}>{r.topic}</div>
               <div style={{ fontSize: '12.5px', color: 'var(--text2)', lineHeight: 1.7, fontStyle: 'italic' }}>"{r.shloka}"</div>

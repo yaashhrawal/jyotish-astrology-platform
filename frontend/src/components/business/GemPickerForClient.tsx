@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { gemsApi, type Gem } from '../../api/client'
+import { useLang } from '../../contexts/LanguageContext'
 import GemRecommendModal from './GemRecommendModal'
 
 const PLANETS = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn','Rahu','Ketu']
@@ -19,6 +20,7 @@ interface Props {
 }
 
 export default function GemPickerForClient({ clientId, clientName, clientWhatsApp, weakPlanets, birthData, onClose }: Props) {
+  const { t } = useLang()
   const [gems, setGems] = useState<Gem[]>([])
   const [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState<Gem | null>(null)
@@ -64,8 +66,8 @@ export default function GemPickerForClient({ clientId, clientName, clientWhatsAp
       <div style={panel} onClick={e => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
           <div>
-            <div style={{ fontSize: 16, fontWeight: 700 }}>💎 Pick a Gem for {clientName}</div>
-            <div style={{ fontSize: 11, color: 'var(--text3)' }}>Filter by significator planet, then pick a tier.</div>
+            <div style={{ fontSize: 16, fontWeight: 700 }}>💎 {t('Pick a Gem for')} {clientName}</div>
+            <div style={{ fontSize: 11, color: 'var(--text3)' }}>{t('Filter by significator planet, then pick a tier.')}</div>
           </div>
           <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', color: 'var(--text3)' }}>×</button>
         </div>
@@ -73,7 +75,7 @@ export default function GemPickerForClient({ clientId, clientName, clientWhatsAp
         {suggestions && suggestions.length > 0 && (
           <div style={{ marginBottom: 14, padding: 14, background: '#fef3c7', borderRadius: 10, border: '1px solid #fbbf24' }}>
             <div style={{ fontSize: 11, fontWeight: 700, color: '#92400e', marginBottom: 6 }}>
-              ✨ SMART SUGGESTIONS {activeMD && <span style={{ fontWeight: 400 }}>· active mahadasha: <strong>{activeMD}</strong></span>}
+              ✨ {t('SMART SUGGESTIONS')} {activeMD && <span style={{ fontWeight: 400 }}>· {t('active mahadasha')}: <strong>{activeMD}</strong></span>}
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 8 }}>
               {suggestions.map((s: any) => (
@@ -83,7 +85,7 @@ export default function GemPickerForClient({ clientId, clientName, clientWhatsAp
                 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ fontSize: 11, fontWeight: 700, color: PLANET_COLORS[s.planet] }}>{s.planet}</span>
-                    {s.is_active_dasha && <span style={{ fontSize: 8, padding: '1px 5px', background: '#fbbf24', color: '#fff', borderRadius: 8, fontWeight: 700 }}>NOW</span>}
+                    {s.is_active_dasha && <span style={{ fontSize: 8, padding: '1px 5px', background: '#fbbf24', color: '#fff', borderRadius: 8, fontWeight: 700 }}>{t('NOW')}</span>}
                   </div>
                   <div style={{ fontSize: 12, fontWeight: 700, marginTop: 4 }}>{s.gem.name}</div>
                   <div style={{ fontSize: 9, color: '#666', marginTop: 2 }}>{s.reason}</div>
@@ -99,19 +101,19 @@ export default function GemPickerForClient({ clientId, clientName, clientWhatsAp
 
         {!suggestions && weakPlanets && weakPlanets.length > 0 && (
           <div style={{ padding: 10, background: '#fef3c7', borderRadius: 8, marginBottom: 12, fontSize: 12 }}>
-            <strong>Suggested:</strong> {weakPlanets.join(', ')}
+            <strong>{t('Suggested')}:</strong> {weakPlanets.join(', ')}
           </div>
         )}
 
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
-          <button onClick={() => setPlanet('')} style={chip(!planet, '#6b7280')}>All</button>
+          <button onClick={() => setPlanet('')} style={chip(!planet, '#6b7280')}>{t('All')}</button>
           {PLANETS.map(p => (
             <button key={p} onClick={() => setPlanet(p)} style={chip(planet === p, PLANET_COLORS[p])}>{p}</button>
           ))}
         </div>
 
-        {loading ? <div style={{ padding: 30, textAlign: 'center', color: 'var(--text3)' }}>Loading…</div> :
-        gems.length === 0 ? <div style={{ padding: 30, textAlign: 'center', color: 'var(--text4)' }}>No gems found.</div> :
+        {loading ? <div style={{ padding: 30, textAlign: 'center', color: 'var(--text3)' }}>{t('Loading…')}</div> :
+        gems.length === 0 ? <div style={{ padding: 30, textAlign: 'center', color: 'var(--text4)' }}>{t('No gems found.')}</div> :
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 10 }}>
           {gems.map(g => (
             <button key={g.id} onClick={() => setSelected(g)} style={{
