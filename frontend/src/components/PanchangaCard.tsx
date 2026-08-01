@@ -28,12 +28,20 @@ export default function PanchangaCard({ birthData }: Props) {
 
   if (!data) return null
 
+  // Day panchang (values at sunrise + "valid until" transition times, Drik-style).
+  // Falls back to the instant values if an older backend doesn't send `day`.
+  const day = data.day || {}
+  const till = (o: any) => o?.ends ? `${t('till')} ${o.ends}` : ''
+  const dTithi = day.tithi || data.tithi
+  const dNak = day.nakshatra || data.nakshatra
+  const dYoga = day.yoga || data.yoga
+  const dKar = day.karana || data.karana
   const items = [
     {
       label: t('Tithi'),
-      value: `${t(data.tithi?.paksha)} ${t(data.tithi?.name)}`,
-      sub: `#${data.tithi?.number}`,
-      color: data.tithi?.number <= 15 ? '#0891B2' : '#57534E',
+      value: `${t(dTithi?.paksha)} ${t(dTithi?.name)}`,
+      sub: till(day.tithi) || `#${data.tithi?.number}`,
+      color: (data.tithi?.number ?? 1) <= 15 ? '#0891B2' : '#57534E',
     },
     {
       label: t('Vara'),
@@ -43,21 +51,21 @@ export default function PanchangaCard({ birthData }: Props) {
     },
     {
       label: t('Nakshatra'),
-      value: t(data.nakshatra?.name),
-      sub: `${t('Pada')} ${data.nakshatra?.pada} · ${t('Lord')}: ${t(data.nakshatra?.lord)}`,
-      color: PLANET_COLORS[data.nakshatra?.lord] || 'var(--accent)',
+      value: t(dNak?.name),
+      sub: `${t('Pada')} ${dNak?.pada}${till(day.nakshatra) ? ' · ' + till(day.nakshatra) : ''}`,
+      color: PLANET_COLORS[dNak?.lord] || 'var(--accent)',
     },
     {
       label: t('Yoga'),
-      value: t(data.yoga?.name),
-      sub: data.yoga?.inauspicious ? `⚠ ${t('Inauspicious')}` : `✓ ${t('Auspicious')}`,
-      color: data.yoga?.inauspicious ? '#DC2626' : '#16A34A',
+      value: t(dYoga?.name),
+      sub: till(day.yoga) || (dYoga?.inauspicious ? `⚠ ${t('Inauspicious')}` : `✓ ${t('Auspicious')}`),
+      color: dYoga?.inauspicious ? '#DC2626' : '#16A34A',
     },
     {
       label: t('Karana'),
-      value: t(data.karana?.name),
-      sub: data.karana?.inauspicious ? `⚠ ${t('Inauspicious')}` : `✓ ${t('Auspicious')}`,
-      color: data.karana?.inauspicious ? '#DC2626' : '#16A34A',
+      value: t(dKar?.name),
+      sub: till(day.karana) || (dKar?.inauspicious ? `⚠ ${t('Inauspicious')}` : `✓ ${t('Auspicious')}`),
+      color: dKar?.inauspicious ? '#DC2626' : '#16A34A',
     },
     {
       label: t('Hora'),

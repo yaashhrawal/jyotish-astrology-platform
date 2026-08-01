@@ -163,15 +163,19 @@ app.include_router(varnada.router,            prefix="/api/calc")
 app.include_router(auth.router,           prefix="/api")
 
 # DB-backed features (auth required)
+from fastapi import Depends
+from core.auth import require_business
+_BIZ = [Depends(require_business)]   # gate: business-management suite (paid/trial only)
+
 app.include_router(charts_db.router,      prefix="/api")
-app.include_router(crm.router,            prefix="/api")
+app.include_router(crm.router,            prefix="/api", dependencies=_BIZ)
 app.include_router(research.router,       prefix="/api")
 app.include_router(ai.router,             prefix="/api")
 
 # Business modules (Phase 1)
-app.include_router(astrologer_profile.router, prefix="/api")
-app.include_router(business_reports.router,   prefix="/api")
-app.include_router(gems.router,                prefix="/api")
+app.include_router(astrologer_profile.router, prefix="/api", dependencies=_BIZ)
+app.include_router(business_reports.router,   prefix="/api", dependencies=_BIZ)
+app.include_router(gems.router,                prefix="/api")   # gems + earnings = FREE tier
 
 # Static uploads (logos, photos, signatures)
 import os as _os

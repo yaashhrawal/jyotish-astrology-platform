@@ -8,6 +8,7 @@ interface AuthState {
   initialized: boolean   // true once loadUser has resolved/rejected — prevents login flash
   login: (email: string, password: string) => Promise<void>
   register: (email: string, password: string, name: string, phone?: string, role?: UserRole) => Promise<void>
+  googleLogin: (credential: string, role?: UserRole) => Promise<void>
   logout: () => void
   loadUser: () => Promise<void>
 }
@@ -26,6 +27,12 @@ export const useAuth = create<AuthState>((set) => ({
 
   register: async (email, password, name, phone = '', role = 'astrologer') => {
     const data = await authApi.register(email, password, name, phone, role)
+    localStorage.setItem('jyotish_token', data.token)
+    set({ token: data.token, user: data.user, initialized: true })
+  },
+
+  googleLogin: async (credential, role = 'user') => {
+    const data = await authApi.google(credential, role)
     localStorage.setItem('jyotish_token', data.token)
     set({ token: data.token, user: data.user, initialized: true })
   },

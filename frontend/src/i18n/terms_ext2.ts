@@ -62,4 +62,9 @@ export const EXT2: Dict = {
   'LAGNA':                      { en: 'LAGNA',            hi: 'लग्न',            sa: 'लग्नम्' },
   'Remove':                     { en: 'Remove',           hi: 'हटाएँ',           sa: 'अपनयतु' },
   'selected':                   { en: 'selected',         hi: 'चयनित',           sa: 'चयनितम्' },
+  'till':                        { en: 'till',             hi: 'तक',              sa: 'यावत्' },
+  'Unlock your practice':        { en: 'Unlock your practice', hi: 'अपना व्यवसाय अनलॉक करें', sa: 'स्वव्यवसायम् उद्घाटयतु' },
+  'Clients, invoices, branded PDF reports, client portal & prediction tracker. Free for 30 days.': { en: 'Clients, invoices, branded PDF reports, client portal & prediction tracker. Free for 30 days.', hi: 'ग्राहक, बिल, ब्रांडेड PDF रिपोर्ट, क्लाइंट पोर्टल व भविष्यवाणी ट्रैकर। 30 दिन निःशुल्क।', sa: 'ग्राहकाः बिलानि प्रतिवेदनानि ग्राहकद्वारं भविष्यवाणीलेखनं च। त्रिंशद्दिनानि निःशुल्कम्।' },
+  'All calculations & gem earnings stay free.': { en: 'All calculations & gem earnings stay free.', hi: 'सभी गणनाएँ व रत्न आय निःशुल्क रहती हैं।', sa: 'सर्वाः गणनाः रत्नायः च निःशुल्काः।' },
+  'Start 30-day free trial':     { en: 'Start 30-day free trial', hi: '30-दिन निःशुल्क परीक्षण शुरू करें', sa: 'त्रिंशद्दिन-निःशुल्कपरीक्षणम् आरभताम्' },
 }

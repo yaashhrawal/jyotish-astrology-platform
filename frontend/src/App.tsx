@@ -185,26 +185,31 @@ const APP_TABS: TabItem[] = [
 
 // Header sections — the top-level nav. Astrology tools for everyone;
 // Business grouped and shown only to the 'astrologer' role.
-type AppSection = { label: string; icon?: string; astrologerOnly?: boolean; tabs: TabItem[] }
+// businessOnly = requires an active trial / paid plan (the ₹500 Practice tier).
+// Gems + Earnings are FREE (referral income for everyone); calculations are free.
+type AppSection = { label: string; icon?: string; businessOnly?: boolean; tabs: TabItem[] }
 const APP_SECTIONS: AppSection[] = [
   { label: 'Tools', icon: '✦', tabs: [
     { id: 'prashna',       label: 'Prashna',  icon: '☽' },
     { id: 'muhurta',       label: 'Muhurta',  icon: '✦' },
     { id: 'compatibility', label: 'Match',    icon: '♥' },
     { id: 'synastry',      label: 'Compare',  icon: '⊗' },
+    { id: 'gems',          label: 'Gems',     icon: '💎' },   // free — referral income
+    { id: 'earnings',      label: 'Earnings', icon: '💰' },   // free — your gem commissions
     { id: 'research',      label: 'Research' },
     { id: 'ai',            label: 'AI' },
   ]},
-  { label: 'Business', icon: '💼', astrologerOnly: true, tabs: [
+  { label: 'Business', icon: '💼', businessOnly: true, tabs: [
     { id: 'crm',      label: 'Clients' },
-    { id: 'gems',     label: 'Gems',     icon: '💎' },
-    { id: 'earnings', label: 'Earnings', icon: '💰' },
     { id: 'profile',  label: 'Brand',    icon: '⚙' },
   ]},
 ]
 
 // Tabs that need a logged-in account (guests get a sign-in prompt).
 const LOGIN_REQUIRED: Tab[] = ['research','ai','crm','gems','earnings','profile','saved','predictions']
+// Tabs that need an active trial / paid plan (business-management suite).
+const BUSINESS_TABS: Tab[] = ['crm','profile']
+const BUSINESS_PLANS = ['trial','practitioner','professional']
 
 const PLANET_COLORS: Record<string, string> = {
   Sun: '#D97706', Moon: '#0891B2', Mars: '#DC2626', Mercury: '#16A34A',
@@ -237,14 +242,17 @@ export default function App() {
   const [avatarOpen, setAvatarOpen] = useState(false)
   const [showAuthPage, setShowAuthPage] = useState(false)
   const [showSavePrompt, setShowSavePrompt] = useState(false)
+  const [showUpgrade, setShowUpgrade] = useState(false)
 
   const { user, logout, loadUser } = useAuth()
   useEffect(() => { loadUser() }, [])
 
-  const isAstrologer = user?.role === 'astrologer'
-  // Navigate to an app tab, prompting sign-in for guest-restricted tabs.
+  // Business suite needs an active trial / paid plan (₹500 Practice). Gems + all
+  // calculations stay free. Guests are prompted to sign in first.
+  const hasBusiness = !!user && BUSINESS_PLANS.includes((user as any).plan)
   const goTab = (id: Tab) => {
     if (!user && LOGIN_REQUIRED.includes(id)) { setShowAuthPage(true); return }
+    if (BUSINESS_TABS.includes(id) && !hasBusiness) { setShowUpgrade(true); setOpenSection(null); return }
     setActiveTab(id); setShowForm(false); setOpenSection(null)
   }
 
@@ -346,7 +354,7 @@ export default function App() {
         {(() => {
           const kundliActive = !APP_TABS.some(t => t.id === activeTab)
           return (
-            <button onClick={() => { setActiveTab('chart'); setShowForm(true); setOpenSection(null) }} style={{
+            <button onClick={() => { setActiveTab('chart'); setShowForm(!chart); setOpenSection(null) }} style={{
               padding: '4px 12px', borderRadius: '6px', border: 'none',
               background: kundliActive ? 'var(--hover)' : 'transparent',
               color: kundliActive ? 'var(--text)' : 'var(--text3)',
@@ -356,32 +364,36 @@ export default function App() {
         })()}
 
         {/* Section dropdowns (Tools, Business) */}
-        {APP_SECTIONS.filter(s => !s.astrologerOnly || isAstrologer).map(section => {
+        {APP_SECTIONS.filter(s => !s.businessOnly || !!user).map(section => {
           const active = section.tabs.some(tb => tb.id === activeTab)
           const open = openSection === section.label
           return (
-            <div key={section.label} style={{ position: 'relative' }}
-                 onMouseEnter={() => setOpenSection(section.label)}
-                 onMouseLeave={() => setOpenSection(null)}>
-              <button style={{
-                padding: '4px 12px', borderRadius: '6px', border: 'none',
-                background: active || open ? 'var(--hover)' : 'transparent',
-                color: active ? 'var(--text)' : 'var(--text3)',
-                cursor: 'pointer', fontSize: '13px', fontWeight: active ? '600' : '400', transition: 'all .15s',
-              }}>{section.icon ? section.icon + ' ' : ''}{t(section.label)} <span style={{ fontSize: '9px', opacity: 0.6 }}>▾</span></button>
+            <div key={section.label} style={{ position: 'relative' }}>
+              <button
+                onClick={() => setOpenSection(open ? null : section.label)}
+                style={{
+                  padding: '4px 12px', borderRadius: '6px', border: 'none',
+                  background: active || open ? 'var(--hover)' : 'transparent',
+                  color: active ? 'var(--text)' : 'var(--text3)',
+                  cursor: 'pointer', fontSize: '13px', fontWeight: active ? '600' : '400', transition: 'all .15s',
+                }}>{section.icon ? section.icon + ' ' : ''}{t(section.label)} <span style={{ fontSize: '9px', opacity: 0.6 }}>▾</span></button>
               {open && (
-                <div style={menuBox}>
-                  {section.tabs.map(tb => (
-                    <div key={tb.id} onClick={() => goTab(tb.id)} style={{
-                      ...menuItem,
-                      background: activeTab === tb.id ? 'var(--accent-bg)' : 'transparent',
-                      color: activeTab === tb.id ? 'var(--accent)' : 'var(--text)',
-                    }}
-                      onMouseEnter={e => { if (activeTab !== tb.id) e.currentTarget.style.background = 'var(--hover)' }}
-                      onMouseLeave={e => { if (activeTab !== tb.id) e.currentTarget.style.background = 'transparent' }}
-                    >{tb.icon ? tb.icon + ' ' : ''}{t(tb.label)}</div>
-                  ))}
-                </div>
+                <>
+                  {/* click-away backdrop so the menu stays open until you pick or click out */}
+                  <div onClick={() => setOpenSection(null)} style={{ position: 'fixed', inset: 0, zIndex: 190 }} />
+                  <div style={{ ...menuBox, zIndex: 200 }}>
+                    {section.tabs.map(tb => (
+                      <div key={tb.id} onClick={() => goTab(tb.id)} style={{
+                        ...menuItem,
+                        background: activeTab === tb.id ? 'var(--accent-bg)' : 'transparent',
+                        color: activeTab === tb.id ? 'var(--accent)' : 'var(--text)',
+                      }}
+                        onMouseEnter={e => { if (activeTab !== tb.id) e.currentTarget.style.background = 'var(--hover)' }}
+                        onMouseLeave={e => { if (activeTab !== tb.id) e.currentTarget.style.background = 'transparent' }}
+                      >{tb.icon ? tb.icon + ' ' : ''}{t(tb.label)}</div>
+                    ))}
+                  </div>
+                </>
               )}
             </div>
           )
@@ -452,6 +464,28 @@ export default function App() {
           >{t('Log in')}</button>
         )}
       </header>
+
+      {/* Upgrade prompt — free user hit a business-only tool */}
+      {showUpgrade && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}
+             onClick={e => e.target === e.currentTarget && setShowUpgrade(false)}>
+          <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '16px', padding: '30px', width: '400px', maxWidth: '90vw', textAlign: 'center', boxShadow: '0 20px 50px -20px rgba(0,0,0,0.4)' }}>
+            <div style={{ fontSize: '32px', marginBottom: '8px' }}>💼</div>
+            <div style={{ fontSize: '18px', fontWeight: 800, color: 'var(--text)', marginBottom: '8px' }}>{t('Unlock your practice')}</div>
+            <div style={{ fontSize: '13.5px', color: 'var(--text3)', lineHeight: 1.6, marginBottom: '18px' }}>
+              {t('Clients, invoices, branded PDF reports, client portal & prediction tracker. Free for 30 days.')}
+            </div>
+            <div style={{ fontSize: '12px', color: 'var(--text3)', marginBottom: '18px' }}>
+              {t('All calculations & gem earnings stay free.')}
+            </div>
+            <button onClick={() => setShowUpgrade(false)} style={{
+              width: '100%', padding: '12px', background: 'var(--accent)', border: 'none', borderRadius: '9px',
+              color: '#fff', fontWeight: 700, fontSize: '14.5px', cursor: 'pointer', marginBottom: '10px',
+            }}>{t('Start 30-day free trial')}</button>
+            <div onClick={() => setShowUpgrade(false)} style={{ fontSize: '13px', color: 'var(--text3)', cursor: 'pointer' }}>{t('Maybe later')}</div>
+          </div>
+        </div>
+      )}
 
       {/* Save-prompt after a guest calculates a chart */}
       {showSavePrompt && !user && (

@@ -72,6 +72,10 @@ export const authApi = {
   me: () => api.get('/api/auth/me').then(r => r.data),
   saveBoardLayout: (layout: number[]) =>
     api.patch('/api/auth/board-layout', { layout }).then(r => r.data),
+  google: (credential: string, role: UserRole = 'user') =>
+    api.post('/api/auth/google', { credential, role }).then(r => r.data),
+  googleConfig: (): Promise<{ enabled: boolean; client_id: string }> =>
+    api.get('/api/auth/google/config').then(r => r.data),
 }
 
 // ── Saved Charts ──────────────────────────────────────────────────────────────

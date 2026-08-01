@@ -622,12 +622,13 @@ export const MISC: Dict = {
 // ── Combined lookup ──────────────────────────────────────────────────────────
 import { EXT } from './terms_ext'
 import { EXT2 } from './terms_ext2'
+import { EXT3 } from './terms_ext3'
 
 const ALL_DICTS = [PLANETS, SIGNS, NAKSHATRAS, HOUSES, TITHIS, VARAS, NITYA_YOGAS,
                    KARANAS, PAKSHA, DIGNITY, DASHAS, KARAKAS, NAK_LORDS, UI,
                    TAB_GROUPS, APP_NAV, FORM, DASHA_TERMS, BALA, YOGA_TERMS,
                    ASPECT_TERMS, GOCHARA_TERMS, VARSHA_TERMS, JAIMINI_TERMS,
-                   DOSHA_TERMS, UPAGRAHA_TERMS, MISC, EXT, EXT2]
+                   DOSHA_TERMS, UPAGRAHA_TERMS, MISC, EXT, EXT2, EXT3]
 
 export function translate(term: string, lang: Lang): string {
   if (lang === 'en') return term
@@ -639,14 +640,17 @@ export function translate(term: string, lang: Lang): string {
     const entry = HOUSES[term]
     if (entry) return entry[lang] || term
   }
-  // DEV-only: record untranslated keys so we can find i18n gaps.
-  // Inspect in the browser console via `window.__i18nMissing`.
+  // DEV-only: silently record untranslated keys so we can find i18n gaps
+  // without flooding the console. Inspect via `window.__i18nMissing` (a Set),
+  // or opt into logging with `localStorage.i18nDebug = '1'`.
   if (import.meta.env?.DEV && typeof window !== 'undefined') {
     const w = window as unknown as { __i18nMissing?: Set<string> }
     if (!w.__i18nMissing) w.__i18nMissing = new Set()
     if (!w.__i18nMissing.has(term)) {
       w.__i18nMissing.add(term)
-      console.warn(`[i18n] missing key (${lang}): "${term}"`)
+      if (localStorage.getItem('i18nDebug') === '1') {
+        console.warn(`[i18n] missing key (${lang}): "${term}"`)
+      }
     }
   }
   return term

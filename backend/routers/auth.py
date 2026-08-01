@@ -6,8 +6,9 @@ from core.auth import hash_password, verify_password, create_access_token, get_c
 import uuid
 from datetime import datetime, timedelta
 
-FREE_TRIAL_DAYS = 14
+FREE_TRIAL_DAYS = 30
 DEMO_USER_ID = os.getenv("DEMO_USER_ID")  # set only in demo env
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "")  # OAuth web client id
 
 router = APIRouter(tags=["auth"])
 
@@ -23,6 +24,11 @@ class RegisterRequest(BaseModel):
 class LoginRequest(BaseModel):
     email: str
     password: str
+
+
+class GoogleAuthRequest(BaseModel):
+    credential: str            # Google ID token (JWT) from Google Identity Services
+    role: str = "user"         # only used when creating a brand-new account
 
 
 class UpdateProfileRequest(BaseModel):
@@ -84,6 +90,89 @@ async def login(req: LoginRequest):
                 "chart_style": user["chart_style"],
             }
         }
+
+
+@router.post("/auth/google")
+async def google_auth(req: GoogleAuthRequest):
+    """Sign in / sign up with a Google ID token (Google Identity Services).
+    Verifies the token against our OAuth client id, then find-or-creates the user
+    and issues our own JWT (same shape as /auth/login)."""
+    if not GOOGLE_CLIENT_ID:
+        raise HTTPException(status_code=503, detail="Google sign-in not configured")
+    # Verify the Google ID token
+    try:
+        from google.oauth2 import id_token as google_id_token
+        from google.auth.transport import requests as google_requests
+        info = google_id_token.verify_oauth2_token(
+            req.credential, google_requests.Request(), GOOGLE_CLIENT_ID
+        )
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid Google token")
+    if not info.get("email") or not info.get("email_verified", False):
+        raise HTTPException(status_code=401, detail="Google account email not verified")
+
+    email = info["email"].lower()
+    name = info.get("name") or email.split("@")[0]
+    role = req.role if req.role in ("astrologer", "user") else "user"
+
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        user = await conn.fetchrow("SELECT * FROM users WHERE email=$1", email)
+        if user:
+            # Existing account (password or google) → just log in
+            await conn.execute("UPDATE users SET last_login=NOW() WHERE id=$1", user["id"])
+            uid = str(user["id"])
+            return {
+                "token": create_access_token(uid, email),
+                "user": {"id": uid, "email": email, "name": user["name"], "plan": user["plan"],
+                         "role": user["role"], "ayanamsa_pref": user["ayanamsa_pref"],
+                         "chart_style": user["chart_style"]},
+            }
+        # New Google account — no password, 14-day trial like register
+        uid = str(uuid.uuid4())
+        trial_ends = datetime.utcnow() + timedelta(days=FREE_TRIAL_DAYS)
+        await conn.execute(
+            """INSERT INTO users (id, email, password_hash, name, phone, plan, trial_ends_at, role, auth_provider, last_login)
+               VALUES ($1,$2,NULL,$3,'','trial',$4,$5,'google',NOW())""",
+            uid, email, name, trial_ends, role
+        )
+        await conn.execute(
+            """INSERT INTO subscriptions (id, user_id, plan, status, ends_at)
+               VALUES ($1,$2,'professional','trialing',$3)""",
+            str(uuid.uuid4()), uid, trial_ends
+        )
+        return {
+            "token": create_access_token(uid, email),
+            "user": {"id": uid, "email": email, "name": name, "plan": "trial", "role": role},
+            "trial_ends_at": trial_ends.isoformat(), "trial_days": FREE_TRIAL_DAYS, "new_user": True,
+        }
+
+
+# ── Billing / pricing scaffold (numbers NOT final — geo-priced) ──────────────
+PLAN_PRICING = {
+    "IN":   {"price": 500, "currency": "INR", "symbol": "₹", "period": "month"},
+    "INTL": {"price": 10,  "currency": "USD", "symbol": "$", "period": "month"},
+}
+
+@router.get("/billing/plans")
+async def billing_plans(region: str = "IN"):
+    """Geo-priced single 'Practice' plan + trial length. Final numbers TBD."""
+    region = "IN" if region.upper() == "IN" else "INTL"
+    return {
+        "trial_days": FREE_TRIAL_DAYS,
+        "region": region,
+        "practice": PLAN_PRICING[region],
+        "all_regions": PLAN_PRICING,
+        "free_includes": ["all calculations", "gem referral earnings"],
+        "practice_includes": ["clients (CRM)", "invoices", "branded PDF reports", "client portal", "prediction tracker"],
+        "pricing_final": False,
+    }
+
+
+@router.get("/auth/google/config")
+async def google_config():
+    """Frontend asks whether Google sign-in is available + the client id to use."""
+    return {"enabled": bool(GOOGLE_CLIENT_ID), "client_id": GOOGLE_CLIENT_ID}
 
 
 @router.get("/auth/me")

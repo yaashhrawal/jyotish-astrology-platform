@@ -61,3 +61,23 @@ def decode_token(token: str) -> dict:
 
 def get_current_user(token: str = Depends(oauth2_scheme)) -> dict:
     return decode_token(token)
+
+
+# Plans that unlock the business-management suite (CRM, reports, brand, portal).
+# Free tier keeps all CALCULATIONS + GEM referral; only these tools are gated.
+BUSINESS_PLANS = {"trial", "practitioner", "professional"}
+
+
+async def require_business(current_user: dict = Depends(get_current_user)) -> dict:
+    """Gate business-management endpoints. Allows active trial + paid plans.
+    An expired trial is treated as free (and lazily downgraded)."""
+    from core.db import get_pool
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow("SELECT plan, trial_ends_at FROM users WHERE id=$1", current_user["sub"])
+    plan = (row["plan"] if row else "free") or "free"
+    if plan == "trial" and row and row["trial_ends_at"] and row["trial_ends_at"] < datetime.now(timezone.utc):
+        plan = "free"  # trial lapsed
+    if plan not in BUSINESS_PLANS:
+        raise HTTPException(status_code=402, detail="Upgrade required — business tools need a subscription")
+    return current_user

@@ -1,6 +1,7 @@
 import axios from 'axios'
 
-const BASE = 'http://localhost:8888/api/calc'
+// Use VITE_API_URL in prod/mobile; '' in dev → Vite proxy forwards /api → :8888
+const BASE = (import.meta.env.VITE_API_URL || '') + '/api/calc'
 
 export interface BirthData {
   name: string

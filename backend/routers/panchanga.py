@@ -200,6 +200,38 @@ def get_sun_moon_positions(jd: float, ayanamsa: str):
     return sun_sid, moon_sid
 
 
+def _sun_moon_sid_at(jd: float, ayanamsa: str):
+    ayan = get_ayanamsa(jd, ayanamsa)
+    sun_r, _ = swe.calc_ut(jd, swe.SUN, swe.FLG_MOSEPH)
+    moon_r, _ = swe.calc_ut(jd, swe.MOON, swe.FLG_MOSEPH)
+    return (sun_r[0] - ayan) % 360, (moon_r[0] - ayan) % 360
+
+
+def _next_transition(jd_start: float, ayanamsa: str, measure, step_deg: float, tz_offset: float) -> str:
+    """Local HH:MM when the panchang element (tithi/nakshatra/yoga/karana) next
+    changes. `measure(sun,moon)` returns the 0–360 angle; the element index is
+    floor(measure/step). Coarse 10-min scan to bracket, then binary refine."""
+    def idx_at(jd):
+        s, m = _sun_moon_sid_at(jd, ayanamsa)
+        return int(measure(s, m) / step_deg)
+    i0 = idx_at(jd_start)
+    coarse = 10 / (24 * 60)          # 10 minutes in days
+    lo = jd_start
+    hi = None
+    t = jd_start
+    for _ in range(int(1.5 * 24 * 6)):   # up to ~1.5 days
+        t += coarse
+        if idx_at(t) != i0:
+            hi = t; lo = t - coarse; break
+    if hi is None:
+        return ""                     # no change within window
+    for _ in range(30):               # binary refine to ~seconds
+        mid = (lo + hi) / 2
+        if idx_at(mid) != i0: hi = mid
+        else: lo = mid
+    return _jd_to_local_hm(hi, tz_offset)
+
+
 @router.post("/panchanga")
 def get_panchanga(data: PanchangaRequest):
     jd = birth_to_jd(data.year, data.month, data.day, data.hour, data.minute, data.tz_offset)
@@ -220,7 +252,26 @@ def get_panchanga(data: PanchangaRequest):
     moon_r, _ = swe.calc_ut(jd, swe.MOON, swe.FLG_MOSEPH | swe.FLG_SPEED)
     is_waxing = tithi_num <= 15
 
+    # ── Day panchang: values AT SUNRISE + "valid until" transition times (Drik-style) ──
+    az = data.ayanamsa; tz = data.tz_offset
+    try:
+        sr_jd, _, _ = _sun_rise_set(birth_to_jd(data.year, data.month, data.day, 0, 0, tz), data.latitude, data.longitude)
+    except Exception:
+        sr_jd = birth_to_jd(data.year, data.month, data.day, 6, 0, tz)
+    s_sr, m_sr = _sun_moon_sid_at(sr_jd, az)
+    d_tnum, d_tname, d_pak = get_tithi(s_sr, m_sr)
+    d_nak, d_nlord, _di, d_pada = get_nakshatra_pada(m_sr)
+    d_yoga, d_ybad = get_yoga(s_sr, m_sr)
+    d_kar, d_kbad = get_karana(s_sr, m_sr)
+    day = {
+        "tithi":     {"name": d_tname, "paksha": d_pak, "ends": _next_transition(sr_jd, az, lambda s, m: (m - s) % 360, 12, tz)},
+        "nakshatra": {"name": d_nak, "lord": d_nlord, "pada": d_pada, "ends": _next_transition(sr_jd, az, lambda s, m: m % 360, 360/27, tz)},
+        "yoga":      {"name": d_yoga, "inauspicious": d_ybad, "ends": _next_transition(sr_jd, az, lambda s, m: (s + m) % 360, 360/27, tz)},
+        "karana":    {"name": d_kar, "inauspicious": d_kbad, "ends": _next_transition(sr_jd, az, lambda s, m: (m - s) % 360, 6, tz)},
+    }
+
     return {
+        "day": day,
         "tithi": {"number": tithi_num, "name": tithi_name, "paksha": paksha},
         "vara": {"day": vara, "lord": vara_lord},
         "nakshatra": {"name": nakshatra, "lord": nak_lord, "pada": pada, "index": nak_idx},

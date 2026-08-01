@@ -1,17 +1,21 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../store/auth'
 import { useLang } from '../contexts/LanguageContext'
-import type { UserRole } from '../api/client'
+import { authApi, type UserRole } from '../api/client'
+
+declare global {
+  interface Window { google?: any }
+}
 
 /**
  * Full-screen auth page (shown on demand, not a forced gate).
  * Register is 2 steps: (1) name/email/phone/password, (2) occupation choice.
  * onClose returns to the app (guests keep using it without an account).
- * Google sign-in button is UI-only for now (wired later).
+ * Google sign-in via Google Identity Services (GIS) — ID-token flow, no secret.
  */
 export default function AuthPage({ onClose }: { onClose: () => void }) {
   const { t } = useLang()
-  const { login, register } = useAuth()
+  const { login, register, googleLogin } = useAuth()
   const [mode, setMode] = useState<'login' | 'register'>('login')
   const [step, setStep] = useState<1 | 2>(1)
   const [name, setName] = useState('')
@@ -21,6 +25,9 @@ export default function AuthPage({ onClose }: { onClose: () => void }) {
   const [role, setRole] = useState<UserRole>('astrologer')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [googleReady, setGoogleReady] = useState(false)
+  const roleRef = useRef<UserRole>('astrologer')
+  roleRef.current = role  // callback closure reads latest role at click time
 
   const doLogin = async () => {
     setError(''); setLoading(true)
@@ -36,9 +43,48 @@ export default function AuthPage({ onClose }: { onClose: () => void }) {
     finally { setLoading(false) }
   }
 
+  // Load Google Identity Services (only if the backend has a client id configured)
+  useEffect(() => {
+    let cancelled = false
+    authApi.googleConfig().then(cfg => {
+      if (cancelled || !cfg.enabled || !cfg.client_id) return
+      const init = () => {
+        if (!window.google?.accounts?.id) return
+        window.google.accounts.id.initialize({
+          client_id: cfg.client_id,
+          callback: async (resp: any) => {
+            if (!resp?.credential) return
+            setError(''); setLoading(true)
+            try { await googleLogin(resp.credential, roleRef.current); onClose() }
+            catch (e: any) { setError(e?.response?.data?.detail || t('Google sign-in failed')) }
+            finally { setLoading(false) }
+          },
+        })
+        setGoogleReady(true)
+      }
+      if (window.google?.accounts?.id) { init(); return }
+      const existing = document.getElementById('gis-script') as HTMLScriptElement | null
+      if (existing) { existing.addEventListener('load', init); return }
+      const s = document.createElement('script')
+      s.id = 'gis-script'; s.src = 'https://accounts.google.com/gsi/client'; s.async = true; s.defer = true
+      s.onload = init
+      document.head.appendChild(s)
+    }).catch(() => {})
+    return () => { cancelled = true }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const onGoogleClick = () => {
+    if (!googleReady || !window.google?.accounts?.id) {
+      setError(t('Google sign-in coming soon')); return
+    }
+    setError('')
+    window.google.accounts.id.prompt()   // One Tap / account chooser
+  }
+
   const googleBtn = (
     <>
-      <button style={S.googleBtn} onClick={() => setError(t('Google sign-in coming soon'))}>
+      <button style={S.googleBtn} onClick={onGoogleClick} disabled={loading}>
         <span style={S.gIcon}>G</span>{t('Continue with Google')}
       </button>
       <div style={S.divider}><span style={S.divLine} /><span style={S.divText}>{t('or')}</span><span style={S.divLine} /></div>
