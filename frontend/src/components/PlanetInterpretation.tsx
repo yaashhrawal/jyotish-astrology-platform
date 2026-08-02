@@ -571,13 +571,13 @@ export default function PlanetInterpretationDrawer({ planet, planetData, allPlan
         </div>
 
         {/* Planet karakatva */}
-        <Section title={`${t(planet)} — ${t('Natural Significations')}`} text={PLANET_KARAKATVA[planet] || ''} />
+        <Section title={`${t(planet)} — ${t('Natural Significations')}`} text={t(PLANET_KARAKATVA[planet] || '')} />
 
         {/* Planet in sign */}
-        {signText && <Section title={`${t('In')} ${t(sign)}`} text={signText} />}
+        {signText && <Section title={`${t('In')} ${t(sign)}`} text={t(signText)} />}
 
         {/* Planet in house */}
-        {houseText && <Section title={`${t('In House')} ${house}`} text={houseText.replace(/^H\d+ — /, '')} />}
+        {houseText && <Section title={`${t('In House')} ${house}`} text={t(houseText).replace(/^H\d+\s*—\s*/, '')} />}
 
         {/* Aspects cast */}
         <div style={{ marginBottom: '16px' }}>

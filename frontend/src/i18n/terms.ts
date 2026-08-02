@@ -623,12 +623,13 @@ export const MISC: Dict = {
 import { EXT } from './terms_ext'
 import { EXT2 } from './terms_ext2'
 import { EXT3 } from './terms_ext3'
+import { EXT4 } from './terms_ext4'
 
 const ALL_DICTS = [PLANETS, SIGNS, NAKSHATRAS, HOUSES, TITHIS, VARAS, NITYA_YOGAS,
                    KARANAS, PAKSHA, DIGNITY, DASHAS, KARAKAS, NAK_LORDS, UI,
                    TAB_GROUPS, APP_NAV, FORM, DASHA_TERMS, BALA, YOGA_TERMS,
                    ASPECT_TERMS, GOCHARA_TERMS, VARSHA_TERMS, JAIMINI_TERMS,
-                   DOSHA_TERMS, UPAGRAHA_TERMS, MISC, EXT, EXT2, EXT3]
+                   DOSHA_TERMS, UPAGRAHA_TERMS, MISC, EXT, EXT2, EXT3, EXT4]
 
 export function translate(term: string, lang: Lang): string {
   if (lang === 'en') return term

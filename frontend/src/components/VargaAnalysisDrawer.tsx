@@ -88,9 +88,9 @@ export default function VargaAnalysisDrawer({ open, onClose, vargaD, chart, d1Pl
     const nak = d1?.nakshatra
     const nakInfo = nak ? NAKSHATRAS.find(n => n.name === nak) : undefined
     const dig = dignityNote(p.status)
-    const houseFrame = vd.houseMeanings[house - 1] || ''
+    const houseFrame = t(vd.houseMeanings[house - 1] || '')
     const signText = PLANET_IN_SIGN[name]?.[sign]
-    const houseText = PLANET_IN_HOUSE[name]?.[house - 1]?.replace(/^H\d+\s*—\s*/, '')
+    const houseText = PLANET_IN_HOUSE[name]?.[house - 1]
 
     return (
       <div key={name}>
@@ -105,23 +105,23 @@ export default function VargaAnalysisDrawer({ open, onClose, vargaD, chart, d1Pl
 
         <Section
           color={PLANET_COLORS[name]}
-          title={`${t('In the')} ${vd.name} (${vd.domain})`}
+          title={`${t('In the')} ${vd.name} (${t(vd.domain)})`}
           summary={`${t(name)} ${t('sits in house')} ${house} ${t('of the')} ${vd.label} ${t('chart')} — ${houseFrame}`}
-          detail={`${t('So its results here are read specifically for')}: ${vd.domain.toLowerCase()}.`}
+          detail={`${t('So its results here are read specifically for')}: ${t(vd.domain).toLowerCase()}.`}
           source={vd.source}
         />
-        {signText && <Section color={PLANET_COLORS[name]} title={`${t(name)} ${t('in')} ${t(sign)}`} summary={signText} source={SIGN_SRC} />}
-        {houseText && <Section color={PLANET_COLORS[name]} title={`${t(name)} ${t('in house')} ${house}`} summary={houseText} source={HOUSE_SRC} />}
+        {signText && <Section color={PLANET_COLORS[name]} title={`${t(name)} ${t('in')} ${t(sign)}`} summary={t(signText)} source={SIGN_SRC} />}
+        {houseText && <Section color={PLANET_COLORS[name]} title={`${t(name)} ${t('in house')} ${house}`} summary={t(houseText).replace(/^H\d+\s*—\s*/, '')} source={HOUSE_SRC} />}
         {nakInfo && (
           <Section
             color={PLANET_COLORS[name]}
             title={`${t('Nakshatra')}: ${nak}${d1?.pada ? ` · ${t('Pada')} ${d1.pada}` : ''}`}
-            summary={`${nakInfo.traits}.`}
-            detail={`${t('Lord')}: ${nakInfo.lord} · ${t('Deity')}: ${nakInfo.deity} · ${t('Symbol')}: ${nakInfo.symbol}. ${t('Nakshatra is taken from the true D1 longitude.')}`}
+            summary={`${t(nakInfo.traits)}.`}
+            detail={`${t('Lord')}: ${t(nakInfo.lord)} · ${t('Deity')}: ${t(nakInfo.deity)} · ${t('Symbol')}: ${t(nakInfo.symbol)}. ${t('Nakshatra is taken from the true D1 longitude.')}`}
             source={NAKSHATRA_SOURCE}
           />
         )}
-        <Section color={PLANET_COLORS[name]} title={t('Karaka (significations)')} summary={PLANET_KARAKATVA[name] || ''} source={KARAKA_SRC} />
+        <Section color={PLANET_COLORS[name]} title={t('Karaka (significations)')} summary={t(PLANET_KARAKATVA[name] || '')} source={KARAKA_SRC} />
         {dig && <Section color={PLANET_COLORS[name]} title={t('Dignity')} summary={dig} source={DIGNITY_SRC} />}
       </div>
     )
@@ -130,19 +130,19 @@ export default function VargaAnalysisDrawer({ open, onClose, vargaD, chart, d1Pl
   if (target.type === 'planet' && target.planet) {
     const name = target.planet
     headerTitle = `${t(name)} ${t('in')} ${vd.label}`
-    headerSub = vd.domain
+    headerSub = t(vd.domain)
     body = planetLine(name)
   } else if (target.type === 'house' && target.house) {
     const h = target.house
     const here = chart.planet_house_map[h] || []
     headerTitle = `${t('House')} ${h} · ${vd.label}`
-    headerSub = vd.domain
+    headerSub = t(vd.domain)
     body = (
       <div>
         <Section
           title={`${t('House')} ${h} ${t('in')} ${vd.name}`}
-          summary={vd.houseMeanings[h - 1] || ''}
-          detail={vd.keyHouses.includes(h) ? `⭐ ${t('A key house for this chart')} (${vd.domain}).` : undefined}
+          summary={t(vd.houseMeanings[h - 1] || '')}
+          detail={vd.keyHouses.includes(h) ? `⭐ ${t('A key house for this chart')} (${t(vd.domain)}).` : undefined}
           source={vd.source}
         />
         {here.length === 0
