@@ -92,6 +92,12 @@ async def save_chart(req: SaveChartRequest, current_user=Depends(get_current_use
         yoga_names = []
 
     chart_id = str(uuid.uuid4())
+    # asyncpg needs real date/time objects for DATE/TIME columns (not strings)
+    from datetime import date as _date, time as _time
+    _y, _m, _d = map(int, req.birth_date.split("-"))
+    _hh, _mm = map(int, req.birth_time.split(":")[:2])
+    bd = _date(_y, _m, _d)
+    bt = _time(_hh, _mm)
     pool = await get_pool()
     async with pool.acquire() as conn:
         await conn.execute(
@@ -99,12 +105,12 @@ async def save_chart(req: SaveChartRequest, current_user=Depends(get_current_use
                (id, user_id, client_id, name, birth_date, birth_time, birth_tz, birth_place,
                 latitude, longitude, ayanamsa, chart_data, ascendant_sign, moon_sign, sun_sign,
                 atmakaraka, yogas, active_md, is_public)
-               VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19)""",
+               VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12::jsonb,$13,$14,$15,$16,$17,$18,$19)""",
             chart_id, current_user["sub"],
             req.client_id,
             req.name,
-            req.birth_date,
-            req.birth_time,
+            bd,
+            bt,
             req.birth_tz,
             req.birth_place,
             req.latitude, req.longitude,
