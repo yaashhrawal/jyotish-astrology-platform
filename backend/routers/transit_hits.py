@@ -6,6 +6,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 from core.engine import birth_to_jd, calculate_planets, calculate_houses, get_ayanamsa, SIGNS
 import swisseph as swe
+from core.engine import EPHE_FLAG
 from datetime import datetime, timedelta
 
 router = APIRouter()
@@ -23,7 +24,7 @@ PLANET_SPEEDS = {  # avg degrees/day for initial step
 
 
 def get_transit_lon(planet_id: int, jd: float, ayan: float, is_rahu: bool = False) -> float:
-    flags = swe.FLG_MOSEPH | swe.FLG_SPEED
+    flags = EPHE_FLAG | swe.FLG_SPEED
     result, _ = swe.calc_ut(jd, planet_id, flags)
     trop = result[0]
     if is_rahu:

@@ -7,6 +7,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 from core.engine import birth_to_jd, calculate_planets, get_ayanamsa
 import swisseph as swe
+from core.engine import EPHE_FLAG
 from datetime import datetime, timezone
 
 router = APIRouter()
@@ -76,8 +77,8 @@ def compute_pancha_pakshi(req: PanchaPakshiRequest):
 
     # Tithi (waxing/waning) for query time
     ayan = get_ayanamsa(jd, req.ayanamsa)
-    sun_r, _ = swe.calc_ut(jd, swe.SUN, swe.FLG_MOSEPH)
-    moon_r, _ = swe.calc_ut(jd, swe.MOON, swe.FLG_MOSEPH)
+    sun_r, _ = swe.calc_ut(jd, swe.SUN, EPHE_FLAG)
+    moon_r, _ = swe.calc_ut(jd, swe.MOON, EPHE_FLAG)
     sun_sid = (sun_r[0] - ayan) % 360
     moon_sid = (moon_r[0] - ayan) % 360
     diff = (moon_sid - sun_sid) % 360

@@ -1,13 +1,22 @@
 """
 Core Vedic astrology calculation engine using Swiss Ephemeris (pyswisseph).
-Uses Moshier ephemeris (built-in, no external files needed) — accurate to arcseconds.
+Prefers the full Swiss Ephemeris (.se1 DE431 files) when present — byte-identical to
+astro.com; falls back to the built-in Moshier ephemeris otherwise (still ~1 arcsec).
+Use the shared EPHE_FLAG everywhere instead of a hardcoded FLG_MOSEPH/FLG_SWIEPH.
 """
+import os
 import swisseph as swe
 from datetime import datetime, timezone
 import math
 
-# Use Moshier built-in ephemeris (no .se1 files needed, still very accurate)
-swe.set_ephe_path(None)
+# Prefer full Swiss Ephemeris files if bundled (backend/ephe/*.se1), else Moshier.
+_EPHE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "ephe")
+if os.path.isdir(_EPHE_DIR) and any(f.endswith(".se1") for f in os.listdir(_EPHE_DIR)):
+    swe.set_ephe_path(_EPHE_DIR)
+    EPHE_FLAG = swe.FLG_SWIEPH
+else:
+    swe.set_ephe_path(None)
+    EPHE_FLAG = swe.FLG_MOSEPH
 
 AYANAMSA_MAP = {
     # Standard / India
@@ -137,7 +146,7 @@ def calculate_planets(jd: float, ayanamsa: str = "lahiri", node_type: str = "tru
     planets = {}
 
     for name, pid in PLANET_IDS.items():
-        result, _ = swe.calc_ut(jd, pid, swe.FLG_MOSEPH | swe.FLG_SPEED)
+        result, _ = swe.calc_ut(jd, pid, EPHE_FLAG | swe.FLG_SPEED)
         trop_lon = result[0]
         speed = result[3]
         sid_lon = tropical_to_sidereal(trop_lon, ayan)
@@ -160,7 +169,7 @@ def calculate_planets(jd: float, ayanamsa: str = "lahiri", node_type: str = "tru
 
     # Rahu / Ketu — True Node or Mean Node
     node_id = swe.TRUE_NODE if node_type == "true" else swe.MEAN_NODE
-    node_result, _ = swe.calc_ut(jd, node_id, swe.FLG_MOSEPH)
+    node_result, _ = swe.calc_ut(jd, node_id, EPHE_FLAG)
     rahu_trop = node_result[0]
     rahu_sid = tropical_to_sidereal(rahu_trop, ayan)
     ketu_sid = (rahu_sid + 180) % 360

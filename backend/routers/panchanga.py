@@ -2,6 +2,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 from core.engine import birth_to_jd, calculate_planets, get_ayanamsa
 import swisseph as swe
+from core.engine import EPHE_FLAG
 
 router = APIRouter()
 
@@ -139,7 +140,7 @@ def _sun_rise_set(day_start_ut: float, lat: float, lon: float):
     (e.g. polar latitudes)."""
     def _find(rsmi: int, start: float) -> float:
         # Signature: rise_trans(tjdut, body, rsmi, geopos=(lon,lat,alt), atpress, attemp, flags)
-        res = swe.rise_trans(start, swe.SUN, rsmi, (lon, lat, 0), 0, 0, swe.FLG_MOSEPH)
+        res = swe.rise_trans(start, swe.SUN, rsmi, (lon, lat, 0), 0, 0, EPHE_FLAG)
         return res[1][0]  # (retflag, (tret, ...))
     sr = _find(swe.CALC_RISE, day_start_ut)
     ss = _find(swe.CALC_SET, sr)
@@ -193,8 +194,8 @@ def get_hora_schedule(year, month, day, tz_offset, lat, lon, query_jd):
 def get_sun_moon_positions(jd: float, ayanamsa: str):
     ayan = get_ayanamsa(jd, ayanamsa)
     # Use Moshier (FLG_MOSEPH) to match core/engine.py — no ephemeris files shipped.
-    sun_r, _ = swe.calc_ut(jd, swe.SUN, swe.FLG_MOSEPH)
-    moon_r, _ = swe.calc_ut(jd, swe.MOON, swe.FLG_MOSEPH)
+    sun_r, _ = swe.calc_ut(jd, swe.SUN, EPHE_FLAG)
+    moon_r, _ = swe.calc_ut(jd, swe.MOON, EPHE_FLAG)
     sun_sid = (sun_r[0] - ayan) % 360
     moon_sid = (moon_r[0] - ayan) % 360
     return sun_sid, moon_sid
@@ -202,8 +203,8 @@ def get_sun_moon_positions(jd: float, ayanamsa: str):
 
 def _sun_moon_sid_at(jd: float, ayanamsa: str):
     ayan = get_ayanamsa(jd, ayanamsa)
-    sun_r, _ = swe.calc_ut(jd, swe.SUN, swe.FLG_MOSEPH)
-    moon_r, _ = swe.calc_ut(jd, swe.MOON, swe.FLG_MOSEPH)
+    sun_r, _ = swe.calc_ut(jd, swe.SUN, EPHE_FLAG)
+    moon_r, _ = swe.calc_ut(jd, swe.MOON, EPHE_FLAG)
     return (sun_r[0] - ayan) % 360, (moon_r[0] - ayan) % 360
 
 
@@ -249,7 +250,7 @@ def get_panchanga(data: PanchangaRequest):
     )
 
     # Moon speed for waxing/waning
-    moon_r, _ = swe.calc_ut(jd, swe.MOON, swe.FLG_MOSEPH | swe.FLG_SPEED)
+    moon_r, _ = swe.calc_ut(jd, swe.MOON, EPHE_FLAG | swe.FLG_SPEED)
     is_waxing = tithi_num <= 15
 
     # ── Day panchang: values AT SUNRISE + "valid until" transition times (Drik-style) ──

@@ -5,6 +5,7 @@ Sun returns to exact natal longitude each year.
 from fastapi import APIRouter
 from pydantic import BaseModel
 import swisseph as swe
+from core.engine import EPHE_FLAG
 from core.engine import (
     get_ayanamsa, tropical_to_sidereal, get_sign_and_degree,
     get_nakshatra, get_planet_status, calculate_planets,
@@ -85,7 +86,7 @@ def find_solar_return_jd(natal_sun_lon: float, birth_jd: float, target_year: int
     approx_jd = birth_jd + (target_year) * 365.25 - 10
     # Iterate to refine
     for _ in range(50):
-        result, _ = swe.calc_ut(approx_jd, swe.SUN, swe.FLG_MOSEPH | swe.FLG_SPEED)
+        result, _ = swe.calc_ut(approx_jd, swe.SUN, EPHE_FLAG | swe.FLG_SPEED)
         trop_sun = result[0]
         speed = result[3]
         # target tropical = natal sidereal + ayanamsa at birth (use current ayan for simplicity)

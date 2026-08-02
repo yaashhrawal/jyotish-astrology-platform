@@ -2,6 +2,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 from core.engine import birth_to_jd, calculate_planets, calculate_houses, assign_planets_to_houses, SIGNS
 import swisseph as swe_module
+from core.engine import EPHE_FLAG
 
 router = APIRouter()
 
@@ -172,7 +173,7 @@ def check_sadesati(natal_moon_sign_idx: int, birth_jd: float, ayanamsa_str: str)
     now_jd = swe_module.julday(now.year, now.month, now.day, now.hour + now.minute/60.0)
 
     ayan = get_ayanamsa(now_jd, ayanamsa_str)
-    saturn_r, _ = swe_module.calc_ut(now_jd, swe_module.SATURN, swe_module.FLG_MOSEPH)
+    saturn_r, _ = swe_module.calc_ut(now_jd, swe_module.SATURN, EPHE_FLAG)
     saturn_sid = tropical_to_sidereal(saturn_r[0], ayan)
     _, _, saturn_sign_idx = get_sign_and_degree(saturn_sid)
 
