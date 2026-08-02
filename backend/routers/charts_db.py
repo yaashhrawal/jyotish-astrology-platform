@@ -139,7 +139,8 @@ async def list_charts(current_user=Depends(get_current_user)):
     pool = await get_pool()
     async with pool.acquire() as conn:
         rows = await conn.fetch(
-            """SELECT id, name, birth_date, birth_time, birth_place, ascendant_sign, moon_sign,
+            """SELECT id, name, birth_date, birth_time, birth_place, birth_tz,
+                      latitude, longitude, ayanamsa, ascendant_sign, moon_sign,
                       atmakaraka, active_md, yogas, created_at
                FROM charts WHERE user_id=$1 ORDER BY created_at DESC LIMIT 100""",
             current_user["sub"]
