@@ -467,6 +467,7 @@ export function buildSynthesis(
 // ─── Drawer component ─────────────────────────────────────────────────────────
 import { useEffect, useRef } from 'react'
 import { useLang } from '../contexts/LanguageContext'
+import ShlokaCard from './ShlokaCard'
 
 const PLANET_COLORS: Record<string, string> = {
   Sun: '#D97706', Moon: '#0891B2', Mars: '#DC2626', Mercury: '#16A34A',
@@ -635,6 +636,8 @@ export default function PlanetInterpretationDrawer({ planet, planetData, allPlan
             </div>
           ) : null
         })()}
+
+        <ShlokaCard accent={color} topics={['karaka', 'guna']} />
 
       </div>
 

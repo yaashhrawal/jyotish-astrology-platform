@@ -3,6 +3,7 @@ import type { Planet } from '../api/jyotish'
 import { useLang } from '../contexts/LanguageContext'
 import { PLANET_IN_SIGN, PLANET_IN_HOUSE, PLANET_KARAKATVA } from './PlanetInterpretation'
 import { getVargaDomain, NAKSHATRAS, NAKSHATRA_SOURCE } from '../data/vargaKnowledge'
+import ShlokaCard from './ShlokaCard'
 
 /**
  * Varga-aware analysis drawer. Reads a planet/house IN THE CONTEXT OF the varga
@@ -123,6 +124,10 @@ export default function VargaAnalysisDrawer({ open, onClose, vargaD, chart, d1Pl
         )}
         <Section color={PLANET_COLORS[name]} title={t('Karaka (significations)')} summary={t(PLANET_KARAKATVA[name] || '')} source={KARAKA_SRC} />
         {dig && <Section color={PLANET_COLORS[name]} title={t('Dignity')} summary={dig} source={DIGNITY_SRC} />}
+        <ShlokaCard
+          accent={PLANET_COLORS[name]}
+          topics={['karaka', 'guna', ...(p.status === 'exalted' || p.status === 'debilitated' ? ['exaltation', 'debilitation', 'dignity'] : [])]}
+        />
       </div>
     )
   }

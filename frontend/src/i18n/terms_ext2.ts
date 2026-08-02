@@ -67,4 +67,10 @@ export const EXT2: Dict = {
   'Clients, invoices, branded PDF reports, client portal & prediction tracker. Free for 30 days.': { en: 'Clients, invoices, branded PDF reports, client portal & prediction tracker. Free for 30 days.', hi: 'ग्राहक, बिल, ब्रांडेड PDF रिपोर्ट, क्लाइंट पोर्टल व भविष्यवाणी ट्रैकर। 30 दिन निःशुल्क।', sa: 'ग्राहकाः बिलानि प्रतिवेदनानि ग्राहकद्वारं भविष्यवाणीलेखनं च। त्रिंशद्दिनानि निःशुल्कम्।' },
   'All calculations & gem earnings stay free.': { en: 'All calculations & gem earnings stay free.', hi: 'सभी गणनाएँ व रत्न आय निःशुल्क रहती हैं।', sa: 'सर्वाः गणनाः रत्नायः च निःशुल्काः।' },
   'Start 30-day free trial':     { en: 'Start 30-day free trial', hi: '30-दिन निःशुल्क परीक्षण शुरू करें', sa: 'त्रिंशद्दिन-निःशुल्कपरीक्षणम् आरभताम्' },
+
+  // ── Shloka citations ───────────────────────────────────────────────
+  'Shloka':           { en: 'Shloka',           hi: 'श्लोक',            sa: 'श्लोकः' },
+  'Classical Source': { en: 'Classical Source', hi: 'शास्त्रीय स्रोत',  sa: 'शास्त्रीयस्रोतः' },
+  'Translation':      { en: 'Translation',      hi: 'अनुवाद',           sa: 'अनुवादः' },
+  'Breakdown':        { en: 'Breakdown',        hi: 'विवेचन',           sa: 'विवेचनम्' },
 }
