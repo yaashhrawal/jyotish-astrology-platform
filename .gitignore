@@ -46,3 +46,5 @@ Thumbs.db
 
 # ── Deploy artifacts ─────────────────────────────────────
 deploy/*.sh.bak
+
+testsprite_tests/tmp/config.json

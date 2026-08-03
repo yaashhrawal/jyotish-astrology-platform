@@ -73,4 +73,13 @@ export const EXT2: Dict = {
   'Classical Source': { en: 'Classical Source', hi: 'शास्त्रीय स्रोत',  sa: 'शास्त्रीयस्रोतः' },
   'Translation':      { en: 'Translation',      hi: 'अनुवाद',           sa: 'अनुवादः' },
   'Breakdown':        { en: 'Breakdown',        hi: 'विवेचन',           sa: 'विवेचनम्' },
+
+  // ── Interpretation panel ───────────────────────────────────────────
+  'Interpretation':   { en: 'Interpretation',   hi: 'फलादेश',          sa: 'फलादेशः' },
+  'Reading':          { en: 'Reading',          hi: 'वाचन',            sa: 'वाचनम्' },
+  'Factors':          { en: 'Factors',          hi: 'कारक',            sa: 'कारकाणि' },
+  'Judge in':         { en: 'Judge in',         hi: 'किसमें देखें',     sa: 'कुत्र विचार्यम्' },
+  'Tension':          { en: 'Tension',          hi: 'विरोध',           sa: 'विरोधः' },
+  'Calculate a chart first.': { en: 'Calculate a chart first.', hi: 'पहले कुंडली बनाएँ।', sa: 'प्रथमं कुण्डलीं गणयतु।' },
+  'Rule-based · deterministic · every prediction cites its classical source. ★ = planet in the active daśā.': { en: 'Rule-based · deterministic · every prediction cites its classical source. ★ = planet in the active daśā.', hi: 'नियम-आधारित · सुनिश्चित · प्रत्येक कथन शास्त्रीय स्रोत उद्धृत करता है। ★ = सक्रिय दशा का ग्रह।', sa: 'नियमाधारितम् · निश्चितम् · प्रत्येकं कथनं शास्त्रीयस्रोतम् उद्धरति। ★ = सक्रियदशायाः ग्रहः।' },
 }

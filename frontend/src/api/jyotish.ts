@@ -67,3 +67,34 @@ export const getYogas = (data: Omit<BirthData, 'name' | 'place'>) =>
 
 export const getAshtakavarga = (data: Omit<BirthData, 'name' | 'place'>) =>
   axios.post(`${BASE}/ashtakavarga`, data).then(r => r.data)
+
+// ── Rule-based interpretation engine ─────────────────────────────────────────
+export interface Factor {
+  subject: string; claim: string; polarity: number; strength: number
+  topics: string[]; source: string; conditions: string[]
+  dasha_active: boolean; weight: number
+}
+export interface TopicResult {
+  topic: string; label: string; houses?: number[]; varga?: string
+  net: number; tension: boolean
+  narrative: {
+    headline: string
+    statements: Array<{ text: string; rule: string }>
+    paragraphs: string[]
+    drivers: Array<{ claim: string; source: string; weight: number; polarity: number }>
+  }
+  factors: Factor[]
+  active_dasha?: string[]
+}
+export interface InterpretResponse {
+  topic: string; varga: string; scheme: string; ascendant: string
+  results: TopicResult[]
+}
+export interface TopicMeta { key: string; label: string; house?: number; houses?: number[]; primary_varga?: number }
+
+export const getInterpretTopics = () =>
+  axios.get<{ topics: TopicMeta[] }>(`${BASE}/interpret/topics`).then(r => r.data.topics)
+
+export const getInterpretation = (
+  data: Omit<BirthData, 'place'> & { topic: string; varga?: number; scheme?: string }
+) => axios.post<InterpretResponse>(`${BASE}/interpret`, data).then(r => r.data)

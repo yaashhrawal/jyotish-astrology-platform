@@ -38,6 +38,7 @@ from routers import argala
 from routers import conditional_dashas
 from routers import upapada
 from routers import varnada
+from routers import interpretation
 
 
 limiter = Limiter(key_func=get_remote_address)
@@ -158,6 +159,7 @@ app.include_router(argala.router,           prefix="/api/calc")
 app.include_router(conditional_dashas.router, prefix="/api/calc")
 app.include_router(upapada.router,            prefix="/api/calc")
 app.include_router(varnada.router,            prefix="/api/calc")
+app.include_router(interpretation.router,     prefix="/api/calc")
 
 # Auth
 app.include_router(auth.router,           prefix="/api")
