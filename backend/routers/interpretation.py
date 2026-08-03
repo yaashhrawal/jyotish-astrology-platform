@@ -95,6 +95,14 @@ class DashaPredictRequest(BaseModel):
     latitude: float; longitude: float
     ayanamsa: str = "lahiri"
     scheme: str = "parashari"
+    maha: str = ""     # if set (with antar), return the full detail for that one pair
+    antar: str = ""
+
+
+def _summary(r, lord, s_jd, e_jd, running):
+    return {"lord": lord, "start": jd_to_datetime(s_jd), "end": jd_to_datetime(e_jd),
+            "net": r["net"], "tension": r["tension"], "headline": r["narrative"]["headline"],
+            "running": running}
 
 
 @router.post("/dasha-predict")
@@ -104,33 +112,37 @@ def dasha_predict(req: DashaPredictRequest):
     houses = calculate_houses(jd, req.latitude, req.longitude, req.ayanamsa)
     lagna = houses["ascendant"]["sign_index"]
     assign_planets_to_houses(planets, lagna)
-
     mahas = get_vimshottari_dasha(planets["Moon"]["longitude"], jd)
     asof = _asof_jd()
 
-    # current maha + antar
+    # On-demand full detail for a single maha (+optional antar) — for click-to-expand.
+    if req.maha:
+        r = dasha_reading(planets, lagna, req.maha, req.antar or None, req.scheme)
+        return {"detail": r}
+
     cur_maha = next((d for d in mahas if d["start_jd"] <= asof < d["end_jd"]), mahas[0])
-    antars = _antardashas_jd(cur_maha["lord"], cur_maha["start_jd"], cur_maha["years"])
-    cur_antar = next((a for a in antars if a["start_jd"] <= asof < a["end_jd"]), antars[0] if antars else None)
-
-    current = dasha_reading(planets, lagna, cur_maha["lord"],
-                            cur_antar["lord"] if cur_antar else None, req.scheme)
-    current["period"] = {
-        "maha": cur_maha["lord"], "antar": cur_antar["lord"] if cur_antar else None,
-        "maha_start": jd_to_datetime(cur_maha["start_jd"]), "maha_end": jd_to_datetime(cur_maha["end_jd"]),
-        "antar_start": jd_to_datetime(cur_antar["start_jd"]) if cur_antar else None,
-        "antar_end": jd_to_datetime(cur_antar["end_jd"]) if cur_antar else None,
-    }
-
-    # timeline: each mahadasha with a one-line verdict
-    timeline = []
+    cur_antar_lord = None
+    tree = []
     for d in mahas[:9]:
-        r = dasha_reading(planets, lagna, d["lord"], None, req.scheme)
-        timeline.append({
+        m_running = d["start_jd"] <= asof < d["end_jd"]
+        mr = dasha_reading(planets, lagna, d["lord"], None, req.scheme)
+        antars = _antardashas_jd(d["lord"], d["start_jd"], d["years"])
+        asum = []
+        for a in antars:
+            a_running = a["start_jd"] <= asof < a["end_jd"]
+            if m_running and a_running:
+                cur_antar_lord = a["lord"]
+            ar = dasha_reading(planets, lagna, d["lord"], a["lord"], req.scheme)
+            asum.append(_summary(ar, a["lord"], a["start_jd"], a["end_jd"], a_running))
+        tree.append({
             "lord": d["lord"], "start": jd_to_datetime(d["start_jd"]),
-            "end": jd_to_datetime(d["end_jd"]), "years": d["years"],
-            "net": r["net"], "tension": r["tension"], "headline": r["narrative"]["headline"],
-            "running": d["start_jd"] <= asof < d["end_jd"],
+            "end": jd_to_datetime(d["end_jd"]), "years": d["years"], "running": m_running,
+            "net": mr["net"], "tension": mr["tension"], "headline": mr["narrative"]["headline"],
+            "reading": mr, "antardashas": asum,
         })
 
-    return {"ascendant": houses["ascendant"]["sign"], "current": current, "timeline": timeline}
+    return {
+        "ascendant": houses["ascendant"]["sign"],
+        "current": {"maha": cur_maha["lord"], "antar": cur_antar_lord},
+        "mahadashas": tree,
+    }

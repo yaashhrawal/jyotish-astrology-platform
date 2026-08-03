@@ -100,18 +100,22 @@ export const getInterpretation = (
   data: Omit<BirthData, 'place'> & { topic: string; varga?: number; scheme?: string }
 ) => axios.post<InterpretResponse>(`${BASE}/interpret`, data).then(r => r.data)
 
-export interface DashaTimelineItem {
-  lord: string; start: string; end: string; years: number
-  net: number; tension: boolean; headline: string; running: boolean
+export interface DashaSummary {
+  lord: string; start: string; end: string; net: number; tension: boolean; headline: string; running: boolean
+}
+export interface MahaNode extends DashaSummary {
+  years: number; reading: TopicResult; antardashas: DashaSummary[]
 }
 export interface DashaPredictResponse {
   ascendant: string
-  current: TopicResult & {
-    maha: string; antar: string | null
-    period: { maha: string; antar: string | null; maha_start: string; maha_end: string; antar_start: string | null; antar_end: string | null }
-  }
-  timeline: DashaTimelineItem[]
+  current: { maha: string; antar: string | null }
+  mahadashas: MahaNode[]
 }
 export const getDashaPrediction = (
   data: Omit<BirthData, 'place'> & { scheme?: string }
 ) => axios.post<DashaPredictResponse>(`${BASE}/dasha-predict`, data).then(r => r.data)
+
+export const getDashaDetail = (
+  data: Omit<BirthData, 'place'> & { maha: string; antar?: string; scheme?: string }
+) => axios.post<{ detail: TopicResult & { maha: string; antar: string | null; label: string } }>(
+  `${BASE}/dasha-predict`, data).then(r => r.data.detail)
