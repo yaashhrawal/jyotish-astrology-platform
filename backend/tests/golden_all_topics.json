@@ -3,90 +3,90 @@
     "net": 9.56,
     "tension": true,
     "n_factors": 12,
-    "headline": "Self, body and vitality is well-supported overall, though not without friction."
+    "headline": "Self, body and vitality is mostly positive, with a few real challenges."
   },
   "wealth": {
     "net": -1.06,
     "tension": true,
     "n_factors": 14,
-    "headline": "Wealth, family and speech is a battleground of opposing forces in this chart."
+    "headline": "Wealth, family and speech has clear support but equally real difficulties."
   },
   "courage": {
     "net": 1.3,
     "tension": true,
     "n_factors": 13,
-    "headline": "On balance the chart favours courage, siblings and initiative — with some genuine obstacles in the mix."
+    "headline": "Courage, siblings and initiative is mostly positive, with a few real challenges."
   },
   "home": {
     "net": -4.0,
     "tension": true,
     "n_factors": 11,
-    "headline": "Home, mother and happiness is hard-won here: meaningful support, met by equally real resistance."
+    "headline": "Home, mother and happiness is a mixed, demanding area — strong pushes both ways."
   },
   "children": {
     "net": 6.1,
     "tension": true,
     "n_factors": 11,
-    "headline": "Children, intellect and creativity leans favourable, but there are real headwinds to work with."
+    "headline": "Children, intellect and creativity is mostly positive, with a few real challenges."
   },
   "health": {
     "net": 9.664,
     "tension": true,
     "n_factors": 13,
-    "headline": "Health, enemies and service is well-supported overall, though not without friction."
+    "headline": "Health, enemies and service leans good overall, but there are some genuine hurdles."
   },
   "marriage": {
     "net": -12.34,
     "tension": true,
     "n_factors": 14,
-    "headline": "Marriage and partnership is a battleground of opposing forces in this chart."
+    "headline": "Marriage and partnership has clear support but equally real difficulties."
   },
   "longevity": {
     "net": 7.504,
     "tension": true,
     "n_factors": 9,
-    "headline": "Longevity, transformation and the occult is well-supported overall, though not without friction."
+    "headline": "Longevity, transformation and the occult leans good overall, but there are some genuine hurdles."
   },
   "fortune": {
     "net": 1.68,
     "tension": true,
     "n_factors": 13,
-    "headline": "Fortune, father and dharma is well-supported overall, though not without friction."
+    "headline": "Fortune, father and dharma leans good overall, but there are some genuine hurdles."
   },
   "career": {
     "net": 2.676,
     "tension": true,
     "n_factors": 25,
-    "headline": "Career and profession leans favourable, but there are real headwinds to work with."
+    "headline": "Career and profession leans good overall, but there are some genuine hurdles."
   },
   "gains": {
     "net": 1.54,
     "tension": true,
     "n_factors": 12,
-    "headline": "Gains, income and aspirations leans favourable, but there are real headwinds to work with."
+    "headline": "Gains, income and aspirations is mostly positive, with a few real challenges."
   },
   "moksha": {
     "net": -2.496,
     "tension": true,
     "n_factors": 17,
-    "headline": "Loss, foreign lands and liberation is hard-won here: meaningful support, met by equally real resistance."
+    "headline": "Loss, foreign lands and liberation has clear support but equally real difficulties."
   },
   "love": {
     "net": -3.24,
     "tension": true,
     "n_factors": 17,
-    "headline": "Love and romance carries real tension — strong pulls in both directions."
+    "headline": "Love and romance has clear support but equally real difficulties."
   },
   "family": {
     "net": -14.7,
     "tension": true,
     "n_factors": 14,
-    "headline": "Family and domestic life is a battleground of opposing forces in this chart."
+    "headline": "Family and domestic life is a mixed, demanding area — strong pushes both ways."
   },
   "travel": {
     "net": 0.82,
     "tension": true,
     "n_factors": 27,
-    "headline": "Travel and relocation is mixed — the chart pulls both ways without a clear winner."
+    "headline": "Travel and relocation is mixed, with no clear winner either way."
   }
 }

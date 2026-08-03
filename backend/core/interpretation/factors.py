@@ -13,6 +13,7 @@ class Factor:
     strength: float              # 0..5 how loud this factor is
     topics: list                 # ["career", ...]
     source: str                  # "BPHS 3.x" | "rule:functional_malefic" | ...
+    effect: str = ""             # plain-language "what this means" (layperson-friendly)
     conditions: list = field(default_factory=list)   # why it fired (dignity, aspect, ...)
     dasha_active: bool = False   # planet running now → relevance boost
     weight: float = 0.0          # computed by the engine

@@ -59,6 +59,63 @@ def _neecha_bhanga(planet, planets, lagna_idx):
                for c in (disp, exalt_lord))
 
 
+def _plain_effect(f, area: str) -> str:
+    """A short, layperson 'what this means' line derived from the factor.
+    Plain English, no jargon — the reading should explain itself."""
+    c = " ".join(f.conditions)
+    a = area
+    # strongest/most specific rules first
+    if "neecha_bhanga" in c:
+        return f"An early weakness here turns around — struggle early in life converts into real rise later."
+    if "mks" in c:
+        return f"This planet is very weak in this spot, so it under-delivers for your {a}."
+    if "combust" in c:
+        return f"Sitting too close to the Sun dims this planet's good effects for your {a}."
+    if "yoga:parivartana" in c:
+        return f"Two rulers trade places — a strong, self-reinforcing boost to your {a}."
+    if "yoga:amala" in c:
+        return f"Points to a clean reputation and a lasting good name in this area."
+    if "manglik" in c:
+        return f"Mars adds friction and delay to marriage — best balanced by a partner with a similar placement."
+    if "functional:yogakaraka" in c:
+        return f"One of the very best planets for your chart — it strongly lifts your {a}."
+    if "functional:benefic" in c:
+        return f"A naturally helpful ruler for your {a}."
+    if "functional_malefic" in c or "functional:malefic" in c:
+        return f"A demanding ruler — your {a} is earned through effort, not handed over."
+    if "argala:benefic" in c:
+        return f"Extra support flows into your {a} from helpful planets nearby."
+    if "aspect" in c:
+        return (f"A supportive gaze that protects your {a}." if f.polarity > 0
+                else f"A hard gaze that pressures your {a}.")
+    if "conjunct" in c:
+        return (f"Good company refines this ruler's work on your {a}." if f.polarity > 0
+                else f"Tense company complicates this ruler's work on your {a}.")
+    if "retrograde" in c:
+        return f"An unconventional, inward path — progress comes in its own way, not the usual one."
+    if "from_moon" in c:
+        return f"Seen from the mind/emotions, this echoes the same theme for your {a}."
+    if "varga" in c:
+        return f"Confirmed in the divisional chart that specifically governs your {a}."
+    if "jaimini:amatyakaraka" in c:
+        return f"Your natural career significator — its condition colours your professional life."
+    if "sav" in c:
+        return (f"This house is well-stocked with strength points." if f.polarity > 0
+                else f"This house is low on strength points — a softer area." if f.polarity < 0
+                else f"This house has an average amount of strength.")
+    if "karaka" in c:
+        if f.polarity > 0: return f"The natural significator of your {a} is strong — a good sign."
+        if f.polarity < 0: return f"The natural significator of your {a} is weak — needs support."
+        return f"The natural significator of your {a} is steady."
+    # dignity of an occupant / lord
+    if "exalted" in c: return f"At its best here — a clear strength for your {a}."
+    if "own_sign" in c: return f"On home ground — solid and self-assured in your {a}."
+    if "debilitated" in c: return f"Weakened here — this part of your {a} needs extra care."
+    if f.polarity > 0: return f"A supportive influence on your {a}."
+    if f.polarity < 0: return f"A challenging influence on your {a}."
+    return f"A neutral, context-setting factor for your {a}."
+
+
 def topic_factors(cfg, planets, lagna_idx, dvarga_planets=None, active_lords=None,
                   aspects_on_house=None, sav_house=None, scheme="parashari",
                   varga_mode=False):
@@ -254,4 +311,9 @@ def topic_factors(cfg, planets, lagna_idx, dvarga_planets=None, active_lords=Non
             polarity=pol, strength=2.0 + max(0, (sav_house - 28)) * 0.1,
             source="BPHS — Sarvashtakavarga house strength", conditions=[f"sav:{sav_house}"]))
 
+    # attach a plain-language "what this means" to every factor
+    area = label.lower()
+    for f in F:
+        if not f.effect:
+            f.effect = _plain_effect(f, area)
     return F

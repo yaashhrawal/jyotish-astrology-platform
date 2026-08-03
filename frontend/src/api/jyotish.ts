@@ -70,18 +70,19 @@ export const getAshtakavarga = (data: Omit<BirthData, 'name' | 'place'>) =>
 
 // ── Rule-based interpretation engine ─────────────────────────────────────────
 export interface Factor {
-  subject: string; claim: string; polarity: number; strength: number
+  subject: string; claim: string; effect?: string; polarity: number; strength: number
   topics: string[]; source: string; conditions: string[]
   dasha_active: boolean; weight: number
 }
+export interface Statement { kind: string; text: string; detail?: string; rule?: string }
 export interface TopicResult {
   topic: string; label: string; houses?: number[]; varga?: string
   net: number; tension: boolean
   narrative: {
     headline: string
-    statements: Array<{ text: string; rule: string }>
+    statements: Statement[]
     paragraphs: string[]
-    drivers: Array<{ claim: string; source: string; weight: number; polarity: number }>
+    drivers: Array<{ claim: string; effect?: string; source: string; weight: number; polarity: number }>
   }
   factors: Factor[]
   active_dasha?: string[]

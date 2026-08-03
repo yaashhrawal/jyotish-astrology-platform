@@ -99,13 +99,25 @@ export default function InterpretationDrawer({ open, onClose, vargaD, target, bi
 
               {face === 'seeker' ? (
                 <div>
-                  <p style={{ fontSize: 15.5, fontWeight: 700, margin: '0 0 12px', color: 'var(--text)' }}>{res.narrative.headline}</p>
-                  {res.narrative.statements.slice(1).map((s, i) => (
-                    <div key={i} style={{ marginBottom: 12 }}>
-                      <div style={{ fontSize: 13.5, lineHeight: 1.5, color: 'var(--text)' }}>{s.text}</div>
-                      <div style={{ fontSize: 10.5, color: 'var(--text4)', marginTop: 2 }}>📜 {s.rule}</div>
-                    </div>
-                  ))}
+                  <p style={{ fontSize: 15.5, fontWeight: 700, margin: '0 0 14px', color: 'var(--text)' }}>{res.narrative.headline}</p>
+                  {res.narrative.statements.slice(1).map((s: any, i: number) => {
+                    if (s.kind === 'group')
+                      return <div key={i} style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.04em', color: 'var(--accent)', margin: '14px 0 6px' }}>{s.text}</div>
+                    if (s.kind === 'support' || s.kind === 'harm')
+                      return (
+                        <div key={i} style={{ marginBottom: 11, paddingLeft: 10, borderLeft: `2px solid ${s.kind === 'support' ? '#16a34a' : '#dc2626'}` }}>
+                          <div style={{ fontSize: 13.5, lineHeight: 1.5, color: 'var(--text)' }}>{s.text}</div>
+                          {s.detail && <div style={{ fontSize: 11.5, color: 'var(--text2)', marginTop: 2 }}>{s.detail}</div>}
+                          {s.rule && <div style={{ fontSize: 10.5, color: 'var(--text4)', marginTop: 2 }}>📜 {s.rule}</div>}
+                        </div>
+                      )
+                    return (
+                      <div key={i} style={{ marginBottom: 11 }}>
+                        <div style={{ fontSize: 13.5, lineHeight: 1.5, color: 'var(--text)' }}>{s.text}</div>
+                        {s.rule && <div style={{ fontSize: 10.5, color: 'var(--text4)', marginTop: 2 }}>📜 {s.rule}</div>}
+                      </div>
+                    )
+                  })}
                 </div>
               ) : (
                 <div>
@@ -120,6 +132,7 @@ export default function InterpretationDrawer({ open, onClose, vargaD, target, bi
                           <span style={{ fontWeight: 800, color: polColor(f.polarity), marginRight: 4 }}>{polSym(f.polarity)}</span>
                           {f.claim}{f.dasha_active && <span style={{ color: 'var(--gold)', fontWeight: 800 }}> ★</span>}
                         </div>
+                        {(f as any).effect && <div style={{ fontSize: 11.5, color: 'var(--text2)', marginTop: 1 }}>{(f as any).effect}</div>}
                         <div style={{ fontSize: 10, color: 'var(--text4)' }}>{f.source}</div>
                       </div>
                     </div>

@@ -35,39 +35,35 @@ TOPIC_LABEL = {"career": "Career and profession"}
 # deterministically per chart so different charts read differently (no randomness).
 _OPENERS = {
     ("pos", False): [
-        "{topic} is a genuine strength in this chart.",
-        "{topic} stands on firm ground here — the chart backs this area.",
-        "This is a chart that supports {topic_l}.",
+        "{topic} is a real strength in this chart.",
+        "{topic} is well-placed — the chart supports this part of life.",
     ],
     ("pos", True): [
-        "{topic} is well-supported overall, though not without friction.",
-        "{topic} leans favourable, but there are real headwinds to work with.",
-        "On balance the chart favours {topic_l} — with some genuine obstacles in the mix.",
+        "{topic} is mostly positive, with a few real challenges.",
+        "{topic} leans good overall, but there are some genuine hurdles.",
     ],
     ("neg", False): [
-        "{topic} asks for patience — the chart leans toward effort over ease.",
-        "{topic} is a build-it-yourself area: results come through sustained work.",
-        "The chart makes {topic_l} an earned area rather than a given.",
+        "{topic} takes patience — results here come through steady effort.",
+        "{topic} is something you build over time rather than get easily.",
     ],
     ("neg", True): [
-        "{topic} carries real tension — strong pulls in both directions.",
-        "{topic} is a battleground of opposing forces in this chart.",
-        "{topic} is hard-won here: meaningful support, met by equally real resistance.",
+        "{topic} is a mixed, demanding area — strong pushes both ways.",
+        "{topic} has clear support but equally real difficulties.",
     ],
     ("neu", False): [
-        "{topic} is balanced — neither strongly favoured nor blocked.",
-        "{topic} sits in neutral territory in this chart.",
+        "{topic} is balanced — neither strongly helped nor blocked.",
+        "{topic} is fairly neutral in this chart.",
     ],
     ("neu", True): [
-        "{topic} is finely balanced, support and obstacle roughly matched.",
-        "{topic} is mixed — the chart pulls both ways without a clear winner.",
+        "{topic} is finely balanced — help and difficulty roughly even.",
+        "{topic} is mixed, with no clear winner either way.",
     ],
 }
 
 _CLOSERS = {
-    "pos": "Lean into it — the timing and the chart are on your side.",
-    "neg": "Steady, patient effort pays off here far more than bold leaps.",
-    "neu": "Direction matters more than force — choose deliberately and commit.",
+    "pos": "Good timing and a supportive chart — a fine area to lean into.",
+    "neg": "Patience and steady effort go a long way here.",
+    "neu": "Clear choices matter more than force in this area.",
 }
 
 
@@ -91,46 +87,56 @@ def compose(topic: str, group: dict, active_lords=None, lang: str = "en") -> dic
     seed = int(sum(f.weight * (i + 1) for i, f in enumerate(factors)) * 10)
     headline = _pick(_OPENERS[(sign, tension)], seed).format(topic=label, topic_l=label[0].lower() + label[1:])
 
-    support = [f for f in factors if f.polarity > 0][:3]
-    harm = [f for f in factors if f.polarity < 0][:3]
+    support = [f for f in factors if f.polarity > 0][:6]
+    harm = [f for f in factors if f.polarity < 0][:6]
 
-    _SUP_LEAD = ["What carries it", "In its favour", "The chart's support here"]
-    _HARM_LEAD = ["What weighs against it", "The resistance", "Working against it"]
+    # Each statement: plain 'what it means' (text) + the placement (detail) + the source rule.
+    statements = []   # [{kind, text, detail, rule}]
 
-    # Every statement carries the exact rule that produced it (rule-per-prediction).
-    statements = []   # [{text, rule}]  — one cited prediction each
+    def add(kind, text, detail, rule):
+        statements.append({"kind": kind, "text": text, "detail": detail, "rule": rule})
 
-    def add(text, rule):
-        statements.append({"text": text, "rule": rule})
+    add("headline", headline, "", f"Overall score {net:+.1f} across {len(factors)} factors"
+        + (" — with real pushes both ways" if tension else ""))
 
-    add(headline, f"synthesis: net {net:+.1f} across {len(factors)} factors"
-                  + (" · conflict present" if tension else ""))
+    def _pick_distinct(pool, n=2):
+        out, seen = [], set()
+        for f in pool:
+            key = (f.effect or _clause(f))
+            if key in seen:
+                continue
+            seen.add(key); out.append(f)
+            if len(out) >= n:
+                break
+        return out
 
-    for lead, fs, seedn in ((_SUP_LEAD, support, seed), (_HARM_LEAD, harm, seed + 1)):
-        if fs:
-            add(f"{_pick(lead, seedn)}: {_clause(fs[0])}", fs[0].source)
-            for extra in fs[1:2]:
-                add(f"Also: {_clause(extra)}", extra.source)
+    if support:
+        add("group", "What helps here:", "", "")
+        for f in _pick_distinct(support):
+            add("support", f.effect or _clause(f), _clause(f), f.source)
+    if harm:
+        add("group", "What makes it harder:", "", "")
+        for f in _pick_distinct(harm):
+            add("harm", f.effect or _clause(f), _clause(f), f.source)
 
     if tension:
-        add("These pull against each other — expect real progress interleaved with "
-            "setbacks rather than a smooth climb; the chart rewards persistence over speed.",
-            "rule: opposing-polarity factors in the same bhāva (tension, not averaged)")
+        add("note", "So this area has ups and downs — steady effort matters more than luck, and things improve as you keep at it.",
+            "", "Both helping and hurting factors sit in the same house")
 
     if active_lords:
         planets = sorted(active_lords)
-        add(f"This theme is live now: {', '.join(planets)} "
-            f"{'is' if len(planets) == 1 else 'are'} running in the current daśā — "
-            "a period to engage, not defer.",
-            "rule: Vimśottarī daśā of a significator active")
+        add("timing", f"This part of life is active right now — {', '.join(planets)} "
+            f"{'is' if len(planets) == 1 else 'are'} running in the current daśā (planetary period), "
+            "so it's a good time to focus here.",
+            "", "A significator's Vimśottarī daśā is running")
 
-    add(_CLOSERS[sign], f"guidance from net polarity ({sign})")
+    add("closer", _CLOSERS[sign], "", "Overall direction of the chart here")
 
-    # rendered paragraphs with inline citations after each prediction
-    paras = [f"{s['text']}  —［{s['rule']}］" for s in statements]
+    paras = [f"{s['text']}" + (f"  ({s['detail']})" if s['detail'] else "")
+             + (f"  —［{s['rule']}］" if s['rule'] else "") for s in statements]
 
-    drivers = [{"claim": f.claim, "source": f.source, "weight": f.weight,
-                "polarity": f.polarity} for f in factors[:6]]
+    drivers = [{"claim": f.claim, "effect": f.effect, "source": f.source,
+                "weight": f.weight, "polarity": f.polarity} for f in factors[:6]]
 
     return {"headline": headline, "statements": statements,
             "paragraphs": paras, "drivers": drivers}
