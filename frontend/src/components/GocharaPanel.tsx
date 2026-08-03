@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import NorthIndianChart from './NorthIndianChart'
 import { useLang } from '../contexts/LanguageContext'
 import { apiPost } from '../api/client'
 
@@ -36,8 +37,26 @@ export default function GocharaPanel({ birthData }: Props) {
 
   const overallStyle = EFFECT_STYLE[data.overall] || { bg: 'var(--surface2)', color: 'var(--text3)' }
 
+  // Transit kundli — transiting planets placed in the natal chart (from natal lagna).
+  const SIGNS = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces']
+  const txPlanets: Record<string, any> = {}
+  const txMap: Record<string, string[]> = {}
+  for (const tp of (data.transit_planets || [])) {
+    txPlanets[tp.planet] = { sign: tp.transit_sign, sign_index: SIGNS.indexOf(tp.transit_sign), degree: 0, retrograde: tp.retrograde }
+    const h = String(tp.natal_house)
+    ;(txMap[h] = txMap[h] || []).push(tp.planet)
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      {/* Transit kundli */}
+      {data.natal_ascendant && (
+        <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: 16, display: 'flex', justifyContent: 'center' }}>
+          <NorthIndianChart
+            ascendant={{ sign: data.natal_ascendant, sign_index: SIGNS.indexOf(data.natal_ascendant), degree: 0 }}
+            planets={txPlanets} planetHouseMap={txMap} size={400} title={t('Transit')} />
+        </div>
+      )}
       {/* Header */}
       <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '16px 20px' }}>
         <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4, fontFamily: "'Noto Sans Devanagari', sans-serif" }}>{t('Gochara')} — {t('Transit Analysis from Natal Moon')}</div>
