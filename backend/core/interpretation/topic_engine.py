@@ -118,7 +118,7 @@ def _plain_effect(f, area: str) -> str:
 
 def topic_factors(cfg, planets, lagna_idx, dvarga_planets=None, active_lords=None,
                   aspects_on_house=None, sav_house=None, scheme="parashari",
-                  varga_mode=False):
+                  varga_mode=False, varga_num=1, d1_signs=None):
     """
     Emit the factor list for one topic. In varga_mode=True the chart passed IS the
     divisional; D1-only families (dāśā boost, SAV, combustion) are skipped.
@@ -135,13 +135,21 @@ def topic_factors(cfg, planets, lagna_idx, dvarga_planets=None, active_lords=Non
     def dignity(p): return planets[p]["status"]
     house_sign_idx = (lagna_idx + house - 1) % 12
 
+    # varga framing: inside a divisional, house themes speak that varga's language
+    from .varga_domains import varga_info, varga_house_meaning
+    vinfo = varga_info(varga_num)
+    def hmean(h):
+        return varga_house_meaning(varga_num, h) if varga_mode else ""
+
     # 1. house occupants
     for p, pd in planets.items():
         if pd["sign_index"] == house_sign_idx:
             dg = dignity(p); base = _DIGNITY_STRENGTH.get(dg, 2.5)
             pol = _DIGNITY_POLARITY.get(dg, 0) or (+1 if p in _BENEFICS else -1)
+            claim = (f"in the {vinfo['name']} (D{varga_num}), {p} sits in the {_ord(house)} — {hmean(house)} ({dg})"
+                     if varga_mode else f"{p} occupies the {_ord(house)} house ({dg})")
             F.append(Factor(subject=f"{p} in {_ord(house)}", topics=[T],
-                claim=f"{p} occupies the {_ord(house)} house ({dg})",
+                claim=claim,
                 polarity=pol, strength=round(base, 2), source=cfg["house_source"],
                 conditions=[f"dignity:{dg}", f"house:{house}"], dasha_active=p in active_lords))
 
@@ -311,8 +319,17 @@ def topic_factors(cfg, planets, lagna_idx, dvarga_planets=None, active_lords=Non
             polarity=pol, strength=2.0 + max(0, (sav_house - 28)) * 0.1,
             source="BPHS — Sarvashtakavarga house strength", conditions=[f"sav:{sav_house}"]))
 
+    # Vargottama — planet in the same sign in D1 and this varga → as strong as exalted
+    if varga_mode and d1_signs:
+        for p, pd in planets.items():
+            if p in d1_signs and pd["sign_index"] == d1_signs[p] and p not in ("Rahu", "Ketu"):
+                F.append(Factor(subject=f"{p} vargottama", topics=[T],
+                    claim=f"{p} is vargottama (same sign in D1 and this {vinfo['name']}) — a rock-solid, reliable result",
+                    polarity=+1, strength=3.6, source="Classical — vargottama (doubled strength)",
+                    conditions=[f"vargottama:{p}"], dasha_active=p in active_lords))
+
     # attach a plain-language "what this means" to every factor
-    area = label.lower()
+    area = vinfo["domain"] if varga_mode else label.lower()
     for f in F:
         if not f.effect:
             f.effect = _plain_effect(f, area)

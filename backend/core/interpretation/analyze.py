@@ -75,6 +75,7 @@ def analyze_varga(topic_key, d1_planets, d1_lagna_idx, birth_jd, asof_jd,
     vplanets = vchart["planets"]
     vlagna = vchart["ascendant"]["sign_index"]
     active = _active_lords(d1_planets, birth_jd, asof_jd)  # dasha is always D1-based
+    d1_signs = {p: pd.get("sign_index") for p, pd in d1_planets.items()}  # for vargottama
     houses = cfg.get("houses") or [cfg["house"]]
 
     factors, seen = [], set()
@@ -82,7 +83,8 @@ def analyze_varga(topic_key, d1_planets, d1_lagna_idx, birth_jd, asof_jd,
         asp = _aspects_on_house(vplanets, vlagna, h)
         sub = dict(cfg); sub["house"] = h
         for f in topic_factors(sub, vplanets, vlagna, dvarga_planets=None, active_lords=active,
-                               aspects_on_house=asp, sav_house=None, scheme=scheme, varga_mode=True):
+                               aspects_on_house=asp, sav_house=None, scheme=scheme,
+                               varga_mode=True, varga_num=varga_num, d1_signs=d1_signs):
             k = (f.subject, f.claim)
             if k not in seen:
                 seen.add(k); factors.append(f)
