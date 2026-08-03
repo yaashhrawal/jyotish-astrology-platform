@@ -21,12 +21,16 @@ export default function SavedCharts({ onSelect }: Props) {
   const { t } = useLang()
   const [charts, setCharts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [err, setErr] = useState('')
 
   const load = async () => {
+    setLoading(true); setErr('')
     try {
       const data = await chartsApi.list()
-      setCharts(data)
-    } catch { /* DB not connected */ }
+      setCharts(Array.isArray(data) ? data : [])
+    } catch (e: any) {
+      setErr(e?.response?.status === 401 ? t('Log in to see your saved charts.') : t('Could not load saved charts. Try again.'))
+    }
     setLoading(false)
   }
 
@@ -40,6 +44,7 @@ export default function SavedCharts({ onSelect }: Props) {
   }
 
   if (loading) return <div style={S.empty}>{t('Loading saved')}</div>
+  if (err) return <div style={{ ...S.empty, color: '#dc2626' }}>{err} <button onClick={load} style={{ marginLeft: 8, textDecoration: 'underline', background: 'none', border: 'none', color: 'var(--accent)', cursor: 'pointer' }}>{t('Retry')}</button></div>
   if (!charts.length) return <div style={S.empty}>{t('No saved charts')}</div>
 
   return (

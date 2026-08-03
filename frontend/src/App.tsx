@@ -16,6 +16,7 @@ import AIChat from './components/AIChat'
 import AuthPage from './components/AuthPage'
 import SavedCharts from './components/SavedCharts'
 import PrashnaPanel from './components/PrashnaPanel'
+import ErrorBoundary from './components/ErrorBoundary'
 import TransitPanel from './components/TransitPanel'
 import AshtakavargaPanel from './components/AshtakavargaPanel'
 import InterpretationPanel from './components/InterpretationPanel'
@@ -550,7 +551,7 @@ export default function App() {
         {isAppTab && (
           activeTab === 'prashna' ? (
             <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-              <PrashnaPanel />
+              <ErrorBoundary name="prashna"><PrashnaPanel /></ErrorBoundary>
             </div>
           ) : (
             <div style={{ flex: 1, overflow: 'auto', padding: '24px' }}>
@@ -573,7 +574,7 @@ export default function App() {
               {activeTab === 'ai'            && <AIChat chartId={undefined} chartName={undefined} />}
               {activeTab === 'compatibility' && <CompatibilityPanel birth={getBirthDataForCalc()} chart={chart} />}
               {activeTab === 'synastry'      && <ChartComparisonPanel birth={getBirthDataForCalc()} chart={chart} />}
-              {activeTab === 'muhurta'       && <MuhurtaPanel />}
+              {activeTab === 'muhurta'       && <ErrorBoundary name="muhurta"><MuhurtaPanel /></ErrorBoundary>}
               {activeTab === 'profile'       && <AstrologerProfileSettings />}
               {activeTab === 'gems'          && <GemShopPanel />}
               {activeTab === 'earnings'      && <EarningsPanel />}
@@ -841,6 +842,8 @@ export default function App() {
                     {activeTab === 'ashtakavarga' && <AshtakavargaPanel chart={chart} />}
                     {activeTab === 'compatibility' && <CompatibilityPanel birth={getBirthDataForCalc()} chart={chart} />}
                     {activeTab === 'synastry'      && <ChartComparisonPanel birth={getBirthDataForCalc()} chart={chart} />}
+                    {activeTab === 'prashna'       && <ErrorBoundary name="prashna"><PrashnaPanel /></ErrorBoundary>}
+                    {activeTab === 'muhurta'       && <ErrorBoundary name="muhurta"><MuhurtaPanel /></ErrorBoundary>}
                     {activeTab === 'varshaphal'    && getBirthDataForCalc() && <VarshaphalPanel chart={chart} birthData={getBirthDataForCalc()} />}
                     {activeTab === 'kp'            && getBirthDataForCalc() && <KPPanel birthData={getBirthDataForCalc()} />}
                     {activeTab === 'arudha'        && getBirthDataForCalc() && <ArudhaPanel birthData={getBirthDataForCalc()} />}
