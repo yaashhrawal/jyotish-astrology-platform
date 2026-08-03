@@ -93,40 +93,44 @@ def compose(topic: str, group: dict, active_lords=None, lang: str = "en") -> dic
 
     support = [f for f in factors if f.polarity > 0][:3]
     harm = [f for f in factors if f.polarity < 0][:3]
-    paras = []
 
     _SUP_LEAD = ["What carries it", "In its favour", "The chart's support here"]
     _HARM_LEAD = ["What weighs against it", "The resistance", "Working against it"]
 
-    if support:
-        s = f"{_pick(_SUP_LEAD, seed)}: {_clause(support[0])}"
-        if len(support) > 1:
-            s += f", and {_clause(support[1])}"
-        paras.append(s + ".")
+    # Every statement carries the exact rule that produced it (rule-per-prediction).
+    statements = []   # [{text, rule}]  — one cited prediction each
 
-    if harm:
-        s = f"{_pick(_HARM_LEAD, seed + 1)}: {_clause(harm[0])}"
-        if len(harm) > 1:
-            s += f", and {_clause(harm[1])}"
-        paras.append(s + ".")
+    def add(text, rule):
+        statements.append({"text": text, "rule": rule})
+
+    add(headline, f"synthesis: net {net:+.1f} across {len(factors)} factors"
+                  + (" · conflict present" if tension else ""))
+
+    for lead, fs, seedn in ((_SUP_LEAD, support, seed), (_HARM_LEAD, harm, seed + 1)):
+        if fs:
+            add(f"{_pick(lead, seedn)}: {_clause(fs[0])}", fs[0].source)
+            for extra in fs[1:2]:
+                add(f"Also: {_clause(extra)}", extra.source)
 
     if tension:
-        paras.append(
-            "These pull against each other — expect real progress interleaved with "
-            "setbacks rather than a smooth climb. The chart rewards persistence over speed."
-        )
+        add("These pull against each other — expect real progress interleaved with "
+            "setbacks rather than a smooth climb; the chart rewards persistence over speed.",
+            "rule: opposing-polarity factors in the same bhāva (tension, not averaged)")
 
     if active_lords:
         planets = sorted(active_lords)
-        paras.append(
-            f"This theme is live right now: {', '.join(planets)} "
-            f"{'is' if len(planets) == 1 else 'are'} running in the current daśā, "
-            "so the area is actively unfolding — a period to engage, not defer."
-        )
+        add(f"This theme is live now: {', '.join(planets)} "
+            f"{'is' if len(planets) == 1 else 'are'} running in the current daśā — "
+            "a period to engage, not defer.",
+            "rule: Vimśottarī daśā of a significator active")
 
-    paras.append(_CLOSERS[sign])
+    add(_CLOSERS[sign], f"guidance from net polarity ({sign})")
+
+    # rendered paragraphs with inline citations after each prediction
+    paras = [f"{s['text']}  —［{s['rule']}］" for s in statements]
 
     drivers = [{"claim": f.claim, "source": f.source, "weight": f.weight,
-                "polarity": f.polarity} for f in factors[:5]]
+                "polarity": f.polarity} for f in factors[:6]]
 
-    return {"headline": headline, "paragraphs": paras, "drivers": drivers}
+    return {"headline": headline, "statements": statements,
+            "paragraphs": paras, "drivers": drivers}

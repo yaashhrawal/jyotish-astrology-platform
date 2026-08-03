@@ -39,7 +39,13 @@ class ParashariPolarity:
     @classmethod
     def nature(cls, planet: str, lagna_idx: int, planets: dict = None) -> dict:
         houses = sorted(set(_owned_houses(planet, lagna_idx)))
-        if not houses:  # Rahu/Ketu own no sign — resolved by house/dispositor elsewhere
+        if not houses:  # Rahu/Ketu own no sign → take the functional nature of their dispositor
+            if planets and planet in planets:
+                disp = SIGN_LORDS[SIGNS[planets[planet]["sign_index"]]]
+                d = cls.nature(disp, lagna_idx, planets)
+                return {"nature": d["nature"], "houses": [], "score": d.get("score", 0),
+                        "reason": f"node acts through its dispositor {disp} ({d['nature']})",
+                        "source": "rule:parashari_functional"}
             return {"nature": "neutral", "houses": [], "score": 0,
                     "reason": "no rulership (node)", "source": "rule:parashari_functional"}
 

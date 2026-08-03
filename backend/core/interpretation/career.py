@@ -32,6 +32,8 @@ _NATURE_LABEL = {"yogakaraka": "yogakāraka (a top functional benefic)",
                  "benefic": "functional benefic", "neutral": "functionally neutral",
                  "malefic": "functional malefic", "functional_malefic": "strong functional malefic"}
 _BENEFICS = {"Jupiter", "Venus", "Mercury", "Moon"}
+# Combustion orbs (degrees from the Sun) per planet.
+_COMBUST_ORB = {"Moon": 12, "Mars": 17, "Mercury": 14, "Jupiter": 11, "Venus": 10, "Saturn": 15}
 
 
 def _lord_of_house(house_num: int, lagna_idx: int) -> str:
@@ -51,6 +53,33 @@ _CHARA7 = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"]
 def _amatyakaraka(planets: dict) -> str:
     ranked = sorted(_CHARA7, key=lambda p: planets[p]["longitude"] % 30, reverse=True)
     return ranked[1] if len(ranked) > 1 else ranked[0]
+
+
+# Exaltation sign (index) per planet — for neecha-bhanga (exalt-lord test).
+_EXALT_IDX = {"Sun": 0, "Moon": 1, "Mars": 9, "Mercury": 5, "Jupiter": 3, "Venus": 11, "Saturn": 6}
+# Marana Karaka Sthana — house (from lagna) where each planet is "death-like" (worst results).
+_MKS = {"Sun": 12, "Moon": 8, "Mars": 7, "Mercury": 7, "Jupiter": 3, "Venus": 6, "Saturn": 1}
+
+
+def _in_kendra(planet: str, planets: dict, ref_sign_idx: int) -> bool:
+    h = ((planets[planet]["sign_index"] - ref_sign_idx) % 12) + 1
+    return h in (1, 4, 7, 10)
+
+
+def _neecha_bhanga(planet: str, planets: dict, lagna_idx: int) -> bool:
+    """Debilitation cancelled if the sign-dispositor OR the exalt-lord of the debilitation
+    sign sits in a kendra from lagna or Moon (common Parashari conditions)."""
+    if planets[planet]["status"] != "debilitated":
+        return False
+    deb_sign = planets[planet]["sign_index"]
+    disp = SIGN_LORDS[SIGNS[deb_sign]]
+    exalt_lord = next((p for p, i in _EXALT_IDX.items() if i == deb_sign), None)
+    moon_idx = planets["Moon"]["sign_index"]
+    for cand in (disp, exalt_lord):
+        if cand and cand in planets and (_in_kendra(cand, planets, lagna_idx)
+                                         or _in_kendra(cand, planets, moon_idx)):
+            return True
+    return False
 
 
 def career_factors(planets: dict, lagna_idx: int, d10_planets: dict,
@@ -226,7 +255,69 @@ def career_factors(planets: dict, lagna_idx: int, d10_planets: dict,
                 dasha_active=any(p in active_lords for p in benefic_argala),
             ))
 
-    # ── 11. Ashtakavarga strength of the 10th (optional) ───────────────────
+    # ── 12. Combustion (astaṅgata) of the 10th lord / career karakas ──────
+    sun_lon = planets["Sun"]["longitude"]
+    for p in dict.fromkeys([l10, "Saturn", "Mercury", "Jupiter"]):
+        if p == "Sun" or p not in planets:
+            continue
+        orb = abs(((planets[p]["longitude"] - sun_lon + 180) % 360) - 180)
+        if orb < _COMBUST_ORB.get(p, 10):
+            F.append(Factor(
+                subject=f"{p} combust", topics=[TOPIC],
+                claim=f"{p} is combust (within {orb:.1f}° of the Sun) — its results are scorched/obscured",
+                polarity=-1, strength=2.3,
+                source="BPHS — astaṅgata (combustion)",
+                conditions=[f"combust:{p}", f"orb:{orb:.1f}"],
+                dasha_active=p in active_lords,
+            ))
+
+    # ── 13. Retrograde 10th lord — internalized / unconventional path ─────
+    if planets[l10].get("retrograde"):
+        F.append(Factor(
+            subject="10th lord retrograde", topics=[TOPIC],
+            claim=f"the 10th lord {l10} is retrograde — an unconventional, non-linear career path with strong inner drive",
+            polarity=0, strength=2.1,
+            source="Classical — vakri graha (retrograde) effects",
+            conditions=[f"retrograde:{l10}"], dasha_active=l10 in active_lords,
+        ))
+
+    # ── 14. Conjunctions with the 10th lord (benefic vs malefic company) ──
+    l10_sign = planets[l10]["sign_index"]
+    for p, pd in planets.items():
+        if p != l10 and pd["sign_index"] == l10_sign and p not in ("Rahu", "Ketu"):
+            benefic = p in _BENEFICS
+            F.append(Factor(
+                subject=f"{l10}+{p} conjunction", topics=[TOPIC],
+                claim=f"the 10th lord {l10} is conjunct {p} — career coloured by {'supportive' if benefic else 'demanding'} {p} energy",
+                polarity=+1 if benefic else -1, strength=2.2,
+                source="BPHS Ch.11 — planetary association (yuti)",
+                conditions=[f"conjunct:{l10}+{p}"],
+                dasha_active=(l10 in active_lords) or (p in active_lords),
+            ))
+
+    # ── 16. Neecha Bhanga — cancellation of debilitation for career planets ─
+    for p in dict.fromkeys([l10, amk, "Saturn", "Sun", "Mercury"]):
+        if p in planets and _neecha_bhanga(p, planets, lagna_idx):
+            F.append(Factor(
+                subject=f"{p} neecha-bhanga", topics=[TOPIC],
+                claim=f"{p}'s debilitation is cancelled (neecha-bhanga) — early struggle converts to notable rise",
+                polarity=+1, strength=3.4,
+                source="BPHS — Neecha Bhanga (debilitation cancellation)",
+                conditions=[f"neecha_bhanga:{p}"], dasha_active=p in active_lords,
+            ))
+
+    # ── 17. Marana Karaka Sthana — career planet in its death-like house ──
+    for p in dict.fromkeys([l10, amk, "Saturn", "Sun", "Mercury", "Jupiter"]):
+        if p in planets and _house_of_planet(p, planets, lagna_idx) == _MKS.get(p):
+            F.append(Factor(
+                subject=f"{p} in MKS", topics=[TOPIC],
+                claim=f"{p} sits in its Marana Karaka Sthana (the {_ord(_MKS[p])}) — its career significations are badly weakened",
+                polarity=-1, strength=2.8,
+                source="Jaimini / classical — Marana Karaka Sthana",
+                conditions=[f"mks:{p}"], dasha_active=p in active_lords,
+            ))
+
+    # ── 18. Ashtakavarga strength of the 10th (optional) ───────────────────
     if sav_10th is not None:
         # SAV per house avg ~28; >30 strong, <25 weak
         pol = +1 if sav_10th >= 30 else (-1 if sav_10th <= 24 else 0)

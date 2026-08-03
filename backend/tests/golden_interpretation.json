@@ -1,0 +1,298 @@
+{
+  "delhi_1947": {
+    "net": 8.0,
+    "tension": true,
+    "factors": [
+      {
+        "subject": "10th lord (nature)",
+        "polarity": 1,
+        "weight": 3.5
+      },
+      {
+        "subject": "10th lord",
+        "polarity": 0,
+        "weight": 2.5
+      },
+      {
+        "subject": "Jupiter aspect on 10th",
+        "polarity": 1,
+        "weight": 2.4
+      },
+      {
+        "subject": "Saturn combust",
+        "polarity": -1,
+        "weight": 2.3
+      },
+      {
+        "subject": "Amatyakaraka",
+        "polarity": 0,
+        "weight": 2.25
+      },
+      {
+        "subject": "Saturn+Mercury conjunction",
+        "polarity": 1,
+        "weight": 2.2
+      },
+      {
+        "subject": "Saturn+Moon conjunction",
+        "polarity": 1,
+        "weight": 2.2
+      },
+      {
+        "subject": "Saturn+Sun conjunction",
+        "polarity": -1,
+        "weight": 2.2
+      },
+      {
+        "subject": "Saturn+Venus conjunction",
+        "polarity": 1,
+        "weight": 2.2
+      },
+      {
+        "subject": "Saturn in D10",
+        "polarity": 0,
+        "weight": 2.2
+      },
+      {
+        "subject": "Sun in D10",
+        "polarity": 0,
+        "weight": 2.2
+      },
+      {
+        "subject": "10th SAV bindus",
+        "polarity": 0,
+        "weight": 2.1
+      },
+      {
+        "subject": "Jupiter (karaka)",
+        "polarity": 0,
+        "weight": 2.0
+      },
+      {
+        "subject": "Mercury (karaka)",
+        "polarity": 0,
+        "weight": 2.0
+      },
+      {
+        "subject": "Saturn (karaka)",
+        "polarity": 0,
+        "weight": 2.0
+      },
+      {
+        "subject": "Sun (karaka)",
+        "polarity": 0,
+        "weight": 2.0
+      }
+    ],
+    "headline": "Career and profession is well-supported overall, though not without friction."
+  },
+  "navi_mumbai_2000": {
+    "net": 2.676,
+    "tension": true,
+    "factors": [
+      {
+        "subject": "Saturn neecha-bhanga",
+        "polarity": 1,
+        "weight": 5.44
+      },
+      {
+        "subject": "Saturn aspect on 10th",
+        "polarity": 1,
+        "weight": 4.48
+      },
+      {
+        "subject": "Saturn in MKS",
+        "polarity": -1,
+        "weight": 4.48
+      },
+      {
+        "subject": "10th lord (nature)",
+        "polarity": -1,
+        "weight": 4.16
+      },
+      {
+        "subject": "Saturn+Jupiter conjunction",
+        "polarity": 1,
+        "weight": 3.52
+      },
+      {
+        "subject": "Saturn+Mars conjunction",
+        "polarity": -1,
+        "weight": 3.52
+      },
+      {
+        "subject": "Saturn in D10",
+        "polarity": 0,
+        "weight": 3.52
+      },
+      {
+        "subject": "10th SAV bindus",
+        "polarity": 1,
+        "weight": 3.4
+      },
+      {
+        "subject": "Mercury neecha-bhanga",
+        "polarity": 1,
+        "weight": 3.4
+      },
+      {
+        "subject": "Sun in MKS",
+        "polarity": -1,
+        "weight": 2.8
+      },
+      {
+        "subject": "10th lord",
+        "polarity": 1,
+        "weight": 2.72
+      },
+      {
+        "subject": "Ketu in 10th",
+        "polarity": -1,
+        "weight": 2.5
+      },
+      {
+        "subject": "Rahu aspect on 10th",
+        "polarity": -1,
+        "weight": 2.4
+      },
+      {
+        "subject": "Sun in D10",
+        "polarity": 0,
+        "weight": 2.2
+      },
+      {
+        "subject": "Argala on 10th",
+        "polarity": 1,
+        "weight": 2.0
+      },
+      {
+        "subject": "Jupiter (karaka)",
+        "polarity": 0,
+        "weight": 2.0
+      },
+      {
+        "subject": "Sun (karaka)",
+        "polarity": 0,
+        "weight": 2.0
+      },
+      {
+        "subject": "Mercury in 10th-from-Moon",
+        "polarity": 1,
+        "weight": 1.8
+      },
+      {
+        "subject": "Sun in 10th-from-Moon",
+        "polarity": -1,
+        "weight": 1.8
+      },
+      {
+        "subject": "Venus in 10th-from-Moon",
+        "polarity": 1,
+        "weight": 1.8
+      },
+      {
+        "subject": "Amatyakaraka",
+        "polarity": -1,
+        "weight": 1.728
+      },
+      {
+        "subject": "Saturn (karaka)",
+        "polarity": -1,
+        "weight": 1.536
+      },
+      {
+        "subject": "Mercury (karaka)",
+        "polarity": -1,
+        "weight": 0.96
+      }
+    ],
+    "headline": "Career and profession is well-supported overall, though not without friction."
+  },
+  "sydney_2011": {
+    "net": 16.64,
+    "tension": true,
+    "factors": [
+      {
+        "subject": "10th lord",
+        "polarity": 1,
+        "weight": 4.3
+      },
+      {
+        "subject": "Venus in 10th",
+        "polarity": 1,
+        "weight": 3.8
+      },
+      {
+        "subject": "Saturn in D10",
+        "polarity": 0,
+        "weight": 3.52
+      },
+      {
+        "subject": "10th lord (nature)",
+        "polarity": 1,
+        "weight": 3.5
+      },
+      {
+        "subject": "Amala yoga",
+        "polarity": 1,
+        "weight": 3.2
+      },
+      {
+        "subject": "Saturn (karaka)",
+        "polarity": 0,
+        "weight": 3.2
+      },
+      {
+        "subject": "Jupiter (karaka)",
+        "polarity": 1,
+        "weight": 3.04
+      },
+      {
+        "subject": "Jupiter in MKS",
+        "polarity": -1,
+        "weight": 2.8
+      },
+      {
+        "subject": "Sun in MKS",
+        "polarity": -1,
+        "weight": 2.8
+      },
+      {
+        "subject": "10th SAV bindus",
+        "polarity": 1,
+        "weight": 2.4
+      },
+      {
+        "subject": "Amatyakaraka",
+        "polarity": 0,
+        "weight": 2.25
+      },
+      {
+        "subject": "Sun in D10",
+        "polarity": 0,
+        "weight": 2.2
+      },
+      {
+        "subject": "Venus in D10",
+        "polarity": 0,
+        "weight": 2.2
+      },
+      {
+        "subject": "Argala on 10th",
+        "polarity": 1,
+        "weight": 2.0
+      },
+      {
+        "subject": "Mercury (karaka)",
+        "polarity": 0,
+        "weight": 2.0
+      },
+      {
+        "subject": "Sun (karaka)",
+        "polarity": 0,
+        "weight": 2.0
+      }
+    ],
+    "headline": "Career and profession is well-supported overall, though not without friction."
+  }
+}
