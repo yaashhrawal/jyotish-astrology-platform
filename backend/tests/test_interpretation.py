@@ -119,6 +119,23 @@ def test_every_topic_produces_sourced_factors():
             assert f["source"] and len(f["source"]) > 3, f"{tk}: unsourced {f['subject']}"
 
 
+def test_varga_mode_runs_all_divisionals():
+    """The engine must run in every implemented varga without error, sourced."""
+    from core.interpretation.analyze import analyze_varga
+    spec = CHARTS["navi_mumbai_2000"]
+    y, mo, d, h, mi, tz, lat, lon = spec
+    jd = birth_to_jd(y, mo, d, h, mi, tz)
+    P = calculate_planets(jd, "lahiri"); H = calculate_houses(jd, lat, lon, "lahiri")
+    L = H["ascendant"]["sign_index"]; assign_planets_to_houses(P, L)
+    asof = birth_to_jd(*ASOF)
+    for v in [1, 2, 3, 4, 7, 9, 10, 12, 16, 20, 24, 27, 30, 40, 45, 60]:
+        for topic in ("career", "marriage"):
+            r = analyze_varga(topic, P, L, jd, asof, v)
+            assert r["factors"], f"{topic} D{v} produced no factors"
+            for f in r["factors"]:
+                assert f["source"], f"{topic} D{v}: unsourced {f['subject']}"
+
+
 def test_every_factor_is_sourced():
     """Non-negotiable: every prediction must cite a rule (no uncited output)."""
     for spec in CHARTS.values():

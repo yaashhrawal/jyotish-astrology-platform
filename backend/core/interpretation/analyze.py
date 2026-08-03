@@ -66,6 +66,43 @@ def _factors_for_house(cfg, house, planets, lagna_idx, active, scheme):
                          active_lords=active, aspects_on_house=asp, sav_house=sav, scheme=scheme)
 
 
+def analyze_varga(topic_key, d1_planets, d1_lagna_idx, birth_jd, asof_jd,
+                  varga_num, scheme="parashari"):
+    """Run the SAME engine inside a divisional chart (D9/D10/...). Judges the topic's
+    house by that varga's own positions; D1-only rule families are gated off."""
+    cfg = get_topic(topic_key)
+    vchart = calculate_varga(d1_planets, d1_lagna_idx * 30 + 1, varga_num)
+    vplanets = vchart["planets"]
+    vlagna = vchart["ascendant"]["sign_index"]
+    active = _active_lords(d1_planets, birth_jd, asof_jd)  # dasha is always D1-based
+    houses = cfg.get("houses") or [cfg["house"]]
+
+    factors, seen = [], set()
+    for h in houses:
+        asp = _aspects_on_house(vplanets, vlagna, h)
+        sub = dict(cfg); sub["house"] = h
+        for f in topic_factors(sub, vplanets, vlagna, dvarga_planets=None, active_lords=active,
+                               aspects_on_house=asp, sav_house=None, scheme=scheme, varga_mode=True):
+            k = (f.subject, f.claim)
+            if k not in seen:
+                seen.add(k); factors.append(f)
+
+    ranked = rank(factors)
+    TOPIC_LABEL[topic_key] = cfg["label"]
+    merged = {"topic": topic_key,
+              "net": round(sum(f.weight * f.polarity for f in ranked), 3),
+              "support": round(sum(f.weight for f in ranked if f.polarity > 0), 3),
+              "harm": round(sum(f.weight for f in ranked if f.polarity < 0), 3),
+              "tension": any(f.polarity > 0 for f in ranked) and any(f.polarity < 0 for f in ranked),
+              "factors": ranked}
+    return {
+        "topic": topic_key, "label": cfg["label"], "varga": f"D{varga_num}",
+        "net": merged["net"], "tension": merged["tension"],
+        "narrative": compose(topic_key, merged, active),
+        "factors": [f.to_dict() for f in ranked],
+    }
+
+
 def analyze(topic_key, planets, lagna_idx, birth_jd, asof_jd, scheme="parashari"):
     cfg = get_topic(topic_key)
     active = _active_lords(planets, birth_jd, asof_jd)

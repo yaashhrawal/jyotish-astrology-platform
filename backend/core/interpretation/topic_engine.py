@@ -151,9 +151,9 @@ def topic_factors(cfg, planets, lagna_idx, dvarga_planets=None, active_lords=Non
                 conditions=["yoga:amala"], dasha_active=p in active_lords))
             break
 
-    # 7. Amatyakaraka (career-ish; still informative for any area of action)
-    amk = _amatyakaraka(planets); amk_h = _house_of_planet(amk, planets, lagna_idx); amk_dig = dignity(amk)
-    if house == 10:
+    # 7. Amatyakaraka (Jaimini chara karaka — a D1 concept; skip in varga-mode)
+    if house == 10 and not varga_mode:
+        amk = _amatyakaraka(planets); amk_h = _house_of_planet(amk, planets, lagna_idx); amk_dig = dignity(amk)
         F.append(Factor(subject="Amatyakaraka", topics=[T],
             claim=f"the Amatyakaraka (career karaka) is {amk}, in the {_ord(amk_h)} house ({amk_dig})",
             polarity=_DIGNITY_POLARITY.get(amk_dig, 0) or (+1 if amk_h in {1, 10, 5, 9} else 0),
