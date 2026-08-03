@@ -1,5 +1,6 @@
 import PlanetInterpretationDrawer from './PlanetInterpretation'
 import { useState, useEffect } from 'react'
+import NorthIndianChart from './NorthIndianChart'
 import { useLang } from '../contexts/LanguageContext'
 import { apiPost } from '../api/client'
 
@@ -32,6 +33,17 @@ export default function BhavaChaliPanel({ birthData }: Props) {
 
   const shifted = data.shifted_planets || []
 
+  // Build a proper Chalit kundli — planets placed by their CHALIT house.
+  const SIGNS = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces']
+  const chalitPlanets: Record<string, any> = {}
+  const chalitMap: Record<string, string[]> = {}
+  for (const p of (data.planets || [])) {
+    const si = p.sign_index ?? SIGNS.indexOf(p.sign)
+    chalitPlanets[p.planet] = { sign: p.sign, sign_index: si, degree: p.degree, retrograde: p.retrograde }
+    const h = String(p.chalit_house)
+    ;(chalitMap[h] = chalitMap[h] || []).push(p.planet)
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* Header */}
@@ -48,6 +60,13 @@ export default function BhavaChaliPanel({ birthData }: Props) {
           )}
         </div>
       </div>
+
+      {/* Chalit kundli */}
+      {data.ascendant && (
+        <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: 16, display: 'flex', justifyContent: 'center' }}>
+          <NorthIndianChart ascendant={data.ascendant} planets={chalitPlanets} planetHouseMap={chalitMap} size={400} title={t('Chalit')} />
+        </div>
+      )}
 
       {/* Shifted planets highlight */}
       {shifted.length > 0 && (

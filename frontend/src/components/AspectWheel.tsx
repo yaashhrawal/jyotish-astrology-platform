@@ -107,10 +107,10 @@ export default function AspectWheel({ westernAspects = [], parashariAspects = []
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
       <svg width={370} height={370} viewBox="0 0 370 370">
         {/* Background */}
-        <circle cx={CX} cy={CY} r={R + 22} fill="#0f172a" stroke="#1e293b" strokeWidth={1} />
+        <circle cx={CX} cy={CY} r={R + 22} fill="var(--surface)" stroke="var(--border)" strokeWidth={1} />
 
         {/* Zodiac ring */}
-        <circle cx={CX} cy={CY} r={R} fill="none" stroke="#1e293b" strokeWidth={1} />
+        <circle cx={CX} cy={CY} r={R} fill="none" stroke="var(--border)" strokeWidth={1} />
 
         {/* Aspect lines */}
         {lines.map((l, i) => (
@@ -129,7 +129,7 @@ export default function AspectWheel({ westernAspects = [], parashariAspects = []
           const c = PLANET_COLORS[planet]
           return (
             <g key={planet}>
-              <circle cx={px} cy={py} r={DOT_R} fill="#0f172a" stroke={c} strokeWidth={2} />
+              <circle cx={px} cy={py} r={DOT_R} fill="var(--surface)" stroke={c} strokeWidth={2} />
               <text x={px} y={py - 2} textAnchor="middle" dominantBaseline="middle"
                 fontSize={12} fill={c} fontWeight={700}>
                 {PLANET_SYMBOLS[planet] || planet[0]}
@@ -143,11 +143,11 @@ export default function AspectWheel({ westernAspects = [], parashariAspects = []
         })}
 
         {/* Center */}
-        <circle cx={CX} cy={CY} r={30} fill="#0f172a" stroke="#1e293b" strokeWidth={1} />
-        <text x={CX} y={CY} textAnchor="middle" dominantBaseline="middle" fontSize={11} fill="#475569" fontWeight={600}>
+        <circle cx={CX} cy={CY} r={30} fill="var(--surface)" stroke="var(--border)" strokeWidth={1} />
+        <text x={CX} y={CY} textAnchor="middle" dominantBaseline="middle" fontSize={11} fill="var(--text3)" fontWeight={600}>
           {lines.length}
         </text>
-        <text x={CX} y={CY + 12} textAnchor="middle" dominantBaseline="middle" fontSize={8} fill="#475569">
+        <text x={CX} y={CY + 12} textAnchor="middle" dominantBaseline="middle" fontSize={8} fill="var(--text3)">
           {t('aspects')}
         </text>
       </svg>
@@ -168,7 +168,7 @@ export default function AspectWheel({ westernAspects = [], parashariAspects = []
                   strokeDasharray={ASPECT_DASH[type]} />
               </svg>
               <span style={{ color: c, fontWeight: 600 }}>{type}</span>
-              <span style={{ color: '#475569' }}>×{count}</span>
+              <span style={{ color: 'var(--text3)' }}>×{count}</span>
             </div>
           )
         })}
