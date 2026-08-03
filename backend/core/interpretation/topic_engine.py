@@ -194,7 +194,7 @@ def topic_factors(cfg, planets, lagna_idx, dvarga_planets=None, active_lords=Non
     if not varga_mode:
         sun_lon = planets["Sun"]["longitude"]
         for p in dict.fromkeys([lh] + list(karakas)):
-            if p == "Sun" or p not in planets:
+            if p in ("Sun", "Rahu", "Ketu") or p not in planets:
                 continue
             orb = abs(((planets[p]["longitude"] - sun_lon + 180) % 360) - 180)
             if orb < _COMBUST_ORB.get(p, 10):
