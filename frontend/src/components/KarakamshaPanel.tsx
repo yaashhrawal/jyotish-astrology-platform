@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import NorthIndianChart from './NorthIndianChart'
 import { apiPost } from '../api/client'
 import { useLang } from '../contexts/LanguageContext'
 
@@ -75,8 +76,19 @@ export default function KarakamshaPanel({ birthData }: { birthData: BirthData | 
 
       {error && <div style={{ padding: 10, background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: 8, color: '#DC2626', fontSize: 13 }}>{error}</div>}
 
-      {data && (
+      {data && (() => {
+        const SIGNS = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces']
+        const klPlanets: Record<string, any> = {}
+        for (const [n, pd] of Object.entries(data.d9_planets)) klPlanets[n] = { sign: pd.sign, sign_index: pd.sign_index, degree: (pd.longitude || 0) % 30, retrograde: false }
+        const klMap = (data as any).kl_house_map || {}
+        return (
         <>
+          {/* Karakamsha kundli */}
+          <div style={{ ...card, display: 'flex', justifyContent: 'center' }}>
+            <NorthIndianChart
+              ascendant={{ sign: data.karakamsha_sign, sign_index: SIGNS.indexOf(data.karakamsha_sign), degree: 0 }}
+              planets={klPlanets} planetHouseMap={klMap} size={400} title={t('Karakamsha')} />
+          </div>
           {/* Header card */}
           <div style={{ ...card, display: 'flex', flexWrap: 'wrap', gap: 24 }}>
             <div>
@@ -250,7 +262,8 @@ export default function KarakamshaPanel({ birthData }: { birthData: BirthData | 
             </div>
           )}
         </>
-      )}
+        )
+      })()}
     </div>
   )
 }
