@@ -6,8 +6,9 @@
  */
 import { useEffect, useState } from 'react'
 import { useLang } from '../contexts/LanguageContext'
-import { getInterpretation, type TopicResult } from '../api/jyotish'
+import { getInterpretation, getPlanetInterpretation, type TopicResult } from '../api/jyotish'
 import ShlokaCard from './ShlokaCard'
+import { PLANET_IN_SIGN, PLANET_IN_HOUSE, PLANET_KARAKATVA } from './PlanetInterpretation'
 
 const HOUSE_TOPIC: Record<number, string> = {
   1: 'self', 2: 'wealth', 3: 'courage', 4: 'home', 5: 'children', 6: 'health',
@@ -32,20 +33,21 @@ export default function InterpretationDrawer({ open, onClose, vargaD, target, bi
   const [loading, setLoading] = useState(false)
   const [err, setErr] = useState('')
 
-  // resolve which house (→ topic) the click maps to
+  const isPlanet = target.type === 'planet' && !!target.planet
+  // resolve which house (→ topic) a house-click maps to
   let house = 1
   if (target.type === 'house' && target.house) house = target.house
-  else if (target.type === 'planet' && target.planet) house = chart?.planets?.[target.planet]?.house || 1
+  else if (isPlanet) house = chart?.planets?.[target.planet!]?.house || 1
   const topic = HOUSE_TOPIC[house] || 'self'
 
   useEffect(() => {
     if (!open || !birthData) return
     setLoading(true); setErr('')
-    getInterpretation({ ...birthData, name: 'Chart', topic, varga: vargaD })
-      .then(r => setRes(r.results[0]))
-      .catch(e => setErr(e?.response?.data?.detail || 'Failed to compute'))
-      .finally(() => setLoading(false))
-  }, [open, topic, vargaD, birthData])
+    const req = isPlanet
+      ? getPlanetInterpretation({ ...birthData, name: 'Chart', planet: target.planet!, varga: vargaD }).then(r => r as any)
+      : getInterpretation({ ...birthData, name: 'Chart', topic, varga: vargaD }).then(r => r.results[0])
+    req.then(setRes).catch(e => setErr(e?.response?.data?.detail || 'Failed to compute')).finally(() => setLoading(false))
+  }, [open, topic, vargaD, birthData, isPlanet, target.planet])
 
   if (!open) return null
 
@@ -140,7 +142,23 @@ export default function InterpretationDrawer({ open, onClose, vargaD, target, bi
                 </div>
               )}
 
-              {/* classical verses for this house's themes */}
+              {/* Classical text — verbatim planet-in-sign / planet-in-house (planet clicks) */}
+              {isPlanet && (res as any).planet && (() => {
+                const pl = (res as any).planet as string, sg = (res as any).sign as string, hs = (res as any).house as number
+                const signTxt = PLANET_IN_SIGN[pl]?.[sg]
+                const houseTxt = PLANET_IN_HOUSE[pl]?.[hs - 1]
+                return (
+                  <div style={{ marginTop: 16 }}>
+                    <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.04em', color: 'var(--accent)', marginBottom: 8 }}>{t('Classical text')}</div>
+                    {PLANET_KARAKATVA[pl] && <div style={{ fontSize: 12.5, color: 'var(--text2)', marginBottom: 8, lineHeight: 1.5 }}><b>{t(pl)} {t('signifies')}:</b> {t(PLANET_KARAKATVA[pl])}</div>}
+                    {signTxt && <div style={{ fontSize: 13, color: 'var(--text)', marginBottom: 8, lineHeight: 1.5 }}><b>{t(pl)} {t('in')} {t(sg)}:</b> {t(signTxt)}</div>}
+                    {houseTxt && <div style={{ fontSize: 13, color: 'var(--text)', marginBottom: 4, lineHeight: 1.5 }}><b>{t('In the')} {hs}{t('th house')}:</b> {t(houseTxt)}</div>}
+                    <div style={{ fontSize: 10.5, color: 'var(--text4)', marginTop: 4 }}>📜 BPHS Ch.20–33 — planet in sign & bhava</div>
+                  </div>
+                )
+              })()}
+
+              {/* classical verses */}
               <ShlokaCard topics={['karaka', 'guna', ...(house === 10 ? ['dignity'] : [])]} />
             </>
           )}

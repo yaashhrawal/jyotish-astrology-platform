@@ -11,6 +11,7 @@ from core.engine import (birth_to_jd, calculate_planets, calculate_houses,
 from core.interpretation.analyze import analyze, analyze_varga
 from core.interpretation.topics import all_topics, get_topic
 from core.interpretation.dasha import dasha_reading
+from core.interpretation.planet import planet_reading
 from core.engine import VIMSHOTTARI_SEQUENCE, VIMSHOTTARI_YEARS
 
 
@@ -86,6 +87,51 @@ def interpret(req: InterpretRequest):
         "ascendant": houses["ascendant"]["sign"],
         "results": results,
     }
+
+
+_SPECIAL_ASP = {"Mars": [4, 8], "Jupiter": [5, 9], "Saturn": [3, 10]}
+
+
+class PlanetInterpretRequest(BaseModel):
+    name: str = ""
+    year: int; month: int; day: int; hour: int; minute: int
+    tz_offset: float = 5.5
+    latitude: float; longitude: float
+    ayanamsa: str = "lahiri"
+    planet: str
+    varga: int = 1
+    scheme: str = "parashari"
+
+
+@router.post("/interpret-planet")
+def interpret_planet(req: PlanetInterpretRequest):
+    jd = birth_to_jd(req.year, req.month, req.day, req.hour, req.minute, req.tz_offset)
+    planets = calculate_planets(jd, req.ayanamsa)
+    houses = calculate_houses(jd, req.latitude, req.longitude, req.ayanamsa)
+    lagna = houses["ascendant"]["sign_index"]
+    assign_planets_to_houses(planets, lagna)
+
+    varga_name = ""
+    if req.varga and req.varga != 1:
+        from core.varga import calculate_varga
+        from core.interpretation.varga_domains import varga_info
+        vc = calculate_varga(planets, lagna * 30 + 1, req.varga)
+        planets = vc["planets"]; lagna = vc["ascendant"]["sign_index"]
+        varga_name = varga_info(req.varga)["name"]
+
+    def house_of(p): return ((planets[p]["sign_index"] - lagna) % 12) + 1
+    tgt_house = house_of(req.planet)
+    aspects_on = []
+    for a in planets:
+        ah = house_of(a)
+        targets = {((ah - 1 + 6) % 12) + 1}
+        for off in _SPECIAL_ASP.get(a, []):
+            targets.add(((ah - 1 + off - 1) % 12) + 1)
+        if tgt_house in targets and a != req.planet:
+            aspects_on.append({"planet": a})
+
+    return planet_reading(req.planet, planets, lagna, req.scheme,
+                          aspects_on_planet=aspects_on, varga_num=req.varga, varga_name=varga_name)
 
 
 class DashaPredictRequest(BaseModel):

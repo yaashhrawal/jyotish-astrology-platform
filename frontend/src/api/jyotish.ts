@@ -100,6 +100,11 @@ export const getInterpretation = (
   data: Omit<BirthData, 'place'> & { topic: string; varga?: number; scheme?: string }
 ) => axios.post<InterpretResponse>(`${BASE}/interpret`, data).then(r => r.data)
 
+export const getPlanetInterpretation = (
+  data: Omit<BirthData, 'place'> & { planet: string; varga?: number; scheme?: string }
+) => axios.post<TopicResult & { planet: string; sign: string; house: number; dignity: string }>(
+  `${BASE}/interpret-planet`, data).then(r => r.data)
+
 export interface DashaSummary {
   lord: string; start: string; end: string; net: number; tension: boolean; headline: string; running: boolean
 }
