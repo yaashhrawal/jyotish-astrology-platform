@@ -881,7 +881,15 @@ export default function App() {
                     {activeTab === 'rectification' && getBirthDataForCalc() && <RectificationPanel birthData={getBirthDataForCalc()} />}
                     {activeTab === 'varga_dasha'  && getBirthDataForCalc() && <VargaDashaPanel birthData={getBirthDataForCalc()} />}
                     {activeTab === 'classical'     && <ClassicalTextsPanel />}
-                    {activeTab === 'famous_charts' && <FamousChartsPanel />}
+                    {activeTab === 'famous_charts' && <FamousChartsPanel onLoadChart={(c: any) => {
+                      handleCalculate({
+                        name: c.name, year: c.year, month: c.month, day: c.day,
+                        hour: c.hour, minute: c.minute, tz_offset: c.tz_offset,
+                        latitude: c.latitude, longitude: c.longitude,
+                        place: c.place, ayanamsa: chart?.ayanamsa || 'lahiri',
+                      } as any)
+                      setActiveTab('chart')
+                    }} />}
                     {activeTab === 'numerology'    && <NumerologyPanel />}
                     {activeTab === 'predictions'   && <PredictionTrackerPanel />}
                     {activeTab === 'ephemeris'     && <EphemerisExportPanel />}
