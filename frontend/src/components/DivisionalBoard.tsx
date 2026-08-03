@@ -5,7 +5,8 @@ import type { Planet } from '../api/jyotish'
 import NorthIndianChart from './NorthIndianChart'
 import SouthIndianChart from './SouthIndianChart'
 import EastIndianChart from './EastIndianChart'
-import VargaAnalysisDrawer, { type AnalysisTarget } from './VargaAnalysisDrawer'
+import { type AnalysisTarget } from './VargaAnalysisDrawer'
+import InterpretationDrawer from './InterpretationDrawer'
 
 /**
  * Customisable Divisional Charts Board (Kundli screen).
@@ -130,7 +131,6 @@ export default function DivisionalBoard({ birthData, chartStyle, d1, initialLayo
     return <NorthIndianChart {...props} />
   }
 
-  const d1Planets = (d1?.planets || data[1]?.planets || {}) as Record<string, any>
   const analysisChart = analysis ? (analysis.d === 1 ? (d1 || data[1]) : data[analysis.d]) : null
 
   return (
@@ -211,15 +211,15 @@ export default function DivisionalBoard({ birthData, chartStyle, d1, initialLayo
         </div>
       )}
 
-      {/* Varga-aware analysis drawer */}
+      {/* Rule-based interpretation engine (deep, sourced) */}
       {analysis && analysisChart && (
-        <VargaAnalysisDrawer
+        <InterpretationDrawer
           open={!!analysis}
           onClose={() => setAnalysis(null)}
           vargaD={analysis.d}
-          chart={analysisChart}
-          d1Planets={d1Planets}
           target={analysis.target}
+          birthData={birthData}
+          chart={analysisChart}
         />
       )}
     </div>

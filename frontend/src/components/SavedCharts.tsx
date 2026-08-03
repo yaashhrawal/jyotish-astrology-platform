@@ -3,14 +3,14 @@ import { chartsApi } from '../api/client'
 import { useLang } from '../contexts/LanguageContext'
 
 const S = {
-  wrap: { background: '#0f1923', border: '1px solid #2a4a6b', borderRadius: '10px', padding: '20px' },
-  title: { color: '#4a9eff', fontSize: '16px', fontWeight: 'bold', marginBottom: '16px' },
-  row: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', borderBottom: '1px solid #131f2e', cursor: 'pointer' },
-  name: { color: '#c0c0c0', fontWeight: 'bold', fontSize: '14px' },
-  meta: { color: '#4a6fa5', fontSize: '12px', marginTop: '2px' },
-  badge: { fontSize: '11px', padding: '2px 7px', borderRadius: '4px', background: '#1a3a5c', color: '#4a9eff' },
-  del: { color: '#E74C3C', fontSize: '11px', cursor: 'pointer', marginLeft: '8px' },
-  empty: { color: '#4a6fa5', fontSize: '14px', textAlign: 'center' as const, padding: '24px' },
+  wrap: { background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '10px', padding: '20px' },
+  title: { color: 'var(--accent)', fontSize: '16px', fontWeight: 'bold', marginBottom: '16px' },
+  row: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', borderBottom: '1px solid var(--border)', cursor: 'pointer' },
+  name: { color: 'var(--text)', fontWeight: 'bold', fontSize: '14px' },
+  meta: { color: 'var(--text3)', fontSize: '12px', marginTop: '2px' },
+  badge: { fontSize: '11px', padding: '2px 7px', borderRadius: '4px', background: 'var(--accent-bg)', color: 'var(--accent)' },
+  del: { color: '#dc2626', fontSize: '13px', cursor: 'pointer', marginLeft: '8px' },
+  empty: { color: 'var(--text3)', fontSize: '14px', textAlign: 'center' as const, padding: '24px' },
 }
 
 interface Props {
@@ -53,7 +53,7 @@ export default function SavedCharts({ onSelect }: Props) {
             {c.yogas?.length > 0 && (
               <div style={{ marginTop: '4px', display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
                 {c.yogas.slice(0, 3).map((y: string) => <span key={y} style={S.badge}>{y}</span>)}
-                {c.yogas.length > 3 && <span style={{ ...S.badge, color: '#4a6fa5' }}>+{c.yogas.length - 3}</span>}
+                {c.yogas.length > 3 && <span style={{ ...S.badge, color: 'var(--text3)' }}>+{c.yogas.length - 3}</span>}
               </div>
             )}
           </div>
