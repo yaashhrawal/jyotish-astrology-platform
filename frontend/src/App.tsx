@@ -19,6 +19,7 @@ import PrashnaPanel from './components/PrashnaPanel'
 import TransitPanel from './components/TransitPanel'
 import AshtakavargaPanel from './components/AshtakavargaPanel'
 import InterpretationPanel from './components/InterpretationPanel'
+import DashaPredictionPanel from './components/DashaPredictionPanel'
 import CompatibilityPanel from './components/CompatibilityPanel'
 import PanchangaCard from './components/PanchangaCard'
 import DoshaPanel from './components/DoshaPanel'
@@ -85,7 +86,7 @@ import EarningsPanel from './components/business/EarningsPanel'
 import GemPickerForClient from './components/business/GemPickerForClient'
 import GemPurchasePage from './components/business/GemPurchasePage'
 
-type Tab ='chart' | 'interpret' | 'vargas' | 'dasha' | 'yogas' | 'shadbala' | 'planets' | 'sky' | 'saved' | 'crm' | 'research' | 'ai' | 'prashna' | 'transit' | 'ashtakavarga' | 'compatibility' | 'doshas' | 'synastry' | 'varshaphal' | 'muhurta' | 'kp' | 'arudha' | 'yogini' | 'aspects' | 'chara' | 'sbc' | 'bhava' | 'jaimini' | 'combustion' | 'sudarshan' | 'ashtottari' | 'narayana' | 'special' | 'dignity' | 'kalachakra' | 'shoola' | 'kota' | 'gochara' | 'madhya' | 'upagraha' | 'transit_hits' | 'tithi' | 'sahams' | 'ayurdaya' | 'jaimini_asp' | 'saptarishi' | 'pancha_pakshi' | 'lagnesh' | 'transit_natal' | 'remedies' | 'misc_dasha' | 'hora_variants' | 'vimshopaka' | 'rectification' | 'varga_dasha' | 'classical' | 'famous_charts' | 'numerology' | 'predictions' | 'ephemeris' | 'dasha_transit' | 'avasthas' | 'karakamsha' | 'argala' | 'conditional_dasha' | 'upapada' | 'varnada' | 'dasha_3col' | 'profile' | 'gems' | 'earnings'
+type Tab ='chart' | 'interpret' | 'dasha_predict' | 'vargas' | 'dasha' | 'yogas' | 'shadbala' | 'planets' | 'sky' | 'saved' | 'crm' | 'research' | 'ai' | 'prashna' | 'transit' | 'ashtakavarga' | 'compatibility' | 'doshas' | 'synastry' | 'varshaphal' | 'muhurta' | 'kp' | 'arudha' | 'yogini' | 'aspects' | 'chara' | 'sbc' | 'bhava' | 'jaimini' | 'combustion' | 'sudarshan' | 'ashtottari' | 'narayana' | 'special' | 'dignity' | 'kalachakra' | 'shoola' | 'kota' | 'gochara' | 'madhya' | 'upagraha' | 'transit_hits' | 'tithi' | 'sahams' | 'ayurdaya' | 'jaimini_asp' | 'saptarishi' | 'pancha_pakshi' | 'lagnesh' | 'transit_natal' | 'remedies' | 'misc_dasha' | 'hora_variants' | 'vimshopaka' | 'rectification' | 'varga_dasha' | 'classical' | 'famous_charts' | 'numerology' | 'predictions' | 'ephemeris' | 'dasha_transit' | 'avasthas' | 'karakamsha' | 'argala' | 'conditional_dasha' | 'upapada' | 'varnada' | 'dasha_3col' | 'profile' | 'gems' | 'earnings'
 
 // Grouped tab menu — each group renders as a dropdown in the sub-tab bar.
 // icon is kept separate from label so `label` stays a plain-English i18n key
@@ -104,6 +105,7 @@ const TAB_GROUPS: TabGroup[] = [
   ]},
   { label: 'Dasha', tabs: [
     { id: 'dasha',        label: 'Vimshottari' },
+    { id: 'dasha_predict', label: 'Dasha Predictions', icon: '🔮' },
     { id: 'dasha_3col',   label: '3-Level View', icon: '⊞' },
     { id: 'yogini',       label: 'Yogini' },
     { id: 'chara',        label: 'Chara (Jaimini)' },
@@ -785,6 +787,7 @@ export default function App() {
                     {activeTab === 'vargas' && getBirthDataForCalc() && <VargaCharts birthData={getBirthDataForCalc()!} />}
                     {activeTab === 'dasha' && <DashaTimeline dashas={chart.dashas} birthYear={parseInt(chart.birth.split('-')[0])} birthData={getBirthDataForCalc()} />}
                     {activeTab === 'interpret' && <InterpretationPanel birth={getBirthDataForCalc()} />}
+                    {activeTab === 'dasha_predict' && <DashaPredictionPanel birth={getBirthDataForCalc()} />}
                     {activeTab === 'yogas' && getBirthDataForCalc() && <YogaCards birthData={getBirthDataForCalc()!} />}
                     {activeTab === 'shadbala' && getBirthDataForCalc() && <ShadbalaTable birthData={getBirthDataForCalc()!} />}
 

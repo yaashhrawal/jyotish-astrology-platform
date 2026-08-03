@@ -82,4 +82,10 @@ export const EXT2: Dict = {
   'Tension':          { en: 'Tension',          hi: 'विरोध',           sa: 'विरोधः' },
   'Calculate a chart first.': { en: 'Calculate a chart first.', hi: 'पहले कुंडली बनाएँ।', sa: 'प्रथमं कुण्डलीं गणयतु।' },
   'Rule-based · deterministic · every prediction cites its classical source. ★ = planet in the active daśā.': { en: 'Rule-based · deterministic · every prediction cites its classical source. ★ = planet in the active daśā.', hi: 'नियम-आधारित · सुनिश्चित · प्रत्येक कथन शास्त्रीय स्रोत उद्धृत करता है। ★ = सक्रिय दशा का ग्रह।', sa: 'नियमाधारितम् · निश्चितम् · प्रत्येकं कथनं शास्त्रीयस्रोतम् उद्धरति। ★ = सक्रियदशायाः ग्रहः।' },
+  'Dasha Predictions': { en: 'Dasha Predictions', hi: 'दशा फलादेश', sa: 'दशाफलादेशः' },
+  'Running now':        { en: 'Running now',        hi: 'अभी चल रही',      sa: 'अधुना प्रवर्तमाना' },
+  'sub':               { en: 'sub',                hi: 'उप',             sa: 'अन्तर्' },
+  'Mahādaśā timeline': { en: 'Mahādaśā timeline',  hi: 'महादशा समयरेखा', sa: 'महादशाकालक्रमः' },
+  'now':               { en: 'now',                hi: 'अभी',            sa: 'अधुना' },
+  'Rule-based · deterministic · every prediction cites its classical source.': { en: 'Rule-based · deterministic · every prediction cites its classical source.', hi: 'नियम-आधारित · सुनिश्चित · प्रत्येक कथन शास्त्रीय स्रोत उद्धृत करता है।', sa: 'नियमाधारितम् · निश्चितम् · प्रत्येकं कथनं शास्त्रीयस्रोतम् उद्धरति।' },
 }
