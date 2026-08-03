@@ -29,17 +29,17 @@ function formToPayload(f: PersonForm, prefix: 'p1' | 'p2') {
   }
 }
 
-function chartToForm(chart: any, name: string): PersonForm {
-  const bd = chart.birth_data || {}
+function birthToForm(bd: any, name: string): PersonForm {
   return {
     name,
     year: String(bd.year || ''), month: String(bd.month || ''), day: String(bd.day || ''),
-    hour: String(bd.hour || '12'), minute: String(bd.minute || '0'),
-    tz: String(bd.tz_offset ?? 5.5), lat: String(bd.lat || '28.6'), lon: String(bd.lon || '77.2'),
+    hour: String(bd.hour ?? '12'), minute: String(bd.minute ?? '0'),
+    tz: String(bd.tz_offset ?? 5.5),
+    lat: String(bd.latitude ?? bd.lat ?? '28.6'), lon: String(bd.longitude ?? bd.lon ?? '77.2'),
   }
 }
 
-interface Props { chart?: any }
+interface Props { chart?: any; birth?: any }
 
 const inp: React.CSSProperties = {
   padding: '6px 10px', borderRadius: '6px', border: '1px solid var(--border)',
@@ -87,9 +87,9 @@ function PlanetDot({ planet }: { planet: string }) {
   return <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: PLANET_COLORS[planet] || '#888', marginRight: 4 }} />
 }
 
-export default function ChartComparisonPanel({ chart }: Props) {
+export default function ChartComparisonPanel({ chart, birth }: Props) {
   const { lang, t } = useLang()
-  const [p1, setP1] = useState<PersonForm>(() => chart ? chartToForm(chart, chart.name || t('Person 1')) : defaultPerson(t('Person 1')))
+  const [p1, setP1] = useState<PersonForm>(() => birth ? birthToForm(birth, chart?.name || t('Person 1')) : defaultPerson(t('Person 1')))
   const [p2, setP2] = useState<PersonForm>(() => defaultPerson(t('Person 2')))
   const [mode, setMode] = useState<'synastry' | 'composite'>('synastry')
   const [data, setData] = useState<any>(null)
@@ -157,7 +157,7 @@ export default function ChartComparisonPanel({ chart }: Props) {
               {lbl}
               {isChart && <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '20px', background: '#16A34A18', color: '#16A34A', border: '1px solid #16A34A44' }}>from chart</span>}
             </div>
-            <PersonForm form={form} onChange={set} readonly={isChart} />
+            <PersonForm form={form} onChange={set} readonly={false} />
           </div>
         ))}
       </div>

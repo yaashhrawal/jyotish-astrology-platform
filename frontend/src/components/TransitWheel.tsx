@@ -14,7 +14,7 @@ const PLANET_SYMBOLS: Record<string, string> = {
 const PLANET_COLORS: Record<string, string> = {
   Sun: '#f59e0b', Moon: '#8b5cf6', Mars: '#ef4444',
   Mercury: '#10b981', Jupiter: '#f97316', Venus: '#ec4899',
-  Saturn: '#3b82f6', Rahu: '#64748b', Ketu: '#84cc16',
+  Saturn: '#3b82f6', Rahu: 'var(--text3)', Ketu: '#84cc16',
 }
 
 const SIGN_GLYPHS = ['♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓']
@@ -67,11 +67,11 @@ export default function TransitWheel({ natalPlanets, transitPlanets, ascendantLo
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
       <svg width={400} height={400} viewBox="0 0 400 400">
         {/* Outermost background */}
-        <circle cx={CX} cy={CY} r={OUTER_RING_R + 22} fill="#0f172a" stroke="#1e293b" strokeWidth={1} />
+        <circle cx={CX} cy={CY} r={OUTER_RING_R + 22} fill="var(--surface)" stroke="var(--border)" strokeWidth={1} />
 
         {/* Transit ring background */}
-        <circle cx={CX} cy={CY} r={OUTER_RING_R + 16} fill="none" stroke="#1e293b" strokeWidth={1} />
-        <circle cx={CX} cy={CY} r={SIGN_LINE_R} fill="#0f172a" stroke="#1e293b" strokeWidth={1} />
+        <circle cx={CX} cy={CY} r={OUTER_RING_R + 16} fill="none" stroke="var(--border)" strokeWidth={1} />
+        <circle cx={CX} cy={CY} r={SIGN_LINE_R} fill="var(--surface)" stroke="var(--border)" strokeWidth={1} />
 
         {/* Zodiac sign segments */}
         {Array.from({ length: 12 }, (_, i) => {
@@ -84,8 +84,8 @@ export default function TransitWheel({ natalPlanets, transitPlanets, ascendantLo
           const [sx, sy] = lonToXY(midDeg, (SIGN_LINE_R + SIGN_RING_R + 16) / 2)
           return (
             <g key={i}>
-              <line x1={lx1} y1={ly1} x2={lx2} y2={ly2} stroke="#334155" strokeWidth={1} />
-              <text x={sx} y={sy} textAnchor="middle" dominantBaseline="middle" fontSize={10} fill="#64748b">
+              <line x1={lx1} y1={ly1} x2={lx2} y2={ly2} stroke="var(--text4)" strokeWidth={1} />
+              <text x={sx} y={sy} textAnchor="middle" dominantBaseline="middle" fontSize={10} fill="var(--text3)">
                 {SIGN_GLYPHS[i]}
               </text>
             </g>
@@ -93,8 +93,8 @@ export default function TransitWheel({ natalPlanets, transitPlanets, ascendantLo
         })}
 
         {/* Natal ring */}
-        <circle cx={CX} cy={CY} r={NATAL_RING_R + 16} fill="none" stroke="#1e293b" strokeWidth={0.5} />
-        <circle cx={CX} cy={CY} r={NATAL_RING_R - 16} fill="none" stroke="#1e293b" strokeWidth={0.5} />
+        <circle cx={CX} cy={CY} r={NATAL_RING_R + 16} fill="none" stroke="var(--border)" strokeWidth={0.5} />
+        <circle cx={CX} cy={CY} r={NATAL_RING_R - 16} fill="none" stroke="var(--border)" strokeWidth={0.5} />
 
         {/* Ascendant line */}
         {ascendantLon !== undefined && (() => {
@@ -108,16 +108,16 @@ export default function TransitWheel({ natalPlanets, transitPlanets, ascendantLo
           const transit = spreadTransit.find(([tn]) => tn === name)
           if (!transit) return null
           const [, , tx, ty] = transit
-          const c = PLANET_COLORS[name] || '#64748b'
+          const c = PLANET_COLORS[name] || 'var(--text3)'
           return <line key={name + '_line'} x1={nx} y1={ny} x2={tx} y2={ty} stroke={c} strokeWidth={0.6} opacity={0.3} strokeDasharray="3,3" />
         })}
 
         {/* Natal planet dots (inner ring) */}
         {spreadNatal.map(([name, _lon, x, y]) => {
-          const c = PLANET_COLORS[name] || '#64748b'
+          const c = PLANET_COLORS[name] || 'var(--text3)'
           return (
             <g key={name + '_natal'}>
-              <circle cx={x} cy={y} r={13} fill="#0f172a" stroke={c} strokeWidth={1.5} />
+              <circle cx={x} cy={y} r={13} fill="var(--surface)" stroke={c} strokeWidth={1.5} />
               <text x={x} y={y - 1} textAnchor="middle" dominantBaseline="middle" fontSize={10} fill={c} fontWeight={700}>
                 {PLANET_SYMBOLS[name] || name[0]}
               </text>
@@ -130,10 +130,10 @@ export default function TransitWheel({ natalPlanets, transitPlanets, ascendantLo
 
         {/* Transit planet dots (outer ring) */}
         {spreadTransit.map(([name, _lon, x, y]) => {
-          const c = PLANET_COLORS[name] || '#64748b'
+          const c = PLANET_COLORS[name] || 'var(--text3)'
           return (
             <g key={name + '_transit'}>
-              <circle cx={x} cy={y} r={13} fill="#1e293b" stroke={c} strokeWidth={2} />
+              <circle cx={x} cy={y} r={13} fill="var(--border)" stroke={c} strokeWidth={2} />
               <text x={x} y={y - 1} textAnchor="middle" dominantBaseline="middle" fontSize={10} fill={c} fontWeight={700}>
                 {PLANET_SYMBOLS[name] || name[0]}
               </text>
@@ -145,23 +145,23 @@ export default function TransitWheel({ natalPlanets, transitPlanets, ascendantLo
         })}
 
         {/* Inner circle */}
-        <circle cx={CX} cy={CY} r={INNER_R} fill="#0f172a" stroke="#1e293b" strokeWidth={1} />
-        <text x={CX} y={CY - 8} textAnchor="middle" fontSize={11} fill="#475569" fontWeight={700}>{t('Transit')}</text>
-        <text x={CX} y={CY + 6} textAnchor="middle" fontSize={9} fill="#334155">{t('outer ring')}</text>
-        <text x={CX} y={CY + 18} textAnchor="middle" fontSize={9} fill="#334155">{t('Natal = inner')}</text>
+        <circle cx={CX} cy={CY} r={INNER_R} fill="var(--surface)" stroke="var(--border)" strokeWidth={1} />
+        <text x={CX} y={CY - 8} textAnchor="middle" fontSize={11} fill="var(--text3)" fontWeight={700}>{t('Transit')}</text>
+        <text x={CX} y={CY + 6} textAnchor="middle" fontSize={9} fill="var(--text4)">{t('outer ring')}</text>
+        <text x={CX} y={CY + 18} textAnchor="middle" fontSize={9} fill="var(--text4)">{t('Natal = inner')}</text>
       </svg>
 
       {/* Legend */}
       <div style={{ display: 'flex', gap: 20, fontSize: 11, flexWrap: 'wrap', justifyContent: 'center', color: '#94a3b8' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <svg width={24} height={16}>
-            <circle cx={12} cy={8} r={7} fill="#0f172a" stroke="#3b82f6" strokeWidth={1.5} />
+            <circle cx={12} cy={8} r={7} fill="var(--surface)" stroke="#3b82f6" strokeWidth={1.5} />
           </svg>
           {t('Natal (inner)')}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <svg width={24} height={16}>
-            <circle cx={12} cy={8} r={7} fill="#1e293b" stroke="#3b82f6" strokeWidth={2} />
+            <circle cx={12} cy={8} r={7} fill="var(--border)" stroke="#3b82f6" strokeWidth={2} />
           </svg>
           {t('Transit (outer)')}
         </div>

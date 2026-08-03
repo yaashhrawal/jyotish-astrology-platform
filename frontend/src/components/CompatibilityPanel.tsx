@@ -161,7 +161,17 @@ function PersonFields({ label: personLabel, form, onChange }: {
   )
 }
 
-interface Props { chart?: any }
+interface Props { chart?: any; birth?: any }
+
+function birthToForm(bd: any, chart: any): PersonForm {
+  return {
+    name: chart?.name || '', gender: chart?.gender || 'male',
+    year: String(bd.year || '1990'), month: String(bd.month || '1'), day: String(bd.day || '1'),
+    hour: String(bd.hour ?? '12'), minute: String(bd.minute ?? '0'), tz: String(bd.tz_offset ?? 5.5),
+    lat: String(bd.latitude ?? bd.lat ?? '28.6'), lon: String(bd.longitude ?? bd.lon ?? '77.2'),
+    place: chart?.place || 'Delhi',
+  }
+}
 
 function chartToForm(chart: any): PersonForm {
   const parts = chart?.birth?.split(' ') || []
@@ -177,9 +187,9 @@ function chartToForm(chart: any): PersonForm {
   }
 }
 
-export default function CompatibilityPanel({ chart }: Props) {
+export default function CompatibilityPanel({ chart, birth }: Props) {
   const { t } = useLang()
-  const [p1, setP1] = useState<PersonForm>(() => chart ? chartToForm(chart) : defaultPerson())
+  const [p1, setP1] = useState<PersonForm>(() => birth ? birthToForm(birth, chart) : chart ? chartToForm(chart) : defaultPerson())
   const [p2, setP2] = useState<PersonForm>(defaultPerson())
   const [result, setResult] = useState<any>(null)
   const [loading, setLoading] = useState(false)

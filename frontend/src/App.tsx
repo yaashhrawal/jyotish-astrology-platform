@@ -571,8 +571,8 @@ export default function App() {
                 })
               }} />}
               {activeTab === 'ai'            && <AIChat chartId={undefined} chartName={undefined} />}
-              {activeTab === 'compatibility' && <CompatibilityPanel />}
-              {activeTab === 'synastry'      && <ChartComparisonPanel />}
+              {activeTab === 'compatibility' && <CompatibilityPanel birth={getBirthDataForCalc()} chart={chart} />}
+              {activeTab === 'synastry'      && <ChartComparisonPanel birth={getBirthDataForCalc()} chart={chart} />}
               {activeTab === 'muhurta'       && <MuhurtaPanel />}
               {activeTab === 'profile'       && <AstrologerProfileSettings />}
               {activeTab === 'gems'          && <GemShopPanel />}
@@ -839,8 +839,8 @@ export default function App() {
                     {activeTab === 'doshas'       && getBirthDataForCalc() && <DoshaPanel birthData={getBirthDataForCalc()} />}
                     {activeTab === 'transit'      && <TransitPanel chart={chart} />}
                     {activeTab === 'ashtakavarga' && <AshtakavargaPanel chart={chart} />}
-                    {activeTab === 'compatibility' && <CompatibilityPanel chart={chart} />}
-                    {activeTab === 'synastry'      && <ChartComparisonPanel chart={chart} />}
+                    {activeTab === 'compatibility' && <CompatibilityPanel birth={getBirthDataForCalc()} chart={chart} />}
+                    {activeTab === 'synastry'      && <ChartComparisonPanel birth={getBirthDataForCalc()} chart={chart} />}
                     {activeTab === 'varshaphal'    && getBirthDataForCalc() && <VarshaphalPanel chart={chart} birthData={getBirthDataForCalc()} />}
                     {activeTab === 'kp'            && getBirthDataForCalc() && <KPPanel birthData={getBirthDataForCalc()} />}
                     {activeTab === 'arudha'        && getBirthDataForCalc() && <ArudhaPanel birthData={getBirthDataForCalc()} />}

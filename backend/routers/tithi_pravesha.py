@@ -21,30 +21,37 @@ def get_tithi_angle(jd: float, ayan: float) -> float:
     return (moon_sid - sun_sid) % 360
 
 
+def _signed_diff(target_angle: float, jd: float) -> float:
+    """Signed distance (deg, -180..180) from current Moon-Sun angle to target."""
+    ayan = get_ayanamsa(jd, "lahiri")
+    cur = get_tithi_angle(jd, ayan)
+    return ((target_angle - cur + 180) % 360) - 180
+
+
 def find_tithi_return(target_angle: float, start_jd: float) -> float:
-    """Find next JD when Moon-Sun angle equals target_angle."""
-    jd = start_jd
-    step = 0.5
-    for _ in range(100):
-        ayan = get_ayanamsa(jd, "lahiri")
-        cur = get_tithi_angle(jd, ayan)
-        diff = (target_angle - cur + 360) % 360
-        if diff < 0.01:
-            break
-        # Refine: Moon moves ~13°/day, Sun ~1°/day → net ~12°/day
-        jd += diff / 12.0
-    # Bisect for precision
-    lo, hi = jd - 0.1, jd + 0.1
-    for _ in range(40):
-        mid = (lo + hi) / 2
-        ayan_mid = get_ayanamsa(mid, "lahiri")
-        cur = get_tithi_angle(mid, ayan_mid)
-        diff = (target_angle - cur + 360) % 360
-        if diff < 180:
-            hi = mid
-        else:
-            lo = mid
-    return (lo + hi) / 2
+    """Next JD where Moon-Sun angle equals target_angle.
+    Robust scan (0.25d) for a sign change of the signed diff, then bisection.
+    Bounded to ~33 days — one lunar cycle always contains a return."""
+    step = 0.25
+    prev = start_jd
+    prev_d = _signed_diff(target_angle, prev)
+    jd = start_jd + step
+    end = start_jd + 33          # a synodic cycle guarantees one crossing
+    while jd <= end:
+        d = _signed_diff(target_angle, jd)
+        # crossing from - to + (angle catching up to target) = the return
+        if prev_d <= 0 <= d and (d - prev_d) < 180:
+            lo, hi = prev, jd
+            for _ in range(50):
+                mid = (lo + hi) / 2
+                if _signed_diff(target_angle, mid) < 0:
+                    lo = mid
+                else:
+                    hi = mid
+            return (lo + hi) / 2
+        prev, prev_d = jd, d
+        jd += step
+    return end + 1               # not found in window → caller skips
 
 
 TITHI_NAMES = [

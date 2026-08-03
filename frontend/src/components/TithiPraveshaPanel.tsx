@@ -47,7 +47,13 @@ export default function TithiPraveshaPanel({ birthData, chartStyle }: { birthDat
         {error && <span style={{ color: 'var(--red)', fontSize: '13px' }}>{error}</span>}
       </div>
 
-      {data && (
+      {data?.error && (
+        <div style={{ padding: '14px 18px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10, color: 'var(--text3)', fontSize: 13 }}>
+          {t('No Tithi Pravesha found for')} {year}. {t('Try a different year.')}
+        </div>
+      )}
+
+      {data && !data.error && data.return_ascendant && (
         <>
           {/* Header */}
           <div style={{
