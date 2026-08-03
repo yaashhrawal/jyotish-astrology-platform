@@ -17,7 +17,6 @@ from routers.panchanga import (
     get_hora_schedule, _sun_rise_set, _sun_moon_sid_at, _next_transition, _jd_to_local_hm,
 )
 
-swe.set_ephe_path(None)
 
 # 15 Jan 2024, New Delhi
 Y, M, D, TZ = 2024, 1, 15, 5.5

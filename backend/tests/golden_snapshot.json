@@ -1,0 +1,472 @@
+{
+  "delhi_indep_1947": {
+    "lagna": "Taurus",
+    "planets": {
+      "Sun": {
+        "sign": "Cancer",
+        "deg": 27.985,
+        "nak": "Ashlesha",
+        "pada": 4,
+        "retro": false,
+        "house": 3
+      },
+      "Moon": {
+        "sign": "Cancer",
+        "deg": 3.98,
+        "nak": "Pushya",
+        "pada": 1,
+        "retro": false,
+        "house": 3
+      },
+      "Mars": {
+        "sign": "Gemini",
+        "deg": 7.453,
+        "nak": "Ardra",
+        "pada": 1,
+        "retro": false,
+        "house": 2
+      },
+      "Mercury": {
+        "sign": "Cancer",
+        "deg": 13.671,
+        "nak": "Pushya",
+        "pada": 4,
+        "retro": false,
+        "house": 3
+      },
+      "Jupiter": {
+        "sign": "Libra",
+        "deg": 25.874,
+        "nak": "Vishakha",
+        "pada": 2,
+        "retro": false,
+        "house": 6
+      },
+      "Venus": {
+        "sign": "Cancer",
+        "deg": 22.558,
+        "nak": "Ashlesha",
+        "pada": 2,
+        "retro": false,
+        "house": 3
+      },
+      "Saturn": {
+        "sign": "Cancer",
+        "deg": 20.469,
+        "nak": "Ashlesha",
+        "pada": 2,
+        "retro": false,
+        "house": 3
+      },
+      "Rahu": {
+        "sign": "Taurus",
+        "deg": 5.742,
+        "nak": "Krittika",
+        "pada": 3,
+        "retro": true,
+        "house": 1
+      },
+      "Ketu": {
+        "sign": "Scorpio",
+        "deg": 5.742,
+        "nak": "Anuradha",
+        "pada": 1,
+        "retro": true,
+        "house": 7
+      }
+    },
+    "d9": {
+      "Sun": 8,
+      "Moon": 1,
+      "Mars": 5,
+      "Mercury": 4,
+      "Jupiter": 7,
+      "Venus": 6,
+      "Saturn": 6,
+      "Rahu": 10,
+      "Ketu": 10
+    },
+    "dasha3": [
+      "Saturn",
+      "Mercury",
+      "Ketu"
+    ],
+    "sav_total": 337
+  },
+  "navi_mumbai_2000": {
+    "lagna": "Aries",
+    "planets": {
+      "Sun": {
+        "sign": "Pisces",
+        "deg": 27.632,
+        "nak": "Revati",
+        "pada": 4,
+        "retro": false,
+        "house": 12
+      },
+      "Moon": {
+        "sign": "Gemini",
+        "deg": 21.348,
+        "nak": "Punarvasu",
+        "pada": 1,
+        "retro": false,
+        "house": 3
+      },
+      "Mars": {
+        "sign": "Aries",
+        "deg": 19.983,
+        "nak": "Bharani",
+        "pada": 2,
+        "retro": false,
+        "house": 1
+      },
+      "Mercury": {
+        "sign": "Pisces",
+        "deg": 3.275,
+        "nak": "Purva Bhadrapada",
+        "pada": 4,
+        "retro": false,
+        "house": 12
+      },
+      "Jupiter": {
+        "sign": "Aries",
+        "deg": 17.62,
+        "nak": "Bharani",
+        "pada": 2,
+        "retro": false,
+        "house": 1
+      },
+      "Venus": {
+        "sign": "Pisces",
+        "deg": 11.454,
+        "nak": "Uttara Bhadrapada",
+        "pada": 3,
+        "retro": false,
+        "house": 12
+      },
+      "Saturn": {
+        "sign": "Aries",
+        "deg": 22.827,
+        "nak": "Bharani",
+        "pada": 3,
+        "retro": false,
+        "house": 1
+      },
+      "Rahu": {
+        "sign": "Cancer",
+        "deg": 6.068,
+        "nak": "Pushya",
+        "pada": 1,
+        "retro": true,
+        "house": 4
+      },
+      "Ketu": {
+        "sign": "Capricorn",
+        "deg": 6.068,
+        "nak": "Uttara Ashadha",
+        "pada": 3,
+        "retro": true,
+        "house": 10
+      }
+    },
+    "d9": {
+      "Sun": 11,
+      "Moon": 9,
+      "Mars": 5,
+      "Mercury": 3,
+      "Jupiter": 5,
+      "Venus": 6,
+      "Saturn": 6,
+      "Rahu": 1,
+      "Ketu": 1
+    },
+    "dasha3": [
+      "Jupiter",
+      "Saturn",
+      "Mercury"
+    ],
+    "sav_total": 337
+  },
+  "london_1912": {
+    "lagna": "Sagittarius",
+    "planets": {
+      "Sun": {
+        "sign": "Aquarius",
+        "deg": 17.608,
+        "nak": "Shatabhisha",
+        "pada": 4,
+        "retro": false,
+        "house": 3
+      },
+      "Moon": {
+        "sign": "Cancer",
+        "deg": 16.365,
+        "nak": "Pushya",
+        "pada": 4,
+        "retro": false,
+        "house": 8
+      },
+      "Mars": {
+        "sign": "Taurus",
+        "deg": 19.491,
+        "nak": "Rohini",
+        "pada": 3,
+        "retro": false,
+        "house": 6
+      },
+      "Mercury": {
+        "sign": "Aquarius",
+        "deg": 16.346,
+        "nak": "Shatabhisha",
+        "pada": 3,
+        "retro": false,
+        "house": 3
+      },
+      "Jupiter": {
+        "sign": "Scorpio",
+        "deg": 21.274,
+        "nak": "Jyeshtha",
+        "pada": 2,
+        "retro": false,
+        "house": 12
+      },
+      "Venus": {
+        "sign": "Capricorn",
+        "deg": 15.349,
+        "nak": "Shravana",
+        "pada": 2,
+        "retro": false,
+        "house": 2
+      },
+      "Saturn": {
+        "sign": "Aries",
+        "deg": 22.524,
+        "nak": "Bharani",
+        "pada": 3,
+        "retro": false,
+        "house": 5
+      },
+      "Rahu": {
+        "sign": "Pisces",
+        "deg": 29.671,
+        "nak": "Revati",
+        "pada": 4,
+        "retro": true,
+        "house": 4
+      },
+      "Ketu": {
+        "sign": "Virgo",
+        "deg": 29.671,
+        "nak": "Chitra",
+        "pada": 2,
+        "retro": true,
+        "house": 10
+      }
+    },
+    "d9": {
+      "Sun": 2,
+      "Moon": 4,
+      "Mars": 2,
+      "Mercury": 1,
+      "Jupiter": 3,
+      "Venus": 4,
+      "Saturn": 6,
+      "Rahu": 11,
+      "Ketu": 11
+    },
+    "dasha3": [
+      "Saturn",
+      "Mercury",
+      "Ketu"
+    ],
+    "sav_total": 337
+  },
+  "sydney_2011": {
+    "lagna": "Capricorn",
+    "planets": {
+      "Sun": {
+        "sign": "Sagittarius",
+        "deg": 16.111,
+        "nak": "Purva Ashadha",
+        "pada": 1,
+        "retro": false,
+        "house": 12
+      },
+      "Moon": {
+        "sign": "Scorpio",
+        "deg": 4.15,
+        "nak": "Anuradha",
+        "pada": 1,
+        "retro": false,
+        "house": 11
+      },
+      "Mars": {
+        "sign": "Sagittarius",
+        "deg": 24.299,
+        "nak": "Purva Ashadha",
+        "pada": 4,
+        "retro": false,
+        "house": 12
+      },
+      "Mercury": {
+        "sign": "Scorpio",
+        "deg": 25.808,
+        "nak": "Jyeshtha",
+        "pada": 3,
+        "retro": false,
+        "house": 11
+      },
+      "Jupiter": {
+        "sign": "Pisces",
+        "deg": 2.53,
+        "nak": "Purva Bhadrapada",
+        "pada": 4,
+        "retro": false,
+        "house": 3
+      },
+      "Venus": {
+        "sign": "Libra",
+        "deg": 29.477,
+        "nak": "Vishakha",
+        "pada": 3,
+        "retro": false,
+        "house": 10
+      },
+      "Saturn": {
+        "sign": "Virgo",
+        "deg": 22.646,
+        "nak": "Hasta",
+        "pada": 4,
+        "retro": false,
+        "house": 9
+      },
+      "Rahu": {
+        "sign": "Sagittarius",
+        "deg": 8.75,
+        "nak": "Mula",
+        "pada": 3,
+        "retro": true,
+        "house": 12
+      },
+      "Ketu": {
+        "sign": "Gemini",
+        "deg": 8.75,
+        "nak": "Ardra",
+        "pada": 1,
+        "retro": true,
+        "house": 6
+      }
+    },
+    "d9": {
+      "Sun": 7,
+      "Moon": 10,
+      "Mars": 10,
+      "Mercury": 4,
+      "Jupiter": 3,
+      "Venus": 8,
+      "Saturn": 9,
+      "Rahu": 5,
+      "Ketu": 5
+    },
+    "dasha3": [
+      "Saturn",
+      "Mercury",
+      "Ketu"
+    ],
+    "sav_total": 337
+  },
+  "chennai_2025": {
+    "lagna": "Taurus",
+    "planets": {
+      "Sun": {
+        "sign": "Virgo",
+        "deg": 23.394,
+        "nak": "Chitra",
+        "pada": 1,
+        "retro": false,
+        "house": 5
+      },
+      "Moon": {
+        "sign": "Taurus",
+        "deg": 12.552,
+        "nak": "Rohini",
+        "pada": 1,
+        "retro": false,
+        "house": 1
+      },
+      "Mars": {
+        "sign": "Libra",
+        "deg": 18.281,
+        "nak": "Swati",
+        "pada": 4,
+        "retro": false,
+        "house": 6
+      },
+      "Mercury": {
+        "sign": "Libra",
+        "deg": 11.678,
+        "nak": "Swati",
+        "pada": 2,
+        "retro": false,
+        "house": 6
+      },
+      "Jupiter": {
+        "sign": "Gemini",
+        "deg": 29.312,
+        "nak": "Punarvasu",
+        "pada": 3,
+        "retro": false,
+        "house": 2
+      },
+      "Venus": {
+        "sign": "Virgo",
+        "deg": 1.798,
+        "nak": "Uttara Phalguni",
+        "pada": 2,
+        "retro": false,
+        "house": 5
+      },
+      "Saturn": {
+        "sign": "Pisces",
+        "deg": 2.834,
+        "nak": "Purva Bhadrapada",
+        "pada": 4,
+        "retro": true,
+        "house": 11
+      },
+      "Rahu": {
+        "sign": "Aquarius",
+        "deg": 23.796,
+        "nak": "Purva Bhadrapada",
+        "pada": 2,
+        "retro": true,
+        "house": 10
+      },
+      "Ketu": {
+        "sign": "Leo",
+        "deg": 23.796,
+        "nak": "Purva Phalguni",
+        "pada": 4,
+        "retro": true,
+        "house": 4
+      }
+    },
+    "d9": {
+      "Sun": 10,
+      "Moon": 0,
+      "Mars": 5,
+      "Mercury": 3,
+      "Jupiter": 11,
+      "Venus": 3,
+      "Saturn": 3,
+      "Rahu": 4,
+      "Ketu": 4
+    },
+    "dasha3": [
+      "Moon",
+      "Mars",
+      "Rahu"
+    ],
+    "sav_total": 337
+  }
+}

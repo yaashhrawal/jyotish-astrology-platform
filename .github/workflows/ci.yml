@@ -44,3 +44,7 @@ jobs:
       - name: Syntax check (py compile)
         working-directory: backend
         run: python -m compileall -q .
+
+      - name: Calculation tests (blocks merge on any failure)
+        working-directory: backend
+        run: python -m pytest tests/ -q

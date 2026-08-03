@@ -16,7 +16,6 @@ from core.engine import (
 )
 from core.varga import calculate_varga, check_vargottama
 
-swe.set_ephe_path(None)
 
 # ── Reference charts ────────────────────────────────────────────────────────
 # All values from Jagannath Hora, Lahiri ayanamsa
