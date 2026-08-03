@@ -51,13 +51,13 @@ export default function AyurdayaPanel({ birthData }: { birthData: any }) {
   if (!data) return (
     <div style={{ padding: '40px', textAlign: 'center' }}>
       <div style={{ fontSize: '14px', color: 'var(--text3)', marginBottom: '16px', fontFamily: "'Noto Sans Devanagari', sans-serif" }}>
-        {t('Ayurdaya')} — {t('Longevity')} calculation using Pindayu, Amsayu, Nisargayu methods
+        {t('Āyurdāya — the classical longevity method (Piṇḍāyu, Aṁśāyu, Nisargāyu), shown for study only. This is NOT a lifespan or death prediction — the technique is notoriously unreliable and one of many. Read the category as a broad vitality indicator, nothing more.')}
       </div>
       <button onClick={fetch} disabled={loading} style={{
         padding: '10px 28px', background: 'var(--accent)', color: '#fff',
         border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px',
         fontFamily: "'Noto Sans Devanagari', sans-serif",
-      }}>{loading ? t('Calculating…') : t('Calculate Longevity')}</button>
+      }}>{loading ? t('Calculating…') : t('Show the classical method')}</button>
       {error && <div style={{ marginTop: '12px', color: 'var(--red)', fontSize: '13px' }}>{error}</div>}
     </div>
   )
@@ -66,6 +66,11 @@ export default function AyurdayaPanel({ birthData }: { birthData: any }) {
 
   return (
     <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+
+      {/* Non-prediction disclaimer */}
+      <div style={{ padding: '12px 16px', borderRadius: 10, background: 'var(--gold-bg)', border: '1px solid var(--gold)', color: 'var(--gold)', fontSize: 12.5, lineHeight: 1.5 }}>
+        {t('⚠ Study tool only — not a lifespan or death prediction. Classical Āyurdāya methods are unreliable and disagree with each other; use the figures below to learn the technique, never to state how long anyone will live.')}
+      </div>
 
       {/* Result summary */}
       <div style={{
@@ -103,7 +108,7 @@ export default function AyurdayaPanel({ birthData }: { birthData: any }) {
         background: 'var(--accent-bg)', border: '1px solid var(--accent)',
         color: 'var(--accent)', fontWeight: '500',
       }}>
-        Classification: <strong>{data.classification_minimum}</strong>
+        {t('Constitutional band (classical study)')}: <strong>{data.classification_minimum}</strong>
       </div>
 
       {/* Three method tables */}

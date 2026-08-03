@@ -60,7 +60,7 @@ export default function SouthIndianChart({ ascendant, planets, size = 400, title
   const cell = Math.floor(size / 4)
   const ascSignIdx = ascendant.sign_index
   const PLANET_SYMBOLS_DEVA: Record<string, string> = {
-    Sun: 'रवि', Moon: 'चं', Mars: 'मं', Mercury: 'बु',
+    Sun: 'सू', Moon: 'चं', Mars: 'मं', Mercury: 'बु',
     Jupiter: 'गु', Venus: 'शु', Saturn: 'श', Rahu: 'रा', Ketu: 'के'
   }
   const getPlanetLabel = (name: string) => lang === 'en'

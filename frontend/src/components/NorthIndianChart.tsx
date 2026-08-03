@@ -119,7 +119,7 @@ export default function NorthIndianChart({ ascendant, planets, planetHouseMap, s
 
   // Planet abbreviation: in Sanskrit/Hindi use Devanagari, else latin
   const PLANET_SYMBOLS_DEVA: Record<string, string> = {
-    Sun: 'रवि', Moon: 'चं', Mars: 'मं', Mercury: 'बु',
+    Sun: 'सू', Moon: 'चं', Mars: 'मं', Mercury: 'बु',
     Jupiter: 'गु', Venus: 'शु', Saturn: 'श', Rahu: 'रा', Ketu: 'के'
   }
   const getPlanetSym = (p: string) => lang === 'en'
