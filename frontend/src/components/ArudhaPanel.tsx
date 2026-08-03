@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import NorthIndianChart from './NorthIndianChart'
 import { arudhaApi } from '../api/client'
 import { useLang } from '../contexts/LanguageContext'
 
@@ -37,6 +38,14 @@ export default function ArudhaPanel({ birthData }: Props) {
 
   const highlighted = [1, 4, 7, 10, 12]  // AL, A4, A7, A10, UL
 
+  // Rashi kundli reference (chart + table — keep both)
+  const SIGNS = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces']
+  const chP: Record<string, any> = {}, chMap: Record<string, string[]> = {}
+  for (const p of (data.planets || [])) {
+    chP[p.name] = { sign: p.sign, sign_index: p.sign_index ?? SIGNS.indexOf(p.sign), degree: p.degree, retrograde: p.retrograde }
+    ;(chMap[String(p.house)] = chMap[String(p.house)] || []).push(p.name)
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       {/* Header */}
@@ -47,6 +56,13 @@ export default function ArudhaPanel({ birthData }: Props) {
           {' · '}Arudha Lagna (AL) = the world's perception of you vs your true self.
         </div>
       </div>
+
+      {/* Rashi kundli (reference) */}
+      {data.ascendant && (
+        <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: 16, display: 'flex', justifyContent: 'center' }}>
+          <NorthIndianChart ascendant={data.ascendant} planets={chP} planetHouseMap={chMap} size={380} title={t('Rashi')} />
+        </div>
+      )}
 
       {/* Upapada + Special lagnas */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '12px' }}>

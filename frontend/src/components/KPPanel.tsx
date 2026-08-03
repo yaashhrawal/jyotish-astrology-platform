@@ -1,3 +1,4 @@
+import NorthIndianChart from './NorthIndianChart'
 import { useState, useEffect } from 'react'
 import { kpApi } from '../api/client'
 import { useLang } from '../contexts/LanguageContext'
@@ -51,6 +52,22 @@ export default function KPPanel({ birthData }: Props) {
         </div>
         <div style={{ fontSize: '11px', color: 'var(--text4)', marginTop: '4px' }}>Using Krishnamurti (KP) ayanamsa. Sub-lords indicate the finer timing of events.</div>
       </div>
+
+      {/* KP rashi kundli (chart + tables — keep both) */}
+      {data.ascendant && (() => {
+        const SIGNS = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces']
+        const kP: Record<string, any> = {}, kMap: Record<string, string[]> = {}
+        for (const [n, pd] of Object.entries<any>(data.planets || {})) {
+          kP[n] = { sign: pd.sign, sign_index: pd.sign_index ?? SIGNS.indexOf(pd.sign), degree: pd.degree || 0, retrograde: pd.retrograde }
+          const h = String(pd.house)
+          ;(kMap[h] = kMap[h] || []).push(n)
+        }
+        return (
+          <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: 16, display: 'flex', justifyContent: 'center' }}>
+            <NorthIndianChart ascendant={data.ascendant} planets={kP} planetHouseMap={kMap} size={380} title="KP" />
+          </div>
+        )
+      })()}
 
       {/* Tabs */}
       <div style={{ display: 'flex', gap: '4px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '10px', padding: '4px' }}>
