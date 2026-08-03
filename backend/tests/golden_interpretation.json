@@ -49,6 +49,16 @@
         "weight": 2.2
       },
       {
+        "subject": "Jupiter in D10",
+        "polarity": 0,
+        "weight": 2.2
+      },
+      {
+        "subject": "Mercury in D10",
+        "polarity": 0,
+        "weight": 2.2
+      },
+      {
         "subject": "Saturn in D10",
         "polarity": 0,
         "weight": 2.2
@@ -84,7 +94,7 @@
         "weight": 2.0
       }
     ],
-    "headline": "Career and profession is well-supported overall, though not without friction."
+    "headline": "On balance the chart favours career and profession — with some genuine obstacles in the mix."
   },
   "navi_mumbai_2000": {
     "net": 2.676,
@@ -156,6 +166,16 @@
         "weight": 2.4
       },
       {
+        "subject": "Jupiter in D10",
+        "polarity": 0,
+        "weight": 2.2
+      },
+      {
+        "subject": "Mercury in D10",
+        "polarity": 0,
+        "weight": 2.2
+      },
+      {
         "subject": "Sun in D10",
         "polarity": 0,
         "weight": 2.2
@@ -206,7 +226,7 @@
         "weight": 0.96
       }
     ],
-    "headline": "Career and profession is well-supported overall, though not without friction."
+    "headline": "Career and profession leans favourable, but there are real headwinds to work with."
   },
   "sydney_2011": {
     "net": 16.64,
@@ -268,6 +288,16 @@
         "weight": 2.25
       },
       {
+        "subject": "Jupiter in D10",
+        "polarity": 0,
+        "weight": 2.2
+      },
+      {
+        "subject": "Mercury in D10",
+        "polarity": 0,
+        "weight": 2.2
+      },
+      {
         "subject": "Sun in D10",
         "polarity": 0,
         "weight": 2.2
@@ -293,6 +323,6 @@
         "weight": 2.0
       }
     ],
-    "headline": "Career and profession is well-supported overall, though not without friction."
+    "headline": "On balance the chart favours career and profession — with some genuine obstacles in the mix."
   }
 }
