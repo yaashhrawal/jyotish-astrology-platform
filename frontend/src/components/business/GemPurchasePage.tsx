@@ -103,7 +103,7 @@ export default function GemPurchasePage({ orderNumber }: { orderNumber: string }
         </div>
 
         <footer style={{ textAlign: 'center', padding: '20px 0', fontSize: 11, color: 'var(--text4)' }}>
-          {t('Recommended by')} {data.astrologer_name || t('your astrologer')} · {t('Powered by')} JyotishApp
+          {t('Recommended by')} {data.astrologer_name || t('your astrologer')} · {t('Powered by')} Grahika
         </footer>
       </main>
     </div>

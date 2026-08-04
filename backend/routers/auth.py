@@ -221,10 +221,10 @@ async def demo_login():
     """Auto-login endpoint for demo environment only. Returns token for pre-seeded demo user."""
     if not DEMO_USER_ID:
         raise HTTPException(status_code=403, detail="Demo mode not enabled on this server")
-    token = create_access_token(DEMO_USER_ID, "demo@jyotish.app")
+    token = create_access_token(DEMO_USER_ID, "demo@grahika.app")
     return {
         "token": token,
-        "user": {"id": DEMO_USER_ID, "email": "demo@jyotish.app", "name": "Demo Astrologer", "plan": "professional", "role": "astrologer"},
+        "user": {"id": DEMO_USER_ID, "email": "demo@grahika.app", "name": "Demo Astrologer", "plan": "professional", "role": "astrologer"},
         "is_demo": True,
     }
 

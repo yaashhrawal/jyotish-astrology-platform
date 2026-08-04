@@ -5,7 +5,7 @@
  *
  * Mobile (Capacitor): VITE_API_URL must be set to production backend URL.
  * Web dev: empty string → Vite proxy handles /api/* → localhost:8888
- * Web prod: VITE_API_URL=https://api.jyotish.app
+ * Web prod: VITE_API_URL=https://grahika.sevasangrah.in
  *
  * ACCURACY CONTRACT: ALL calculations run on Python/pyswisseph backend.
  * Never compute planet positions or dashas client-side.

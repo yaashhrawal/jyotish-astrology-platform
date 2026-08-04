@@ -159,7 +159,7 @@ export default function AstrologerProfileSettings() {
         </div>
         <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
           <input type="checkbox" checked={!!p.show_powered_by} onChange={e => set('show_powered_by')(e.target.checked)} />
-          <span style={{ fontSize: 12 }}>{t('Show "Powered by JyotishApp" footer (Pro plan can hide)')}</span>
+          <span style={{ fontSize: 12 }}>{t('Show "Powered by Grahika" footer (Pro plan can hide)')}</span>
         </div>
       </div>
 

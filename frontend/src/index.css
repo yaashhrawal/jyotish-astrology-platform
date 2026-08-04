@@ -21,10 +21,10 @@
   --text4:     #C8C5BD;
 
   /* Accent — deep indigo, celestial */
-  --accent:    #5746AF;
-  --accent-h:  #4438A0;
-  --accent-bg: #EEF0FB;
-  --accent2:   #8B5CF6;
+  --accent:    #B4581F;   /* Grahika saffron */
+  --accent-h:  #8F4418;   /* darker saffron (hover) */
+  --accent-bg: #FBEFE6;   /* saffron tint */
+  --accent2:   #D97B3C;   /* light saffron (gradient partner) */
 
   /* Semantic */
   --gold:      #B45309;

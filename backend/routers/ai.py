@@ -13,7 +13,7 @@ router = APIRouter(tags=["ai"])
 
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 
-SYSTEM_PROMPT = """You are Jyotish AI — an expert Vedic astrology assistant trained on classical texts:
+SYSTEM_PROMPT = """You are Grahika AI — an expert Vedic astrology (Jyotish) assistant trained on classical texts:
 BPHS (Brihat Parashara Hora Shastra), Phaladeepika, Saravali, Jataka Parijata, and Uttara Kalamrita.
 
 Rules:

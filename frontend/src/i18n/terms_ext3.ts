@@ -346,7 +346,7 @@ export const EXT3: Dict = {
   'Shatabdika (100yr)': { en: 'Shatabdika (100yr)', hi: 'शताब्दिका (100 वर्ष)', sa: 'शताब्दिका (100 वर्ष)' },
   'Shipped:': { en: 'Shipped:', hi: 'भेजा गया:', sa: 'प्रेषितम्:' },
   'Shodashottari (116yr)': { en: 'Shodashottari (116yr)', hi: 'षोडशोत्तरी (116 वर्ष)', sa: 'षोडशोत्तरी (116 वर्ष)' },
-  'Show "Powered by JyotishApp" footer (Pro plan can hide)': { en: 'Show "Powered by JyotishApp" footer (Pro plan can hide)', hi: '"Powered by JyotishApp" फ़ुटर दिखाएँ (Pro योजना छिपा सकती है)', sa: '"Powered by JyotishApp" पादलेखं दर्शयतु (Pro योजना गोपयितुं शक्नोति)' },
+  'Show "Powered by Grahika" footer (Pro plan can hide)': { en: 'Show "Powered by Grahika" footer (Pro plan can hide)', hi: '"Powered by Grahika" फ़ुटर दिखाएँ (Pro योजना छिपा सकती है)', sa: '"Powered by Grahika" पादलेखं दर्शयतु (Pro योजना गोपयितुं शक्नोति)' },
   'Show all': { en: 'Show all', hi: 'सभी दिखाएँ', sa: 'सर्वं दर्शयतु' },
   'Show less': { en: 'Show less', hi: 'कम दिखाएँ', sa: 'न्यूनं दर्शयतु' },
   'Sign · Degree': { en: 'Sign · Degree', hi: 'राशि · अंश', sa: 'राशिः · अंशः' },

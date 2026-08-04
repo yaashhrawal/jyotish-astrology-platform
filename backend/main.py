@@ -75,7 +75,7 @@ async def lifespan(app: FastAPI):
     await close_pool()
 
 
-app = FastAPI(title="Jyotish Engine", version="2.0.0", lifespan=lifespan)
+app = FastAPI(title="Grahika Engine", version="2.0.0", lifespan=lifespan)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.add_middleware(CalcRateLimitMiddleware)
@@ -84,6 +84,8 @@ app.add_middleware(CalcRateLimitMiddleware)
 # Capacitor iOS runs as capacitor://localhost and https://localhost
 # Capacitor Android runs as http://localhost (Capacitor scheme)
 _default_origins = (
+  "https://grahika.sevasangrah.in,"  # Grahika (primary)
+  "https://jyotish.sevasangrah.in,"  # legacy domain (transition)
   "http://localhost:5173,"
   "http://localhost:3000,"
   "http://localhost,"          # Capacitor Android

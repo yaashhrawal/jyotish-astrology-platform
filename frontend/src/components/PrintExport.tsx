@@ -118,7 +118,7 @@ export function generatePrintHTML(chart: any, dashas: any[], yogas: any[] = [], 
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Jyotish Chart — ${chart.name || 'Native'}</title>
+<title>Grahika Chart — ${chart.name || 'Native'}</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Georgia', serif; font-size: 13px; color: #1a1a1a; background: #fff; padding: 20px; }
@@ -294,7 +294,7 @@ export function generatePrintHTML(chart: any, dashas: any[], yogas: any[] = [], 
 
   <!-- Footer -->
   <div class="footer">
-    <div>Jyo·तिष — Vedic Astrology Engine · jyotish.app</div>
+    <div>Grahika — Vedic Astrology Engine · grahika.sevasangrah.in</div>
     <div>Chart of ${chart.name || 'Native'} · ${chart.birth || ''}</div>
   </div>
 

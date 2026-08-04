@@ -103,11 +103,9 @@ export default function AuthPage({ onClose }: { onClose: () => void }) {
     <div style={S.wrap}>
       <div style={S.center}>
         <div style={S.brand}>
-          <span style={S.logoBox}>✦</span>
-          <span style={S.wordmark}>
-            <span style={{ fontFamily: 'serif' }}>Jyo</span>
-            <span style={{ color: 'var(--accent)', fontFamily: 'serif' }}>·</span>
-            <span style={{ fontFamily: "'Noto Sans Devanagari', serif" }}>तिष</span>
+          <img src="/grahika-mark.svg" alt="Grahika" width={40} height={40} />
+          <span style={{ ...S.wordmark, fontFamily: "'EB Garamond', Georgia, serif", fontWeight: 600, letterSpacing: '0.14em', textTransform: 'uppercase' }}>
+            Grahika
           </span>
         </div>
         <div style={S.shloka}>वेदस्य निर्मलं चक्षुः ज्योतिषं मुनिसत्तमाः</div>

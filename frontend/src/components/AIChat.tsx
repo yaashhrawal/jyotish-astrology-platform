@@ -33,7 +33,7 @@ export default function AIChat({ chartId, chartName }: Props) {
   const [messages, setMessages] = useState<Message[]>([
     { role: 'ai', text: chartId
         ? `Chart loaded: **${chartName}**. Ask me anything about this chart — planetary placements, yogas, dasha periods, or classical interpretations.`
-        : 'Namaste! I am Jyotish AI, trained on BPHS, Phaladeepika, Saravali and other classical texts. Ask me anything about Vedic astrology — chart interpretation, yogas, dashas, or classical rules.'
+        : 'Namaste! I am Grahika AI, trained on BPHS, Phaladeepika, Saravali and other classical texts. Ask me anything about Vedic astrology — chart interpretation, yogas, dashas, or classical rules.'
     }
   ])
   const [input, setInput] = useState('')
@@ -79,7 +79,7 @@ export default function AIChat({ chartId, chartName }: Props) {
           fontSize: '14px', color: '#fff', flexShrink: 0,
         }}>✦</div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontWeight: '700', fontSize: '14px' }}>Jyotish AI</div>
+          <div style={{ fontWeight: '700', fontSize: '14px' }}>Grahika AI</div>
           <div style={{ color: 'var(--text3)', fontSize: '11px' }}>
             {chartId ? `${t('Chart Analysis')}: ${chartName}` : 'BPHS · Phaladeepika · Saravali'}
           </div>

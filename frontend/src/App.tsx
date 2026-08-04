@@ -362,17 +362,10 @@ export default function App() {
         height: '48px', gap: '4px', flexShrink: 0,
         boxShadow: '0 1px 0 var(--border)',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginRight: '16px' }}>
-          <div style={{
-            width: '24px', height: '24px', borderRadius: '6px',
-            background: 'linear-gradient(135deg, #5746AF, #8B5CF6)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '12px', color: '#fff', flexShrink: 0,
-          }}>✦</div>
-          <span style={{ fontWeight: '800', fontSize: '15px', letterSpacing: '-0.02em' }}>
-            <span style={{ fontFamily: 'serif' }}>Jyo</span>
-            <span style={{ color: 'var(--accent)', fontFamily: 'serif' }}>·</span>
-            <span style={{ fontFamily: "'Noto Sans Devanagari', serif", fontWeight: '700' }}>तिष</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '9px', marginRight: '16px' }}>
+          <img src="/grahika-mark.svg" alt="Grahika" width={24} height={24} style={{ flexShrink: 0 }} />
+          <span style={{ fontFamily: "'EB Garamond', Georgia, serif", fontWeight: 600, fontSize: '17px', letterSpacing: '0.14em', textTransform: 'uppercase' }}>
+            Grahika
           </span>
         </div>
 
@@ -468,7 +461,7 @@ export default function App() {
           <div style={{ position: 'relative' }}>
             <button onClick={() => setAvatarOpen(o => !o)} style={{
               width: '30px', height: '30px', borderRadius: '50%', border: '1px solid var(--border)',
-              background: 'linear-gradient(135deg,#5746AF,#8B5CF6)',
+              background: 'linear-gradient(135deg,#B4581F,#D97B3C)',
               color: '#fff', cursor: 'pointer', fontSize: '13px', fontWeight: 700,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>{(user.name?.[0] || 'U').toUpperCase()}</button>
@@ -512,9 +505,9 @@ export default function App() {
           }}>
             {/* header row */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', borderBottom: '1px solid var(--border)' }}>
-              <span style={{ fontWeight: 800, fontSize: '15px' }}>
-                <span style={{ fontFamily: 'serif' }}>Jyo</span><span style={{ color: 'var(--accent)' }}>·</span>
-                <span style={{ fontFamily: "'Noto Sans Devanagari', serif" }}>तिष</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <img src="/grahika-mark.svg" alt="Grahika" width={22} height={22} />
+                <span style={{ fontFamily: "'EB Garamond', Georgia, serif", fontWeight: 600, fontSize: '16px', letterSpacing: '0.14em', textTransform: 'uppercase' }}>Grahika</span>
               </span>
               <button onClick={() => setMenuOpen(false)} aria-label="Close" style={{ border: 'none', background: 'transparent', fontSize: '22px', color: 'var(--text3)', cursor: 'pointer', lineHeight: 1 }}>×</button>
             </div>
@@ -1162,14 +1155,12 @@ function HeroEmpty() {
 
         {/* Logo wordmark */}
         <div style={{ marginBottom: '32px' }}>
-          <div style={{ fontSize: '42px', fontWeight: '800', letterSpacing: '-0.02em', lineHeight: 1, marginBottom: '6px' }}>
-            <span style={{ fontFamily: 'Georgia, serif', color: 'var(--text)' }}>Jyo</span>
-            <span style={{ fontFamily: 'Georgia, serif', color: 'var(--accent)', fontSize: '44px' }}>·</span>
-            <span style={{
-              fontFamily: "'Noto Sans Devanagari', 'Mangal', serif",
-              background: 'linear-gradient(135deg, #5746AF 0%, #8B5CF6 100%)',
-              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-            }}>तिष</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '10px' }}>
+            <img src="/grahika-mark.svg" alt="Grahika" width={56} height={56} />
+            <div style={{ lineHeight: 1 }}>
+              <div style={{ fontFamily: "'EB Garamond', Georgia, serif", fontSize: '40px', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text)' }}>Grahika</div>
+              <div style={{ fontFamily: "'Tiro Devanagari Hindi', 'Noto Sans Devanagari', serif", fontSize: '20px', color: 'var(--accent)', letterSpacing: '0.10em', marginTop: '4px' }}>ग्रहिका</div>
+            </div>
           </div>
           <div style={{ fontSize: '11px', fontWeight: '600', color: 'var(--text3)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
             {t('By Jyotishis · For Jyotishis')}
