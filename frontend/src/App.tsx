@@ -244,6 +244,7 @@ export default function App() {
   const [openGroup, setOpenGroup] = useState<string | null>(null)
   const [selectedPlanet, setSelectedPlanet] = useState<string | null>(null)
   const [openSection, setOpenSection] = useState<string | null>(null)
+  const [menuOpen, setMenuOpen] = useState(false)   // mobile drawer
   const [avatarOpen, setAvatarOpen] = useState(false)
   const [showAuthPage, setShowAuthPage] = useState(false)
   const [showSavePrompt, setShowSavePrompt] = useState(false)
@@ -258,7 +259,7 @@ export default function App() {
   const goTab = (id: Tab) => {
     if (!user && LOGIN_REQUIRED.includes(id)) { setShowAuthPage(true); return }
     if (BUSINESS_TABS.includes(id) && !hasBusiness) { setShowUpgrade(true); setOpenSection(null); return }
-    setActiveTab(id); setShowForm(false); setOpenSection(null)
+    setActiveTab(id); setShowForm(false); setOpenSection(null); setMenuOpen(false)
   }
 
   const handleCalculate = async (data: BirthData) => {
@@ -353,6 +354,13 @@ export default function App() {
           </span>
         </div>
 
+        {/* Hamburger — mobile only */}
+        <button className="jyo-hamburger" onClick={() => setMenuOpen(true)} aria-label="Menu" style={{
+          border: 'none', background: 'transparent', color: 'var(--text)',
+          fontSize: '20px', cursor: 'pointer', padding: '4px 8px', lineHeight: 1,
+        }}>☰</button>
+
+        <div className="jyo-desktopnav" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
         <div style={{ width: '1px', height: '16px', background: 'var(--border)', margin: '0 8px' }} />
 
         {/* Kundli (chart) */}
@@ -411,6 +419,7 @@ export default function App() {
           color: activeTab === 'saved' ? 'var(--text)' : 'var(--text3)',
           cursor: 'pointer', fontSize: '13px', fontWeight: activeTab === 'saved' ? '600' : '400', transition: 'all .15s',
         }}>{t('Saved')}</button>
+        </div>{/* /jyo-desktopnav */}
 
         <div style={{ flex: 1 }} />
 
@@ -469,6 +478,64 @@ export default function App() {
           >{t('Log in')}</button>
         )}
       </header>
+
+      {/* ── Mobile drawer ─────────────────────────────────────────────────── */}
+      {menuOpen && (
+        <div onClick={e => e.target === e.currentTarget && setMenuOpen(false)}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 1100, display: 'flex' }}>
+          <nav className="anim-slide-in-right" style={{
+            width: '80%', maxWidth: '320px', height: '100%', background: 'var(--surface)',
+            borderRight: '1px solid var(--border)', display: 'flex', flexDirection: 'column',
+            overflowY: 'auto', boxShadow: '2px 0 24px rgba(0,0,0,0.2)',
+          }}>
+            {/* header row */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', borderBottom: '1px solid var(--border)' }}>
+              <span style={{ fontWeight: 800, fontSize: '15px' }}>
+                <span style={{ fontFamily: 'serif' }}>Jyo</span><span style={{ color: 'var(--accent)' }}>·</span>
+                <span style={{ fontFamily: "'Noto Sans Devanagari', serif" }}>तिष</span>
+              </span>
+              <button onClick={() => setMenuOpen(false)} aria-label="Close" style={{ border: 'none', background: 'transparent', fontSize: '22px', color: 'var(--text3)', cursor: 'pointer', lineHeight: 1 }}>×</button>
+            </div>
+
+            <div style={{ padding: '8px 0', flex: 1 }}>
+              {/* Kundli */}
+              <div onClick={() => { setActiveTab('chart'); setShowForm(!chart); setMenuOpen(false) }}
+                style={{ padding: '11px 18px', fontSize: '14px', fontWeight: 700, cursor: 'pointer', color: !APP_TABS.some(tb => tb.id === activeTab) ? 'var(--accent)' : 'var(--text)' }}>
+                {t('Kundli')}
+              </div>
+
+              {/* Sections + their tabs */}
+              {APP_SECTIONS.filter(s => !s.businessOnly || !!user).map(section => (
+                <div key={section.label} style={{ marginTop: '6px' }}>
+                  <div style={{ padding: '8px 18px 4px', fontSize: '10.5px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--text3)' }}>
+                    {section.icon ? section.icon + ' ' : ''}{t(section.label)}
+                  </div>
+                  {section.tabs.map(tb => (
+                    <div key={tb.id} onClick={() => goTab(tb.id)} style={{
+                      padding: '9px 18px 9px 26px', fontSize: '13.5px', cursor: 'pointer',
+                      background: activeTab === tb.id ? 'var(--accent-bg)' : 'transparent',
+                      color: activeTab === tb.id ? 'var(--accent)' : 'var(--text)',
+                      fontWeight: activeTab === tb.id ? 700 : 400,
+                    }}>{tb.icon ? tb.icon + ' ' : ''}{t(tb.label)}</div>
+                  ))}
+                </div>
+              ))}
+
+              {/* Saved */}
+              <div onClick={() => goTab('saved')} style={{
+                marginTop: '6px', padding: '11px 18px', fontSize: '14px', fontWeight: activeTab === 'saved' ? 700 : 600, cursor: 'pointer',
+                borderTop: '1px solid var(--border)',
+                color: activeTab === 'saved' ? 'var(--accent)' : 'var(--text)',
+              }}>{t('Saved')}</div>
+            </div>
+
+            {/* footer: language */}
+            <div style={{ padding: '12px 16px', borderTop: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <LanguageToggle />
+            </div>
+          </nav>
+        </div>
+      )}
 
       {/* Upgrade prompt — free user hit a business-only tool */}
       {showUpgrade && (

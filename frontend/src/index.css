@@ -102,3 +102,15 @@ button, input, select, textarea { font-family: inherit; font-size: inherit; }
 
 /* Focus ring */
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: var(--radius-s); }
+
+/* ── Mobile shell (≤640px) ──────────────────────────────────────────────── */
+.jyo-hamburger { display: none; }
+@media (max-width: 640px) {
+  .jyo-hamburger  { display: flex !important; align-items: center; }
+  .jyo-desktopnav { display: none !important; }
+  header          { padding: 0 12px !important; }
+}
+/* Drawer nav item touch target */
+@media (max-width: 640px) {
+  nav [onclick], nav div[style] { -webkit-tap-highlight-color: transparent; }
+}
