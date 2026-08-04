@@ -139,7 +139,7 @@ export default function DivisionalBoard({ birthData, chartStyle, d1, initialLayo
       <div style={S.bar}>
         <h2 style={S.h2}>{t('Divisional Charts')}</h2>
         <button style={S.primary} onClick={openAdd}>＋ {t('Add Chart')}</button>
-        <div style={S.seg}>
+        <div className="jyo-colseg" style={S.seg}>
           {[2, 3, 4].map(c => (
             <button key={c} onClick={() => setColumns(c)} style={{ ...S.segBtn, ...(cols === c ? S.segOn : {}) }}>{c} {t('col')}</button>
           ))}
@@ -154,7 +154,7 @@ export default function DivisionalBoard({ birthData, chartStyle, d1, initialLayo
       </div>
 
       {/* Grid */}
-      <div style={{ display: 'grid', gap: '16px', gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
+      <div className="jyo-divgrid" style={{ display: 'grid', gap: '16px', gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
         {layout.map(d => {
           const v = VMAP[d]; const cd = d === 1 ? (d1 || data[1]) : data[d]; const isD1 = d === 1
           const failed = cd === null && data[d] === null && !(d === 1 && d1)

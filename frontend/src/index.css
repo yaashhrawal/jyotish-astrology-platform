@@ -129,3 +129,10 @@ button, input, select, textarea { font-family: inherit; font-size: inherit; }
   /* tables scroll instead of overflowing the page */
   .jyo-panelpad table, .jyo-apptab table { display: block; overflow-x: auto; white-space: nowrap; }
 }
+
+/* ── Mobile: bespoke panel grids (≤640px) ───────────────────────────────── */
+@media (max-width: 640px) {
+  .jyo-divgrid  { grid-template-columns: 1fr 1fr !important; }  /* divisional charts: 2-col */
+  .jyo-sbc-grid { grid-template-columns: 1fr !important; }      /* SBC: stack chakra + side panel */
+}
+@media (max-width: 640px) { .jyo-colseg { display: none !important; } }

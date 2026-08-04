@@ -68,7 +68,7 @@ export default function SarvatobhadraPanel({ birthData }: Props) {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: '16px' }}>
+      <div className="jyo-sbc-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: '16px' }}>
         {/* SBC Grid */}
         <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px', overflow: 'auto' }}>
           <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text3)', marginBottom: '10px' }}>Sarvatobhadra Chakra</div>
