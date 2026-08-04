@@ -136,3 +136,10 @@ button, input, select, textarea { font-family: inherit; font-size: inherit; }
   .jyo-sbc-grid { grid-template-columns: 1fr !important; }      /* SBC: stack chakra + side panel */
 }
 @media (max-width: 640px) { .jyo-colseg { display: none !important; } }
+
+/* ── Native safe areas (notch / status bar / home indicator) ────────────── */
+/* env() = 0 on web + Android(overlay off), so these are no-ops there. */
+header { padding-top: env(safe-area-inset-top); height: calc(48px + env(safe-area-inset-top)) !important; }
+@media (max-width: 640px) {
+  .jyo-panelpad, .jyo-apptab { padding-bottom: calc(16px + env(safe-area-inset-bottom)) !important; }
+}

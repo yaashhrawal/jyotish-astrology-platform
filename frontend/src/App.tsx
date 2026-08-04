@@ -253,6 +253,28 @@ export default function App() {
   const { user, logout, loadUser } = useAuth()
   useEffect(() => { loadUser() }, [])
 
+  // Android hardware back button — close overlays first, then exit.
+  useEffect(() => {
+    let remove: (() => void) | undefined
+    ;(async () => {
+      try {
+        const { Capacitor } = await import('@capacitor/core')
+        if (!Capacitor.isNativePlatform()) return
+        const { App: CapApp } = await import('@capacitor/app')
+        const h = await CapApp.addListener('backButton', ({ canGoBack }) => {
+          if (menuOpen) { setMenuOpen(false); return }
+          if (avatarOpen) { setAvatarOpen(false); return }
+          if (openSection) { setOpenSection(null); return }
+          if (showUpgrade) { setShowUpgrade(false); return }
+          if (showSavePrompt) { setShowSavePrompt(false); return }
+          if (canGoBack) { window.history.back() } else { CapApp.exitApp() }
+        })
+        remove = () => h.remove()
+      } catch { /* web / plugin missing */ }
+    })()
+    return () => { remove?.() }
+  }, [menuOpen, avatarOpen, openSection, showUpgrade, showSavePrompt])
+
   // Business suite needs an active trial / paid plan (₹500 Practice). Gems + all
   // calculations stay free. Guests are prompted to sign in first.
   const hasBusiness = !!user && BUSINESS_PLANS.includes((user as any).plan)
