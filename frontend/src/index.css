@@ -143,3 +143,21 @@ header { padding-top: env(safe-area-inset-top); height: calc(48px + env(safe-are
 @media (max-width: 640px) {
   .jyo-panelpad, .jyo-apptab { padding-bottom: calc(16px + env(safe-area-inset-bottom)) !important; }
 }
+
+/* ── Native app feel (all platforms) ────────────────────────────────────── */
+html, body, #root { height: 100%; }
+html, body { overflow: hidden; overscroll-behavior: none; }
+body {
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  text-rendering: optimizeLegibility;
+}
+/* momentum scrolling inside scroll regions */
+.jyo-panelpad, .jyo-apptab, .jyo-formpanel, .jyo-body > div { -webkit-overflow-scrolling: touch; }
+
+/* ── Mobile header declutter (≤640px) ───────────────────────────────────── */
+@media (max-width: 640px) {
+  .jyo-headertools { display: none !important; }
+  header { gap: 6px !important; }
+}

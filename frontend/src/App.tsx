@@ -438,23 +438,23 @@ export default function App() {
 
         <div style={{ flex: 1 }} />
 
-        {/* Language — permanently visible */}
-        <LanguageToggle />
-        <div style={{ width: '1px', height: '16px', background: 'var(--border)', margin: '0 10px' }} />
-
-        {/* New Chart */}
-        <button
-          onClick={() => { setShowForm(!showForm); if (!showForm) setActiveTab('chart') }}
-          style={{
-            padding: '5px 12px', borderRadius: '6px', border: 'none',
-            background: 'var(--accent)', color: '#fff',
-            fontSize: '12.5px', fontWeight: '600', cursor: 'pointer', transition: 'opacity .15s', marginRight: '10px',
-          }}
-          onMouseEnter={e => (e.currentTarget.style.opacity = '0.88')}
-          onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
-        >
-          {showForm && chart ? t('Hide form') : chart ? t('+ New Chart') : showForm ? t('Hide') : t('+ New Chart')}
-        </button>
+        {/* Language + New Chart — desktop header only (mobile has them in the drawer) */}
+        <div className="jyo-headertools" style={{ display: 'flex', alignItems: 'center' }}>
+          <LanguageToggle />
+          <div style={{ width: '1px', height: '16px', background: 'var(--border)', margin: '0 10px' }} />
+          <button
+            onClick={() => { setShowForm(!showForm); if (!showForm) setActiveTab('chart') }}
+            style={{
+              padding: '5px 12px', borderRadius: '6px', border: 'none',
+              background: 'var(--accent)', color: '#fff',
+              fontSize: '12.5px', fontWeight: '600', cursor: 'pointer', transition: 'opacity .15s', marginRight: '10px',
+            }}
+            onMouseEnter={e => (e.currentTarget.style.opacity = '0.88')}
+            onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+          >
+            {showForm && chart ? t('Hide form') : chart ? t('+ New Chart') : showForm ? t('Hide') : t('+ New Chart')}
+          </button>
+        </div>
 
         {user ? (
           /* Avatar menu (logged in) */
