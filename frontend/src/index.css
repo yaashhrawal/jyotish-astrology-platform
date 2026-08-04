@@ -144,20 +144,37 @@ header { padding-top: env(safe-area-inset-top); height: calc(48px + env(safe-are
   .jyo-panelpad, .jyo-apptab { padding-bottom: calc(16px + env(safe-area-inset-bottom)) !important; }
 }
 
-/* ── Native app feel (all platforms) ────────────────────────────────────── */
+/* ── Native app feel ────────────────────────────────────────────────────── */
 html, body, #root { height: 100%; }
-html, body { overflow: hidden; overscroll-behavior: none; }
 body {
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
+  overscroll-behavior: none;
   text-rendering: optimizeLegibility;
 }
-/* momentum scrolling inside scroll regions */
+/* Desktop: app shell — no page scroll, panels scroll internally */
+@media (min-width: 641px) {
+  html, body { overflow: hidden; }
+}
 .jyo-panelpad, .jyo-apptab, .jyo-formpanel, .jyo-body > div { -webkit-overflow-scrolling: touch; }
 
-/* ── Mobile header declutter (≤640px) ───────────────────────────────────── */
+/* ── Mobile: natural page scroll + sticky header (≤640px) ────────────────── */
 @media (max-width: 640px) {
   .jyo-headertools { display: none !important; }
   header { gap: 6px !important; }
+
+  /* height:auto so the document grows with content and the PAGE scrolls
+     (height:100% would lock html/body to the viewport and clip the form) */
+  html, body, #root { height: auto !important; overflow-x: hidden; }
+  /* let the app grow to content height and scroll the page, so the
+     Calculate button (and everything below) is reachable */
+  .jyo-approot   { height: auto !important; min-height: 100svh; overflow: visible !important; }
+  .jyo-approot > header { position: sticky; top: 0; z-index: 100; }
+  .jyo-body      { overflow: visible !important; }
+  .jyo-formpanel { overflow: visible !important; }
+  .jyo-panelpad, .jyo-apptab { overflow: visible !important; }
+
+  /* kill the heavy animated orrery on phones (lag + horizontal overflow) */
+  .jyo-orrery { display: none !important; }
 }

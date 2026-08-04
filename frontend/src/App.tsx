@@ -353,7 +353,7 @@ export default function App() {
   }
 
   return (
-    <div style={{ height: '100svh', background: 'var(--bg)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+    <div className="jyo-approot" style={{ height: '100svh', background: 'var(--bg)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
 
       {/* ── Nav ─────────────────────────────────────────────────────────────── */}
       <header style={{
@@ -1024,7 +1024,7 @@ function AstrologyOrrery() {
   const sunR = 22
 
   return (
-    <div style={{
+    <div className="jyo-orrery" style={{
       position: 'absolute', top: '-40px', right: '-40px',
       width: '560px', height: '560px', pointerEvents: 'none', userSelect: 'none',
     }}>
