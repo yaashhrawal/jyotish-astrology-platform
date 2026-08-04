@@ -114,3 +114,18 @@ button, input, select, textarea { font-family: inherit; font-size: inherit; }
 @media (max-width: 640px) {
   nav [onclick], nav div[style] { -webkit-tap-highlight-color: transparent; }
 }
+
+/* ── Mobile body layout (≤640px) ────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .jyo-body      { flex-direction: column; }
+  .jyo-formpanel { width: 100% !important; flex-shrink: 1 !important;
+                   border-right: none !important; border-bottom: 1px solid var(--border);
+                   padding: 18px !important; }
+  .jyo-apptab    { padding: 12px !important; }
+  .jyo-panelpad  { padding: 14px !important; }
+  .jyo-subtabs   { flex-wrap: wrap; row-gap: 4px; }
+  /* charts scale to viewport, keep aspect ratio */
+  .jyo-body svg[viewBox] { max-width: 100%; height: auto; }
+  /* tables scroll instead of overflowing the page */
+  .jyo-panelpad table, .jyo-apptab table { display: block; overflow-x: auto; white-space: nowrap; }
+}

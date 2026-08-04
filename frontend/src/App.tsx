@@ -612,7 +612,7 @@ export default function App() {
       )}
 
       {/* ── Body ─────────────────────────────────────────────────────────────── */}
-      <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+      <div className="jyo-body" style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
 
         {/* Full-page app tabs — no sidebar */}
         {isAppTab && (
@@ -621,7 +621,7 @@ export default function App() {
               <ErrorBoundary name="prashna"><PrashnaPanel /></ErrorBoundary>
             </div>
           ) : (
-            <div style={{ flex: 1, overflow: 'auto', padding: '24px' }}>
+            <div className="jyo-apptab" style={{ flex: 1, overflow: 'auto', padding: '24px' }}>
               {activeTab === 'crm'      && <CRMPanel />}
               {activeTab === 'research' && <ResearchLab />}
               {activeTab === 'saved'    && <SavedCharts onSelect={(saved: any) => {
@@ -654,7 +654,7 @@ export default function App() {
           <>
             {/* ── Left panel: form ──────────────────────────────────────────── */}
             {showForm && (
-              <div style={{
+              <div className="jyo-formpanel" style={{
                 width: '460px', flexShrink: 0,
                 borderRight: '1px solid var(--border)',
                 background: 'var(--surface)',
@@ -717,7 +717,7 @@ export default function App() {
                   </div>
 
                   {/* Sub-tab bar — grouped dropdowns */}
-                  <div style={{
+                  <div className="jyo-subtabs" style={{
                     padding: '6px 16px', borderBottom: '1px solid var(--border)',
                     display: 'flex', gap: '4px', background: 'var(--surface)', flexShrink: 0,
                     alignItems: 'center',
@@ -781,7 +781,7 @@ export default function App() {
                   </div>
 
                   {/* Tab content */}
-                  <div key={activeTab} className="anim-fade-in" style={{ flex: 1, padding: '24px', overflow: 'auto' }}>
+                  <div key={activeTab} className="anim-fade-in jyo-panelpad" style={{ flex: 1, padding: '24px', overflow: 'auto' }}>
 
                     {activeTab === 'chart' && (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
