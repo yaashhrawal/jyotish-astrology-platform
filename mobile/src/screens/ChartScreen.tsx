@@ -11,6 +11,8 @@ import { apiError } from '../api/client';
 import NorthIndianChart from '../components/NorthIndianChart';
 import DashaTree from '../components/DashaTree';
 import AnalysisSection from '../components/AnalysisSection';
+import ReadingSection from '../components/ReadingSection';
+import TransitsSection from '../components/TransitsSection';
 
 const CHART_SIZE = Math.min(360, Dimensions.get('window').width - 2 * spacing.lg - 2 * spacing.lg);
 
@@ -21,7 +23,11 @@ const VARGAS = [
   { d: 16, n: 'D16' }, { d: 20, n: 'D20' }, { d: 24, n: 'D24' }, { d: 27, n: 'D27' },
   { d: 30, n: 'D30 Triṁśāṁśa' }, { d: 60, n: 'D60 Ṣaṣṭyāṁśa' },
 ];
-type Section = 'chart' | 'vargas' | 'dasha' | 'analysis';
+type Section = 'chart' | 'vargas' | 'dasha' | 'reading' | 'transits' | 'analysis';
+const SECTIONS: { k: Section; label: string }[] = [
+  { k: 'chart', label: 'Chart' }, { k: 'vargas', label: 'Vargas' }, { k: 'dasha', label: 'Dāśā' },
+  { k: 'reading', label: 'Reading' }, { k: 'transits', label: 'Transits' }, { k: 'analysis', label: 'Analysis' },
+];
 
 export default function ChartScreen({ route, navigation }: any) {
   const c = useColors();
@@ -97,15 +103,13 @@ export default function ChartScreen({ route, navigation }: any) {
       </View>
 
       {/* section switcher */}
-      <View style={s.seg}>
-        {(['chart','vargas','dasha','analysis'] as Section[]).map((sec) => (
-          <Pressable key={sec} onPress={() => { setSection(sec); if (sec === 'vargas') loadVarga(vNum); if (sec === 'dasha') loadDasha(); }} style={[s.segItem, section === sec && s.segItemOn]}>
-            <Text style={[type.caption, { color: section === sec ? c.onAccent : c.textSecondary, fontWeight: '600' }]}>
-              {sec === 'chart' ? 'Chart' : sec === 'vargas' ? 'Vargas' : sec === 'dasha' ? 'Dāśā' : 'Analysis'}
-            </Text>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }} contentContainerStyle={s.seg}>
+        {SECTIONS.map(({ k, label }) => (
+          <Pressable key={k} onPress={() => { setSection(k); if (k === 'vargas') loadVarga(vNum); if (k === 'dasha') loadDasha(); }} style={[s.segItem, section === k && s.segItemOn]}>
+            <Text style={[type.caption, { color: section === k ? c.onAccent : c.textSecondary, fontWeight: '600' }]}>{label}</Text>
           </Pressable>
         ))}
-      </View>
+      </ScrollView>
 
       <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 32 }} showsVerticalScrollIndicator={false}>
         {section === 'chart' && (
@@ -162,6 +166,8 @@ export default function ChartScreen({ route, navigation }: any) {
           </View>
         )}
 
+        {section === 'reading' && birth ? <View style={{ paddingTop: spacing.xs }}><ReadingSection birth={birth} /></View> : null}
+        {section === 'transits' && birth ? <TransitsSection birth={birth} /> : null}
         {section === 'analysis' && birth ? <View style={{ paddingTop: spacing.xs }}><AnalysisSection birth={birth} /></View> : null}
         {section === 'analysis' && !birth ? <View style={s.card}><Text style={[type.body, { color: c.textMuted }]}>Open this chart from Create Kundli to run analysis.</Text></View> : null}
       </ScrollView>
@@ -197,9 +203,9 @@ const makeStyles = (c: Colors) => StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   header: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: spacing.sm, paddingBottom: spacing.sm },
   iconBtn: { width: 40, height: 40, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
-  seg: { flexDirection: 'row', marginHorizontal: spacing.lg, marginBottom: spacing.sm, backgroundColor: c.bgCard, borderRadius: radius.md, borderWidth: 1, borderColor: c.borderCard, padding: 3 },
-  segItem: { flex: 1, alignItems: 'center', paddingVertical: 8, borderRadius: radius.sm },
-  segItemOn: { backgroundColor: c.accentPrimary },
+  seg: { paddingHorizontal: spacing.lg, gap: 8, paddingBottom: spacing.sm, alignItems: 'center' },
+  segItem: { paddingVertical: 8, paddingHorizontal: 15, borderRadius: radius.pill, borderWidth: 1, borderColor: c.borderCard, backgroundColor: c.bgCard },
+  segItemOn: { backgroundColor: c.accentPrimary, borderColor: c.accentPrimary },
   pillRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingHorizontal: spacing.lg, marginBottom: spacing.sm, marginTop: spacing.sm },
   pill: { backgroundColor: c.pillActiveBg, borderRadius: radius.pill, paddingVertical: 5, paddingHorizontal: 12 },
   card: { backgroundColor: c.bgCard, borderColor: c.borderCard, borderWidth: 1, borderRadius: radius.lg, padding: spacing.lg, marginHorizontal: spacing.lg, marginTop: spacing.sm },

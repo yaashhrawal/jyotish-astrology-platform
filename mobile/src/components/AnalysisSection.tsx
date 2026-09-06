@@ -3,7 +3,7 @@ import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator } from
 import { useColors } from '../store/theme';
 import { Colors, radius, spacing } from '../theme/theme';
 import { type } from '../theme/typography';
-import { BirthData, getYogas, getAshtakavarga, getShadbala, getAspects, getDoshas, getKarakas, getArudha } from '../api/astro';
+import { BirthData, getYogas, getAshtakavarga, getShadbala, getAspects, getDoshas, getKarakas, getArudha, getRemedies } from '../api/astro';
 import { apiError } from '../api/client';
 
 const SIGNS = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
@@ -17,6 +17,7 @@ const TABS = [
   { k: 'av', label: 'Aṣṭakavarga' },
   { k: 'bala', label: 'Ṣaḍbala' },
   { k: 'aspects', label: 'Aspects' },
+  { k: 'remedies', label: 'Remedies' },
 ] as const;
 type Tab = typeof TABS[number]['k'];
 
@@ -34,7 +35,7 @@ export default function AnalysisSection({ birth }: { birth: BirthData }) {
     try {
       const map: Record<Tab, (b: BirthData) => Promise<any>> = {
         yogas: getYogas, doshas: getDoshas, karakas: getKarakas, arudha: getArudha,
-        av: getAshtakavarga, bala: getShadbala, aspects: getAspects,
+        av: getAshtakavarga, bala: getShadbala, aspects: getAspects, remedies: getRemedies,
       };
       const r = await map[t](birth);
       setData((p) => ({ ...p, [t]: r })); setStatus((p) => ({ ...p, [t]: 'idle' }));
@@ -63,6 +64,7 @@ export default function AnalysisSection({ birth }: { birth: BirthData }) {
          tab === 'arudha' ? <Arudha c={c} s={s} d={data.arudha} /> :
          tab === 'av' ? <Ashtakavarga c={c} s={s} d={data.av} /> :
          tab === 'bala' ? <Shadbala c={c} s={s} d={data.bala} /> :
+         tab === 'remedies' ? <Remedies c={c} s={s} d={data.remedies} /> :
          <Aspects c={c} s={s} d={data.aspects} />}
       </View>
     </View>
@@ -213,6 +215,27 @@ function Arudha({ c, s, d }: any) {
         </View>
       ))}
       {d?.upapada?.sign ? <Text style={[type.caption, { color: c.textMuted, marginTop: spacing.sm }]}>Upapada (UL): {d.upapada.sign}</Text> : null}
+    </>
+  );
+}
+
+function Remedies({ c, s, d }: any) {
+  const rem = d?.remedies || {};
+  const entries = Object.values(rem);
+  if (!entries.length) return <Text style={[type.body, { color: c.textMuted }]}>No remedies flagged.</Text>;
+  return (
+    <>
+      <Text style={[type.micro, s.lbl]}>PLANETARY REMEDIES</Text>
+      {entries.map((r: any, i: number) => (
+        <View key={i} style={s.yoga}>
+          <View style={s.yogaHead}>
+            <Text style={[type.cardTitle, { color: c.textPrimary, flex: 1 }]}>{r.planet} <Text style={[type.caption, { color: c.textMuted }]}>· {r.status}</Text></Text>
+            <View style={[s.pill, { backgroundColor: r.priority === 'high' ? c.accentBg : c.tagBg }]}><Text style={[type.micro, { color: r.priority === 'high' ? c.accentRed : c.textMuted }]}>{String(r.priority || '').toUpperCase()}</Text></View>
+          </View>
+          {r.gem?.primary ? <Text style={[type.body, { color: c.textSecondary, marginTop: 4 }]}>💎 {r.gem.primary}{r.gem.alt?.length ? ` (alt: ${r.gem.alt.slice(0,2).join(', ')})` : ''}</Text> : null}
+          {r.mantra ? <Text style={[type.body, { color: c.textSecondary, marginTop: 2 }]}>🕉 {r.mantra}</Text> : null}
+        </View>
+      ))}
     </>
   );
 }
