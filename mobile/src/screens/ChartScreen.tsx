@@ -104,13 +104,15 @@ export default function ChartScreen({ route, navigation }: any) {
       </View>
 
       {/* section switcher */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }} contentContainerStyle={s.seg}>
+      <View style={{ height: 52 }}>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.seg}>
         {SECTIONS.map(({ k, label }) => (
           <Pressable key={k} onPress={() => { setSection(k); if (k === 'vargas') loadVarga(vNum); if (k === 'dasha') loadDasha(); }} style={[s.segItem, section === k && s.segItemOn]}>
             <Text allowFontScaling={false} style={{ fontFamily: type.bodyMed.fontFamily, fontSize: 13, lineHeight: 20, color: section === k ? c.onAccent : c.textSecondary }}>{label}</Text>
           </Pressable>
         ))}
       </ScrollView>
+      </View>
 
       <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 32 }} showsVerticalScrollIndicator={false}>
         {section === 'chart' && (
@@ -204,8 +206,8 @@ const makeStyles = (c: Colors) => StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   header: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: spacing.sm, paddingBottom: spacing.sm },
   iconBtn: { width: 40, height: 40, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
-  seg: { paddingHorizontal: spacing.lg, gap: 8, paddingTop: spacing.xs, paddingBottom: spacing.sm, alignItems: 'center' },
-  segItem: { paddingVertical: 8, paddingHorizontal: 15, borderRadius: radius.pill, borderWidth: 1, borderColor: c.borderCard, backgroundColor: c.bgCard },
+  seg: { paddingHorizontal: spacing.lg, gap: 8, alignItems: 'center', height: 52 },
+  segItem: { justifyContent: 'center', height: 38, paddingHorizontal: 15, borderRadius: radius.pill, borderWidth: 1, borderColor: c.borderCard, backgroundColor: c.bgCard },
   segItemOn: { backgroundColor: c.accentPrimary, borderColor: c.accentPrimary },
   pillRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingHorizontal: spacing.lg, marginBottom: spacing.sm, marginTop: spacing.sm },
   pill: { backgroundColor: c.pillActiveBg, borderRadius: radius.pill, paddingVertical: 5, paddingHorizontal: 12 },
