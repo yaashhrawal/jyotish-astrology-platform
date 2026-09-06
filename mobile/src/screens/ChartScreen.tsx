@@ -14,7 +14,8 @@ import AnalysisSection from '../components/AnalysisSection';
 import ReadingSection from '../components/ReadingSection';
 import TransitsSection from '../components/TransitsSection';
 
-const CHART_SIZE = Math.min(360, Dimensions.get('window').width - 2 * spacing.lg - 2 * spacing.lg);
+// Fill the card width: screen minus outer margins minus small card padding.
+const CHART_SIZE = Dimensions.get('window').width - 2 * spacing.lg - 2 * spacing.md;
 
 const ORDER = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn','Rahu','Ketu'];
 const VARGAS = [
@@ -119,7 +120,7 @@ export default function ChartScreen({ route, navigation }: any) {
               {chart.atmakaraka ? <View style={s.pill}><Text style={[type.caption, { color: c.accentPrimary }]}>AK: {chart.atmakaraka}</Text></View> : null}
               <View style={s.pill}><Text style={[type.caption, { color: c.textSecondary, textTransform: 'capitalize' }]}>{chart.ayanamsa}</Text></View>
             </View>
-            <View style={s.card}>
+            <View style={[s.card, s.chartCard]}>
               <Text style={[type.micro, s.cardLabel]}>D1 · RĀŚI</Text>
               <View style={{ alignItems: 'center' }}>
                 <NorthIndianChart size={CHART_SIZE} ascSignIndex={chart.ascendant.sign_index} planetHouseMap={chart.planet_house_map} planets={chart.planets} />
@@ -141,7 +142,7 @@ export default function ChartScreen({ route, navigation }: any) {
                 </Pressable>
               ))}
             </ScrollView>
-            <View style={s.card}>
+            <View style={[s.card, s.chartCard]}>
               <Text style={[type.micro, s.cardLabel]}>{cur?.name?.toUpperCase() || `D${vNum}`}{cur?.domain ? ` · ${cur.domain}` : ''}</Text>
               {vLoading || !cur ? (
                 <View style={{ height: 300, alignItems: 'center', justifyContent: 'center' }}><ActivityIndicator color={c.accentPrimary} /></View>
@@ -209,6 +210,7 @@ const makeStyles = (c: Colors) => StyleSheet.create({
   pillRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingHorizontal: spacing.lg, marginBottom: spacing.sm, marginTop: spacing.sm },
   pill: { backgroundColor: c.pillActiveBg, borderRadius: radius.pill, paddingVertical: 5, paddingHorizontal: 12 },
   card: { backgroundColor: c.bgCard, borderColor: c.borderCard, borderWidth: 1, borderRadius: radius.lg, padding: spacing.lg, marginHorizontal: spacing.lg, marginTop: spacing.sm },
+  chartCard: { paddingHorizontal: spacing.md, paddingBottom: spacing.md },
   cardLabel: { color: c.textMuted, marginBottom: spacing.sm },
   chip: { paddingVertical: 8, paddingHorizontal: 16, borderRadius: radius.pill, borderWidth: 1, borderColor: c.borderCard, backgroundColor: c.bgCard },
   chipOn: { backgroundColor: c.accentPrimary, borderColor: c.accentPrimary },
