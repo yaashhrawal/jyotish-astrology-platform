@@ -33,8 +33,8 @@ export interface ChartResponse {
   julian_day?: number;
   ascendant: { longitude: number; sign: string; sign_index: number; degree: number; nakshatra?: string };
   atmakaraka?: string;
-  planets: Record<string, Planet>;      // keyed by planet name
-  planet_house_map: Record<string, number>;
+  planets: Record<string, Planet>;             // keyed by planet name
+  planet_house_map: Record<string, string[]>;  // keyed by house "1".."12" → planet names
   houses?: any[];
   dashas?: { lord: string; start: string; end: string; years: number }[];
 }
@@ -46,6 +46,24 @@ export const getChart = (d: BirthData) =>
 
 export const getDasha = (d: BirthData) =>
   api.post(`${CALC}/dasha`, d).then((r) => r.data);
+
+export interface VargaResponse {
+  d: number; name: string; domain?: string;
+  ascendant: { sign: string; sign_index: number; degree: number };
+  planets: Record<string, Planet>;
+  planet_house_map: Record<string, string[]>;
+  vargottama?: string[];
+}
+export const getVarga = (d: BirthData, num: number) =>
+  api.post<VargaResponse>(`${CALC}/varga`, { ...d, d: num }).then((r) => r.data);
+
+export interface SaveChartPayload {
+  name: string; birth_date: string; birth_time: string; birth_tz: number;
+  birth_place: string; latitude: number; longitude: number; ayanamsa: string;
+  chart_data: ChartResponse; is_public?: boolean;
+}
+export const saveChart = (p: SaveChartPayload) =>
+  api.post('/api/charts/save', p).then((r) => r.data);
 
 export const getYogas = (d: BirthData) =>
   api.post(`${CALC}/yogas`, d).then((r) => r.data);

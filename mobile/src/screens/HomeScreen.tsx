@@ -89,8 +89,8 @@ const makeStyles = (c: Colors) => StyleSheet.create({
   heroCta: { flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-start', marginTop: spacing.md, backgroundColor: 'rgba(255,255,255,0.18)', borderRadius: radius.pill, paddingVertical: 7, paddingHorizontal: 14 },
   heroRing: { position: 'absolute', right: -24, top: -18, opacity: 0.5 },
   sectionLabel: { color: c.textMuted, marginTop: spacing.xl, marginBottom: spacing.md, marginHorizontal: spacing.xl },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: spacing.md, gap: spacing.md },
-  tile: { width: '47%', backgroundColor: c.bgCard, borderColor: c.borderCard, borderWidth: 1, borderRadius: radius.lg, padding: spacing.md, minHeight: 92, marginHorizontal: '1.5%', marginBottom: spacing.md, gap: 6 },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', paddingHorizontal: spacing.lg, rowGap: spacing.md },
+  tile: { width: '48%', backgroundColor: c.bgCard, borderColor: c.borderCard, borderWidth: 1, borderRadius: radius.lg, padding: spacing.md, minHeight: 104, gap: 6 },
   tileIcon: { width: 34, height: 34, borderRadius: 10, backgroundColor: c.accentBg, alignItems: 'center', justifyContent: 'center', marginBottom: 2 },
   lock: { position: 'absolute', top: 12, right: 12 },
 });

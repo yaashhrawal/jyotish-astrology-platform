@@ -26,8 +26,8 @@ const HOUSE_POS: [number, number][] = [
 
 interface Props {
   size?: number;
-  ascSignIndex: number;                 // 0..11
-  planetHouseMap: Record<string, number>; // planet -> house 1..12
+  ascSignIndex: number;                    // 0..11
+  planetHouseMap: Record<string, string[]>; // house "1".."12" -> [planet names]
   planets: Record<string, { retrograde?: boolean }>;
 }
 
@@ -36,12 +36,11 @@ export default function NorthIndianChart({ size = 300, ascSignIndex, planetHouse
   const S = size;
   const m = S / 2;
 
-  // planets grouped by house
+  // planet_house_map is keyed by house number → list of planet names.
   const byHouse: Record<number, string[]> = {};
-  Object.entries(planetHouseMap || {}).forEach(([name, h]) => {
-    if (!byHouse[h]) byHouse[h] = [];
-    const retro = planets?.[name]?.retrograde ? '↺' : '';
-    byHouse[h].push((ABBR[name] || name.slice(0, 2)) + retro);
+  Object.entries(planetHouseMap || {}).forEach(([house, names]) => {
+    const h = parseInt(house, 10);
+    byHouse[h] = (names || []).map((name) => (ABBR[name] || name.slice(0, 2)) + (planets?.[name]?.retrograde ? '↺' : ''));
   });
 
   return (

@@ -57,14 +57,15 @@ export default function CreateChartScreen({ navigation }: any) {
     if (lat == null || lon == null) return setError('Pick a birth place from the list.');
     setLoading(true);
     try {
-      const chart = await getChart({
+      const birth = {
         name: name.trim(), gender,
         year: parseInt(year, 10), month: month + 1, day: parseInt(day, 10),
         hour: to24(), minute: parseInt(minute || '0', 10),
         tz_offset: parseFloat(tz) || 5.5,
         latitude: lat, longitude: lon, place, ayanamsa: 'lahiri',
-      } as any);
-      navigation.navigate('Chart', { chart });
+      } as any;
+      const chart = await getChart(birth);
+      navigation.navigate('Chart', { chart, birth });
     } catch (e) {
       setError(apiError(e));
     } finally {
