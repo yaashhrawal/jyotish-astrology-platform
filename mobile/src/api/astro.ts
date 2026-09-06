@@ -57,6 +57,31 @@ export interface VargaResponse {
 export const getVarga = (d: BirthData, num: number) =>
   api.post<VargaResponse>(`${CALC}/varga`, { ...d, d: num }).then((r) => r.data);
 
+// ── Matchmaking (Aṣṭakoota) ──────────────────────────────────────────────
+export interface CompatPayload {
+  p1_name: string; p1_year: number; p1_month: number; p1_day: number; p1_hour: number; p1_minute: number; p1_tz_offset: number; p1_lat: number; p1_lon: number;
+  p2_name: string; p2_year: number; p2_month: number; p2_day: number; p2_hour: number; p2_minute: number; p2_tz_offset: number; p2_lat: number; p2_lon: number;
+  ayanamsa?: string;
+}
+export interface CompatResult {
+  person1: { name: string; moon_sign: string; nakshatra: string };
+  person2: { name: string; moon_sign: string; nakshatra: string };
+  score: number; max_score: number; percentage: number; verdict: string;
+  kootas: Record<string, { score: number; max: number }>;
+}
+export const matchCompatibility = (p: CompatPayload) =>
+  api.post<CompatResult>(`${CALC}/compatibility`, { ayanamsa: 'lahiri', ...p }).then((r) => r.data);
+
+// ── Prashna (horary) ─────────────────────────────────────────────────────
+export interface PrashnaPayload {
+  latitude: number; longitude: number; tz_offset: number; ayanamsa?: string;
+  question_category: string; question_text?: string;
+}
+export const prashnaChart = (p: PrashnaPayload) =>
+  api.post(`${CALC}/prashna/chart`, { ayanamsa: 'lahiri', ...p }).then((r) => r.data);
+export const prashnaAnalyze = (p: PrashnaPayload & { prashna_data?: any }) =>
+  api.post(`${CALC}/prashna/analyze`, { ayanamsa: 'lahiri', ...p }).then((r) => r.data);
+
 export interface SaveChartPayload {
   name: string; birth_date: string; birth_time: string; birth_tz: number;
   birth_place: string; latitude: number; longitude: number; ayanamsa: string;
@@ -67,6 +92,17 @@ export const saveChart = (p: SaveChartPayload) =>
 
 export const getYogas = (d: BirthData) =>
   api.post(`${CALC}/yogas`, d).then((r) => r.data);
+export const getAshtakavarga = (d: BirthData) =>
+  api.post(`${CALC}/ashtakavarga`, d).then((r) => r.data);
+export const getShadbala = (d: BirthData) =>
+  api.post(`${CALC}/shadbala`, d).then((r) => r.data);
+export const getAspects = (d: BirthData) =>
+  api.post(`${CALC}/aspects`, d).then((r) => r.data);
+
+// Full nested Vimśottarī tree: dashas[].antardashas[].pratyantardashas[]
+export interface DashaNode { lord: string; start: string; end: string; years: number; antardashas?: DashaNode[]; pratyantardashas?: DashaNode[]; }
+export const getDashaTree = (d: BirthData) =>
+  api.post<{ dashas: DashaNode[]; dasha_balance?: any }>(`${CALC}/dasha`, d).then((r) => r.data);
 
 // City → lat/lon via OpenStreetMap Nominatim (same source the web form uses).
 export interface Place { display: string; latitude: number; longitude: number; }

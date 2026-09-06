@@ -1,0 +1,77 @@
+import React, { useMemo, useState, useEffect } from 'react';
+import { View, Text, TextInput, Pressable, StyleSheet, Keyboard } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useColors } from '../store/theme';
+import { Colors, radius, spacing } from '../theme/theme';
+import { type } from '../theme/typography';
+import { searchPlaces, Place } from '../api/astro';
+
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+export interface PersonValue {
+  name: string; year: number; month: number; day: number; hour: number; minute: number;
+  tz_offset: number; lat: number | null; lon: number | null; valid: boolean;
+}
+
+export default function PersonInput({ label, onChange }: { label: string; onChange: (v: PersonValue) => void }) {
+  const c = useColors();
+  const s = useMemo(() => makeStyles(c), [c]);
+  const [name, setName] = useState('');
+  const [day, setDay] = useState('1');
+  const [month, setMonth] = useState(0);
+  const [year, setYear] = useState('1995');
+  const [hour, setHour] = useState('12');
+  const [minute, setMinute] = useState('0');
+  const [ampm, setAmpm] = useState<'AM' | 'PM'>('AM');
+  const [place, setPlace] = useState('');
+  const [lat, setLat] = useState<number | null>(null);
+  const [lon, setLon] = useState<number | null>(null);
+  const [results, setResults] = useState<Place[]>([]);
+  const [monthOpen, setMonthOpen] = useState(false);
+
+  useEffect(() => {
+    let h = parseInt(hour || '0', 10) % 12; if (ampm === 'PM') h += 12;
+    onChange({
+      name: name.trim() || label, year: parseInt(year, 10) || 1995, month: month + 1, day: parseInt(day, 10) || 1,
+      hour: h, minute: parseInt(minute || '0', 10), tz_offset: 5.5, lat, lon, valid: lat != null && lon != null,
+    });
+  }, [name, day, month, year, hour, minute, ampm, lat, lon]);
+
+  const onPlace = async (q: string) => { setPlace(q); setLat(null); setLon(null); setResults(q.trim().length >= 3 ? await searchPlaces(q) : []); };
+  const pick = (p: Place) => { setPlace(p.display.split(',').slice(0, 2).join(',')); setLat(p.latitude); setLon(p.longitude); setResults([]); Keyboard.dismiss(); };
+
+  return (
+    <View style={s.card}>
+      <Text style={[type.micro, { color: c.accentPrimary, marginBottom: spacing.sm }]}>{label.toUpperCase()}</Text>
+      <TextInput value={name} onChangeText={setName} placeholder="Name" placeholderTextColor={c.textMuted} style={[s.input, { marginBottom: 8 }]} />
+      <View style={s.row}>
+        <TextInput value={day} onChangeText={setDay} keyboardType="number-pad" maxLength={2} placeholder="DD" placeholderTextColor={c.textMuted} style={[s.input, { width: 46 }]} />
+        <Pressable style={[s.input, s.sel, { flex: 1 }]} onPress={() => setMonthOpen((v) => !v)}>
+          <Text style={[type.input, { color: c.textPrimary }]}>{MONTHS[month]}</Text><Ionicons name="chevron-down" size={14} color={c.textMuted} />
+        </Pressable>
+        <TextInput value={year} onChangeText={setYear} keyboardType="number-pad" maxLength={4} placeholder="YYYY" placeholderTextColor={c.textMuted} style={[s.input, { width: 62 }]} />
+      </View>
+      {monthOpen && <View style={s.drop}>{MONTHS.map((m, i) => <Pressable key={m} onPress={() => { setMonth(i); setMonthOpen(false); }} style={s.dropItem}><Text style={[type.body, { color: i === month ? c.accentPrimary : c.textPrimary }]}>{m}</Text></Pressable>)}</View>}
+      <View style={[s.row, { marginTop: 8 }]}>
+        <TextInput value={hour} onChangeText={setHour} keyboardType="number-pad" maxLength={2} style={[s.input, { flex: 1 }]} />
+        <Text style={{ color: c.textMuted }}>:</Text>
+        <TextInput value={minute} onChangeText={setMinute} keyboardType="number-pad" maxLength={2} style={[s.input, { flex: 1 }]} />
+        <View style={s.seg}>{(['AM','PM'] as const).map((v) => <Pressable key={v} onPress={() => setAmpm(v)} style={[s.segItem, ampm === v && { backgroundColor: c.accentPrimary }]}><Text style={[type.caption, { color: ampm === v ? c.onAccent : c.textSecondary }]}>{v}</Text></Pressable>)}</View>
+      </View>
+      <TextInput value={place} onChangeText={onPlace} placeholder="Birth place" placeholderTextColor={c.textMuted} style={[s.input, { marginTop: 8 }]} />
+      {results.length > 0 && <View style={s.drop}>{results.map((p, i) => <Pressable key={i} onPress={() => pick(p)} style={s.dropItem}><Ionicons name="location-outline" size={14} color={c.accentPrimary} /><Text style={[type.caption, { color: c.textPrimary, marginLeft: 6, flex: 1 }]} numberOfLines={1}>{p.display}</Text></Pressable>)}</View>}
+      {lat != null && <Text style={[type.caption, { color: c.accentGreen, marginTop: 5 }]}>✓ located</Text>}
+    </View>
+  );
+}
+
+const makeStyles = (c: Colors) => StyleSheet.create({
+  card: { backgroundColor: c.bgCard, borderColor: c.borderCard, borderWidth: 1, borderRadius: radius.lg, padding: spacing.md, marginBottom: spacing.md },
+  input: { height: 44, borderWidth: 1, borderColor: c.inputBorder, backgroundColor: c.inputBg, borderRadius: radius.md, paddingHorizontal: 12, color: c.textPrimary, fontFamily: type.input.fontFamily, fontSize: 15 },
+  sel: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  seg: { flexDirection: 'row', borderWidth: 1, borderColor: c.inputBorder, borderRadius: radius.md, overflow: 'hidden', height: 44, width: 84 },
+  segItem: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  drop: { marginTop: 6, backgroundColor: c.bgElevated, borderWidth: 1, borderColor: c.borderCard, borderRadius: radius.md, overflow: 'hidden', maxHeight: 200 },
+  dropItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 12, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: c.borderCard },
+});

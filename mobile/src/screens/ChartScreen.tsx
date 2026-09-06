@@ -1,14 +1,18 @@
 import React, { useMemo, useState, useCallback } from 'react';
-import { View, Text, ScrollView, Pressable, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, Pressable, StyleSheet, Alert, ActivityIndicator, Dimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useColors } from '../store/theme';
 import { useAuth } from '../store/auth';
 import { Colors, radius, spacing } from '../theme/theme';
 import { type } from '../theme/typography';
-import { ChartResponse, BirthData, getVarga, VargaResponse, saveChart } from '../api/astro';
+import { ChartResponse, BirthData, getVarga, VargaResponse, saveChart, getDashaTree, DashaNode } from '../api/astro';
 import { apiError } from '../api/client';
 import NorthIndianChart from '../components/NorthIndianChart';
+import DashaTree from '../components/DashaTree';
+import AnalysisSection from '../components/AnalysisSection';
+
+const CHART_SIZE = Math.min(360, Dimensions.get('window').width - 2 * spacing.lg - 2 * spacing.lg);
 
 const ORDER = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn','Rahu','Ketu'];
 const VARGAS = [
@@ -17,7 +21,7 @@ const VARGAS = [
   { d: 16, n: 'D16' }, { d: 20, n: 'D20' }, { d: 24, n: 'D24' }, { d: 27, n: 'D27' },
   { d: 30, n: 'D30 Triṁśāṁśa' }, { d: 60, n: 'D60 Ṣaṣṭyāṁśa' },
 ];
-type Section = 'chart' | 'vargas' | 'dasha';
+type Section = 'chart' | 'vargas' | 'dasha' | 'analysis';
 
 export default function ChartScreen({ route, navigation }: any) {
   const c = useColors();
@@ -32,6 +36,16 @@ export default function ChartScreen({ route, navigation }: any) {
   const [vData, setVData] = useState<Record<number, VargaResponse>>({});
   const [vLoading, setVLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [dTree, setDTree] = useState<DashaNode[] | null>(null);
+  const [dLoading, setDLoading] = useState(false);
+
+  const loadDasha = useCallback(async () => {
+    if (dTree || !birth) return;
+    setDLoading(true);
+    try { const r = await getDashaTree(birth); setDTree(r.dashas || []); }
+    catch (e) { Alert.alert('Could not load daśā', apiError(e)); }
+    finally { setDLoading(false); }
+  }, [birth, dTree]);
 
   const loadVarga = useCallback(async (num: number) => {
     setVNum(num);
@@ -84,10 +98,10 @@ export default function ChartScreen({ route, navigation }: any) {
 
       {/* section switcher */}
       <View style={s.seg}>
-        {(['chart','vargas','dasha'] as Section[]).map((sec) => (
-          <Pressable key={sec} onPress={() => { setSection(sec); if (sec === 'vargas') loadVarga(vNum); }} style={[s.segItem, section === sec && s.segItemOn]}>
-            <Text style={[type.bodyMed, { color: section === sec ? c.onAccent : c.textSecondary }]}>
-              {sec === 'chart' ? 'Chart' : sec === 'vargas' ? 'Vargas' : 'Dāśā'}
+        {(['chart','vargas','dasha','analysis'] as Section[]).map((sec) => (
+          <Pressable key={sec} onPress={() => { setSection(sec); if (sec === 'vargas') loadVarga(vNum); if (sec === 'dasha') loadDasha(); }} style={[s.segItem, section === sec && s.segItemOn]}>
+            <Text style={[type.caption, { color: section === sec ? c.onAccent : c.textSecondary, fontWeight: '600' }]}>
+              {sec === 'chart' ? 'Chart' : sec === 'vargas' ? 'Vargas' : sec === 'dasha' ? 'Dāśā' : 'Analysis'}
             </Text>
           </Pressable>
         ))}
@@ -104,7 +118,7 @@ export default function ChartScreen({ route, navigation }: any) {
             <View style={s.card}>
               <Text style={[type.micro, s.cardLabel]}>D1 · RĀŚI</Text>
               <View style={{ alignItems: 'center' }}>
-                <NorthIndianChart size={300} ascSignIndex={chart.ascendant.sign_index} planetHouseMap={chart.planet_house_map} planets={chart.planets} />
+                <NorthIndianChart size={CHART_SIZE} ascSignIndex={chart.ascendant.sign_index} planetHouseMap={chart.planet_house_map} planets={chart.planets} />
               </View>
             </View>
             <View style={s.card}>
@@ -129,7 +143,7 @@ export default function ChartScreen({ route, navigation }: any) {
                 <View style={{ height: 300, alignItems: 'center', justifyContent: 'center' }}><ActivityIndicator color={c.accentPrimary} /></View>
               ) : (
                 <View style={{ alignItems: 'center' }}>
-                  <NorthIndianChart size={300} ascSignIndex={cur.ascendant.sign_index} planetHouseMap={cur.planet_house_map} planets={cur.planets} />
+                  <NorthIndianChart size={CHART_SIZE} ascSignIndex={cur.ascendant.sign_index} planetHouseMap={cur.planet_house_map} planets={cur.planets} />
                 </View>
               )}
             </View>
@@ -139,21 +153,17 @@ export default function ChartScreen({ route, navigation }: any) {
 
         {section === 'dasha' && (
           <View style={s.card}>
-            <Text style={[type.micro, s.cardLabel]}>VIMŚOTTARĪ MAHĀDAŚĀ</Text>
-            {(chart.dashas || []).map((d, i) => {
-              const now = new Date();
-              const active = new Date(String(d.start)) <= now && now < new Date(String(d.end));
-              return (
-                <View key={i} style={[s.drow, active && { backgroundColor: c.accentBg, borderRadius: radius.sm }]}>
-                  <Text style={[type.bodyMed, { color: active ? c.accentPrimary : c.textPrimary, width: 78 }]}>{d.lord}{active ? ' •' : ''}</Text>
-                  <Text style={[type.caption, { color: c.textMuted, flex: 1 }]}>{String(d.start).slice(0,10)} → {String(d.end).slice(0,10)}</Text>
-                  <Text style={[type.caption, { color: c.textMuted }]}>{Math.round(d.years)}y</Text>
-                </View>
-              );
-            })}
-            <Text style={[type.caption, { color: c.textMuted, marginTop: spacing.sm }]}>Antardaśā drill-down coming next.</Text>
+            <Text style={[type.micro, s.cardLabel]}>VIMŚOTTARĪ · tap to expand antar / pratyantar</Text>
+            {dLoading || !dTree ? (
+              <View style={{ height: 120, alignItems: 'center', justifyContent: 'center' }}><ActivityIndicator color={c.accentPrimary} /></View>
+            ) : (
+              <DashaTree dashas={dTree} />
+            )}
           </View>
         )}
+
+        {section === 'analysis' && birth ? <View style={{ paddingTop: spacing.xs }}><AnalysisSection birth={birth} /></View> : null}
+        {section === 'analysis' && !birth ? <View style={s.card}><Text style={[type.body, { color: c.textMuted }]}>Open this chart from Create Kundli to run analysis.</Text></View> : null}
       </ScrollView>
     </View>
   );
