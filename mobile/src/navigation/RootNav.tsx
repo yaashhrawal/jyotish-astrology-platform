@@ -13,6 +13,8 @@ import ChartScreen from '../screens/ChartScreen';
 import AuthScreen from '../screens/AuthScreen';
 import MatchScreen from '../screens/MatchScreen';
 import PrashnaScreen from '../screens/PrashnaScreen';
+import CompareScreen from '../screens/CompareScreen';
+import GemsScreen from '../screens/GemsScreen';
 import ComingSoonScreen from '../screens/ComingSoonScreen';
 
 const Tab = createBottomTabNavigator();
@@ -50,9 +52,9 @@ export default function RootNav() {
       <Stack.Screen name="Chart" component={ChartScreen} />
       <Stack.Screen name="Auth" component={AuthScreen} options={{ presentation: 'modal' }} />
       <Stack.Screen name="Match" component={MatchScreen} />
-      <Stack.Screen name="Compare" component={ComingSoonScreen} initialParams={{ title: 'Compare' }} />
+      <Stack.Screen name="Compare" component={CompareScreen} />
       <Stack.Screen name="Prashna" component={PrashnaScreen} />
-      <Stack.Screen name="Gems" component={ComingSoonScreen} initialParams={{ title: 'Gems' }} />
+      <Stack.Screen name="Gems" component={GemsScreen} />
     </Stack.Navigator>
   );
 }

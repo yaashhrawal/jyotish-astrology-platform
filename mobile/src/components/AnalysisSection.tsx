@@ -3,7 +3,7 @@ import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator } from
 import { useColors } from '../store/theme';
 import { Colors, radius, spacing } from '../theme/theme';
 import { type } from '../theme/typography';
-import { BirthData, getYogas, getAshtakavarga, getShadbala, getAspects } from '../api/astro';
+import { BirthData, getYogas, getAshtakavarga, getShadbala, getAspects, getDoshas, getKarakas, getArudha } from '../api/astro';
 import { apiError } from '../api/client';
 
 const SIGNS = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
@@ -11,6 +11,9 @@ const SIGN3 = (s: string) => s.slice(0, 3);
 const PLANETS = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn'];
 const TABS = [
   { k: 'yogas', label: 'Yogas' },
+  { k: 'doshas', label: 'Doshas' },
+  { k: 'karakas', label: 'Karakas' },
+  { k: 'arudha', label: 'Arudha' },
   { k: 'av', label: 'Aṣṭakavarga' },
   { k: 'bala', label: 'Ṣaḍbala' },
   { k: 'aspects', label: 'Aspects' },
@@ -29,8 +32,11 @@ export default function AnalysisSection({ birth }: { birth: BirthData }) {
     if (data[t] || status[t] === 'loading') return;
     setStatus((p) => ({ ...p, [t]: 'loading' }));
     try {
-      const fn = t === 'yogas' ? getYogas : t === 'av' ? getAshtakavarga : t === 'bala' ? getShadbala : getAspects;
-      const r = await fn(birth);
+      const map: Record<Tab, (b: BirthData) => Promise<any>> = {
+        yogas: getYogas, doshas: getDoshas, karakas: getKarakas, arudha: getArudha,
+        av: getAshtakavarga, bala: getShadbala, aspects: getAspects,
+      };
+      const r = await map[t](birth);
       setData((p) => ({ ...p, [t]: r })); setStatus((p) => ({ ...p, [t]: 'idle' }));
     } catch (e) { setErr((p) => ({ ...p, [t]: apiError(e) })); setStatus((p) => ({ ...p, [t]: 'error' })); }
   }, [birth, data, status]);
@@ -52,6 +58,9 @@ export default function AnalysisSection({ birth }: { birth: BirthData }) {
          status[tab] === 'error' ? <Text style={[type.body, { color: c.accentRed }]}>{err[tab]}</Text> :
          !data[tab] ? null :
          tab === 'yogas' ? <Yogas c={c} s={s} d={data.yogas} /> :
+         tab === 'doshas' ? <Doshas c={c} s={s} d={data.doshas} /> :
+         tab === 'karakas' ? <Karakas c={c} s={s} d={data.karakas} /> :
+         tab === 'arudha' ? <Arudha c={c} s={s} d={data.arudha} /> :
          tab === 'av' ? <Ashtakavarga c={c} s={s} d={data.av} /> :
          tab === 'bala' ? <Shadbala c={c} s={s} d={data.bala} /> :
          <Aspects c={c} s={s} d={data.aspects} />}
@@ -141,6 +150,69 @@ function Aspects({ c, s, d }: any) {
           <Text style={[type.body, { color: c.textSecondary, flex: 1 }]}>→ {a.aspected_planets.join(', ')} <Text style={{ color: c.textMuted }}>(H{a.target_house} {SIGN3(a.target_sign || '')})</Text></Text>
         </View>
       ))}
+    </>
+  );
+}
+
+function Doshas({ c, s, d }: any) {
+  const items = [
+    { k: 'Mangal (Kuja) Dosha', v: d?.mangal_dosha },
+    { k: 'Kāla Sarpa Dosha', v: d?.kalsarpa_dosha },
+    { k: 'Sade Sati', v: d?.sadesati },
+  ];
+  return (
+    <>
+      {items.map(({ k, v }) => {
+        const has = v?.has_dosha ?? v?.active ?? v?.is_active;
+        return (
+          <View key={k} style={s.yoga}>
+            <View style={s.yogaHead}>
+              <Text style={[type.cardTitle, { color: c.textPrimary, flex: 1 }]}>{k}</Text>
+              <View style={[s.pill, { backgroundColor: has ? c.accentBg : c.tagBg }]}>
+                <Text style={[type.micro, { color: has ? c.accentRed : c.accentGreen }]}>{has ? (v?.severity || 'PRESENT') : 'CLEAR'}</Text>
+              </View>
+            </View>
+            {v?.triggers?.length ? <Text style={[type.caption, { color: c.textMuted, marginTop: 4 }]}>{v.triggers.join(' · ')}</Text> : null}
+            {v?.phase ? <Text style={[type.caption, { color: c.textMuted, marginTop: 4 }]}>{v.phase}</Text> : null}
+          </View>
+        );
+      })}
+      {d?.summary ? <Text style={[type.body, { color: c.textSecondary, marginTop: spacing.sm }]}>{typeof d.summary === 'string' ? d.summary : ''}</Text> : null}
+    </>
+  );
+}
+
+function Karakas({ c, s, d }: any) {
+  const ks = d?.karakas || [];
+  return (
+    <>
+      <Text style={[type.micro, s.lbl]}>CHARA KARAKAS · AK: {d?.atmakaraka}</Text>
+      {ks.map((k: any, i: number) => (
+        <View key={i} style={s.trow}>
+          <Text style={[type.bodyMed, { color: c.accentPrimary, width: 44 }]}>{k.karaka}</Text>
+          <Text style={[type.body, { color: c.textPrimary, width: 78 }]}>{k.planet}</Text>
+          <Text style={[type.body, { color: c.textSecondary, flex: 1 }]}>{k.sign} {Math.round(k.degree_in_sign)}°</Text>
+          <Text style={[type.caption, { color: c.textMuted }]}>D9 {SIGN3(k.navamsha_sign || '')}</Text>
+        </View>
+      ))}
+      {d?.karakamsha_sign ? <Text style={[type.caption, { color: c.textMuted, marginTop: spacing.sm }]}>Kārakāṁśa: {d.karakamsha_sign} (H{d.karakamsha_house})</Text> : null}
+    </>
+  );
+}
+
+function Arudha({ c, s, d }: any) {
+  const ar = d?.arudhas || [];
+  return (
+    <>
+      <Text style={[type.micro, s.lbl]}>ARUDHA PADAS</Text>
+      {ar.map((a: any, i: number) => (
+        <View key={i} style={s.trow}>
+          <Text style={[type.bodyMed, { color: c.accentPrimary, width: 44 }]}>{a.code}</Text>
+          <Text style={[type.body, { color: c.textSecondary, flex: 1 }]}>{a.name}</Text>
+          <Text style={[type.body, { color: c.textPrimary }]}>{a.sign}</Text>
+        </View>
+      ))}
+      {d?.upapada?.sign ? <Text style={[type.caption, { color: c.textMuted, marginTop: spacing.sm }]}>Upapada (UL): {d.upapada.sign}</Text> : null}
     </>
   );
 }

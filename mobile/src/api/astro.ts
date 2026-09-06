@@ -98,6 +98,20 @@ export const getShadbala = (d: BirthData) =>
   api.post(`${CALC}/shadbala`, d).then((r) => r.data);
 export const getAspects = (d: BirthData) =>
   api.post(`${CALC}/aspects`, d).then((r) => r.data);
+export const getDoshas = (d: BirthData) =>
+  api.post(`${CALC}/doshas`, d).then((r) => r.data);
+export const getArudha = (d: BirthData) =>
+  api.post(`${CALC}/arudha`, d).then((r) => r.data);
+export const getKarakas = (d: BirthData) =>
+  api.post(`${CALC}/jaimini_karakas`, d).then((r) => r.data);
+export const getGochara = (d: BirthData) =>
+  api.post(`${CALC}/gochara`, d).then((r) => r.data);
+
+export const gemsCatalog = () =>
+  api.get<any[]>(`/api/gems/catalog`).then((r) => r.data);
+
+export const synastry = (p: CompatPayload) =>
+  api.post(`${CALC}/synastry`, { ayanamsa: 'lahiri', ...p }).then((r) => r.data);
 
 // Full nested Vimśottarī tree: dashas[].antardashas[].pratyantardashas[]
 export interface DashaNode { lord: string; start: string; end: string; years: number; antardashas?: DashaNode[]; pratyantardashas?: DashaNode[]; }
