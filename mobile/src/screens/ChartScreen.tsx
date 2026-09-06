@@ -106,7 +106,7 @@ export default function ChartScreen({ route, navigation }: any) {
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }} contentContainerStyle={s.seg}>
         {SECTIONS.map(({ k, label }) => (
           <Pressable key={k} onPress={() => { setSection(k); if (k === 'vargas') loadVarga(vNum); if (k === 'dasha') loadDasha(); }} style={[s.segItem, section === k && s.segItemOn]}>
-            <Text style={[type.caption, { color: section === k ? c.onAccent : c.textSecondary, fontWeight: '600' }]}>{label}</Text>
+            <Text allowFontScaling={false} style={{ fontFamily: type.bodyMed.fontFamily, fontSize: 13, lineHeight: 20, color: section === k ? c.onAccent : c.textSecondary }}>{label}</Text>
           </Pressable>
         ))}
       </ScrollView>
