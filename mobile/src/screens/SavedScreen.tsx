@@ -39,12 +39,14 @@ export default function SavedScreen({ navigation }: any) {
     try {
       const [y, mo, d] = (row.birth_date || '1990-01-01').split('-').map(Number);
       const [h, mi] = (row.birth_time || '12:00').split(':').map(Number);
-      const chart = await getChart({
+      const birth = {
         name: row.name || 'Saved', year: y, month: mo, day: d, hour: h, minute: mi,
         tz_offset: row.birth_tz ?? 5.5, latitude: row.latitude ?? 28.6, longitude: row.longitude ?? 77.2,
         place: row.birth_place || '', ayanamsa: row.ayanamsa || 'lahiri',
-      } as any);
-      navigation.navigate('Chart', { chart });
+      } as any;
+      const chart = await getChart(birth);
+      // pass birth so Vargas / Dāśā / Reading / Transits / Analysis can compute
+      navigation.navigate('Chart', { chart, birth });
     } catch (e) { setError(apiError(e)); }
   };
 
