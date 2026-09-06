@@ -233,7 +233,8 @@ function Remedies({ c, s, d }: any) {
             <View style={[s.pill, { backgroundColor: r.priority === 'high' ? c.accentBg : c.tagBg }]}><Text style={[type.micro, { color: r.priority === 'high' ? c.accentRed : c.textMuted }]}>{String(r.priority || '').toUpperCase()}</Text></View>
           </View>
           {r.gem?.primary ? <Text style={[type.body, { color: c.textSecondary, marginTop: 4 }]}>💎 {r.gem.primary}{r.gem.alt?.length ? ` (alt: ${r.gem.alt.slice(0,2).join(', ')})` : ''}</Text> : null}
-          {r.mantra ? <Text style={[type.body, { color: c.textSecondary, marginTop: 2 }]}>🕉 {r.mantra}</Text> : null}
+          {r.mantra?.beej ? <Text style={[type.body, { color: c.textSecondary, marginTop: 2 }]}>🕉 {r.mantra.beej}</Text> : null}
+          {r.mantra?.day ? <Text style={[type.caption, { color: c.textMuted, marginTop: 2 }]}>Day: {r.mantra.day}{r.rudraksha?.name ? ` · ${r.rudraksha.name} Rudraksha` : ''}</Text> : null}
         </View>
       ))}
     </>

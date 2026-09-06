@@ -203,7 +203,7 @@ const makeStyles = (c: Colors) => StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   header: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: spacing.sm, paddingBottom: spacing.sm },
   iconBtn: { width: 40, height: 40, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
-  seg: { paddingHorizontal: spacing.lg, gap: 8, paddingBottom: spacing.sm, alignItems: 'center' },
+  seg: { paddingHorizontal: spacing.lg, gap: 8, paddingTop: spacing.xs, paddingBottom: spacing.sm, alignItems: 'center' },
   segItem: { paddingVertical: 8, paddingHorizontal: 15, borderRadius: radius.pill, borderWidth: 1, borderColor: c.borderCard, backgroundColor: c.bgCard },
   segItemOn: { backgroundColor: c.accentPrimary, borderColor: c.accentPrimary },
   pillRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingHorizontal: spacing.lg, marginBottom: spacing.sm, marginTop: spacing.sm },
