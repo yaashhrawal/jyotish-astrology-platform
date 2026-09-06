@@ -48,3 +48,8 @@ Thumbs.db
 deploy/*.sh.bak
 
 testsprite_tests/tmp/config.json
+
+mobile/node_modules/
+mobile/.expo/
+mobile/ios/
+mobile/android/
