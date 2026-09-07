@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useColors, useThemeStore } from '../store/theme';
 import { useAuth } from '../store/auth';
+import { useLangStore, useT } from '../i18n';
 import { Colors, radius, spacing } from '../theme/theme';
 import { type } from '../theme/typography';
 
@@ -13,6 +14,8 @@ export default function ProfileScreen({ navigation }: any) {
   const s = useMemo(() => makeStyles(c), [c]);
   const { user, logout } = useAuth();
   const { name: theme, toggle } = useThemeStore();
+  const { lang, setLang } = useLangStore();
+  const { t } = useT();
 
   return (
     <ScrollView style={{ backgroundColor: c.bgBody }} contentContainerStyle={{ paddingTop: insets.top + spacing.lg, paddingBottom: insets.bottom + 32, paddingHorizontal: spacing.lg }}>
@@ -34,7 +37,22 @@ export default function ProfileScreen({ navigation }: any) {
         </Pressable>
       )}
 
-      <Row s={s} c={c} icon={theme === 'dark' ? 'moon' : 'sunny'} label={`Theme: ${theme}`} onPress={toggle} right="Toggle" />
+      {/* Language */}
+      <View style={[s.row, { justifyContent: 'space-between' }]}>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Ionicons name="language" size={20} color={c.textSecondary} />
+          <Text style={[type.bodyMed, { color: c.textPrimary, marginLeft: 12 }]}>{t('Language')}</Text>
+        </View>
+        <View style={s.langSeg}>
+          {(['en', 'hi'] as const).map((l) => (
+            <Pressable key={l} onPress={() => setLang(l)} style={[s.langItem, lang === l && { backgroundColor: c.accentPrimary }]}>
+              <Text style={[type.caption, { color: lang === l ? c.onAccent : c.textSecondary, fontWeight: '700' }]}>{l === 'en' ? 'English' : 'हिंदी'}</Text>
+            </Pressable>
+          ))}
+        </View>
+      </View>
+
+      <Row s={s} c={c} icon={theme === 'dark' ? 'moon' : 'sunny'} label={`${t('Theme')}: ${theme}`} onPress={toggle} right="Toggle" />
 
       {user ? (
         <Row s={s} c={c} icon="log-out-outline" label="Sign out" onPress={logout} danger />
@@ -60,4 +78,6 @@ const makeStyles = (c: Colors) => StyleSheet.create({
   avatar: { width: 60, height: 60, borderRadius: 30, backgroundColor: c.accentPrimary, alignItems: 'center', justifyContent: 'center' },
   planPill: { backgroundColor: c.pillActiveBg, borderRadius: radius.pill, paddingVertical: 5, paddingHorizontal: 12, marginTop: 10 },
   row: { flexDirection: 'row', alignItems: 'center', backgroundColor: c.bgCard, borderColor: c.borderCard, borderWidth: 1, borderRadius: radius.md, padding: spacing.md, marginBottom: spacing.sm },
+  langSeg: { flexDirection: 'row', backgroundColor: c.bgBody, borderRadius: radius.sm, borderWidth: 1, borderColor: c.borderCard, overflow: 'hidden' },
+  langItem: { paddingVertical: 6, paddingHorizontal: 12 },
 });

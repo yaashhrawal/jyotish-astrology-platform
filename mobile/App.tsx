@@ -11,13 +11,15 @@ import { Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold } f
 import RootNav from './src/navigation/RootNav';
 import { useColors, useThemeStore } from './src/store/theme';
 import { useAuth } from './src/store/auth';
+import { useLangStore } from './src/i18n';
 
 function Root() {
   const c = useColors();
   const theme = useThemeStore((s) => s.name);
   const init = useAuth((s) => s.init);
+  const initLang = useLangStore((s) => s.init);
 
-  useEffect(() => { init(); }, [init]);
+  useEffect(() => { init(); initLang(); }, [init, initLang]);
 
   const navTheme = {
     ...(theme === 'dark' ? DarkTheme : DefaultTheme),

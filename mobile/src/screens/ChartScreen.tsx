@@ -9,6 +9,7 @@ import { type } from '../theme/typography';
 import { ChartResponse, BirthData, getVarga, VargaResponse, saveChart, getDashaTree, DashaNode } from '../api/astro';
 import { apiError } from '../api/client';
 import NorthIndianChart from '../components/NorthIndianChart';
+import { useT } from '../i18n';
 import DashaTree from '../components/DashaTree';
 import AnalysisSection from '../components/AnalysisSection';
 import ReadingSection from '../components/ReadingSection';
@@ -74,6 +75,7 @@ export default function ChartScreen({ route, navigation }: any) {
   const chart: ChartResponse = route.params?.chart;
   const birth: BirthData | undefined = route.params?.birth;
   const user = useAuth((st) => st.user);
+  const { t } = useT();
 
   const [section, setSection] = useState<Section>('chart');
   const [vNum, setVNum] = useState(9);
@@ -145,7 +147,7 @@ export default function ChartScreen({ route, navigation }: any) {
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.seg}>
         {SECTIONS.map(({ k, label }) => (
           <Pressable key={k} onPress={() => { setSection(k); if (k === 'vargas') loadVarga(vNum); if (k === 'dasha') loadDasha(); }} style={[s.segItem, section === k && s.segItemOn]}>
-            <Text allowFontScaling={false} style={{ fontFamily: type.bodyMed.fontFamily, fontSize: 13, lineHeight: 20, color: section === k ? c.onAccent : c.textSecondary }}>{label}</Text>
+            <Text allowFontScaling={false} style={{ fontFamily: type.bodyMed.fontFamily, fontSize: 13, lineHeight: 20, color: section === k ? c.onAccent : c.textSecondary }}>{t(label)}</Text>
           </Pressable>
         ))}
       </ScrollView>
@@ -155,8 +157,8 @@ export default function ChartScreen({ route, navigation }: any) {
         {section === 'chart' && (
           <>
             <View style={s.pillRow}>
-              <View style={s.pill}><Text style={[type.caption, { color: c.accentPrimary }]}>{chart.ascendant.sign} Lagna</Text></View>
-              {chart.atmakaraka ? <View style={s.pill}><Text style={[type.caption, { color: c.accentPrimary }]}>AK: {chart.atmakaraka}</Text></View> : null}
+              <View style={s.pill}><Text style={[type.caption, { color: c.accentPrimary }]}>{t(chart.ascendant.sign)} {t('Lagna')}</Text></View>
+              {chart.atmakaraka ? <View style={s.pill}><Text style={[type.caption, { color: c.accentPrimary }]}>AK: {t(chart.atmakaraka)}</Text></View> : null}
               <View style={s.pill}><Text style={[type.caption, { color: c.textSecondary, textTransform: 'capitalize' }]}>{chart.ayanamsa}</Text></View>
             </View>
             <View style={[s.card, s.chartCard]}>
@@ -217,22 +219,23 @@ export default function ChartScreen({ route, navigation }: any) {
 }
 
 function PlanetTable({ c, s, planets }: any) {
+  const { t } = useT();
   return (
     <>
       <View style={[s.trow, { borderBottomWidth: 1, borderBottomColor: c.borderCard, paddingBottom: 6 }]}>
-        <Text style={[type.micro, s.th, { flex: 1.4 }]}>PLANET</Text>
-        <Text style={[type.micro, s.th, { flex: 1.4 }]}>SIGN</Text>
-        <Text style={[type.micro, s.th, { width: 40, textAlign: 'right' }]}>DEG</Text>
-        <Text style={[type.micro, s.th, { flex: 1.6 }]}>NAKṢATRA</Text>
+        <Text style={[type.micro, s.th, { flex: 1.4 }]}>{t('PLANET')}</Text>
+        <Text style={[type.micro, s.th, { flex: 1.4 }]}>{t('SIGN')}</Text>
+        <Text style={[type.micro, s.th, { width: 40, textAlign: 'right' }]}>{t('DEG')}</Text>
+        <Text style={[type.micro, s.th, { flex: 1.6 }]}>{t('NAKṢATRA')}</Text>
       </View>
       {ORDER.filter((n) => planets[n]).map((n) => {
         const p = planets[n];
         return (
           <View key={n} style={s.trow}>
-            <Text style={[type.bodyMed, { color: c.textPrimary, flex: 1.4 }]}>{n}{p.retrograde ? ' ↺' : ''}</Text>
-            <Text style={[type.body, { color: c.textSecondary, flex: 1.4 }]}>{p.sign}</Text>
+            <Text style={[type.bodyMed, { color: c.textPrimary, flex: 1.4 }]}>{t(n)}{p.retrograde ? ' ↺' : ''}</Text>
+            <Text style={[type.body, { color: c.textSecondary, flex: 1.4 }]}>{t(p.sign)}</Text>
             <Text style={[type.body, { color: c.textSecondary, width: 40, textAlign: 'right' }]}>{Math.round(p.degree)}°</Text>
-            <Text style={[type.body, { color: c.textMuted, flex: 1.6 }]} numberOfLines={1}>{p.nakshatra}</Text>
+            <Text style={[type.body, { color: c.textMuted, flex: 1.6 }]} numberOfLines={1}>{t(p.nakshatra)}</Text>
           </View>
         );
       })}

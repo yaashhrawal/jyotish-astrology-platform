@@ -5,6 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useColors } from '../store/theme';
 import { useAuth } from '../store/auth';
+import { useT } from '../i18n';
 import { Colors, radius, spacing } from '../theme/theme';
 import { type } from '../theme/typography';
 import GrahikaMark from '../components/GrahikaMark';
@@ -26,6 +27,7 @@ export default function HomeScreen({ navigation }: any) {
   const insets = useSafeAreaInsets();
   const s = useMemo(() => makeStyles(c), [c]);
   const user = useAuth((st) => st.user);
+  const { t } = useT();
 
   return (
     <ScrollView
@@ -45,20 +47,20 @@ export default function HomeScreen({ navigation }: any) {
 
       {/* greeting */}
       <View style={{ paddingHorizontal: spacing.xl, marginBottom: spacing.md }}>
-        <Text style={[type.body, { color: c.textMuted }]}>{user ? `Namaste, ${user.name}` : 'Namaste'}</Text>
-        <Text style={[type.screenTitle, { color: c.textPrimary, marginTop: 2 }]}>What shall we read today?</Text>
+        <Text style={[type.body, { color: c.textMuted }]}>{user ? `${t('Namaste')}, ${user.name}` : t('Namaste')}</Text>
+        <Text style={[type.screenTitle, { color: c.textPrimary, marginTop: 2 }]}>{t('What shall we read today?')}</Text>
       </View>
 
       {/* hero — Create Kundli */}
       <Pressable onPress={() => navigation.navigate('CreateChart')} style={{ marginHorizontal: spacing.lg }}>
         <LinearGradient colors={[c.accentDeep, c.accentPrimary, c.accentSecondary]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={s.hero}>
-          <Text style={[type.eyebrow, { color: 'rgba(255,255,255,0.85)' }]}>BIRTH CHART</Text>
-          <Text style={[type.screenTitle, { color: '#fff', marginTop: 4, fontFamily: undefined }]}>Create Kundli</Text>
-          <Text style={[type.body, { color: 'rgba(255,255,255,0.9)', marginTop: 2, maxWidth: 200 }]}>
-            Full D1–D60, dashās & interpretation from birth details.
+          <Text style={[type.eyebrow, { color: 'rgba(255,255,255,0.85)' }]}>{t('Birth Chart').toUpperCase()}</Text>
+          <Text style={[type.screenTitle, { color: '#fff', marginTop: 4, fontFamily: undefined }]}>{t('Create Kundli')}</Text>
+          <Text style={[type.body, { color: 'rgba(255,255,255,0.9)', marginTop: 2, maxWidth: 220 }]}>
+            {t('Full D1–D60, dashās & interpretation from birth details.')}
           </Text>
           <View style={s.heroCta}>
-            <Text style={[type.button, { color: '#fff' }]}>Start</Text>
+            <Text style={[type.button, { color: '#fff' }]}>{t('Start')}</Text>
             <Ionicons name="arrow-forward" size={15} color="#fff" style={{ marginLeft: 6 }} />
           </View>
           <View style={s.heroRing}><GrahikaMark size={120} color="rgba(255,255,255,0.5)" /></View>
@@ -66,18 +68,18 @@ export default function HomeScreen({ navigation }: any) {
       </Pressable>
 
       {/* tools */}
-      <Text style={[type.micro, s.sectionLabel]}>TOOLS</Text>
+      <Text style={[type.micro, s.sectionLabel]}>{t('TOOLS')}</Text>
       <View style={s.grid}>
-        {TOOLS.map((t) => (
+        {TOOLS.map((tool) => (
           <Pressable
-            key={t.key}
+            key={tool.key}
             style={s.tile}
-            onPress={() => (t.auth && !user ? navigation.navigate('Auth') : navigation.navigate(t.route))}
+            onPress={() => (tool.auth && !user ? navigation.navigate('Auth') : navigation.navigate(tool.route))}
           >
-            <View style={s.tileIcon}><Ionicons name={t.icon} size={18} color={c.accentPrimary} /></View>
-            <Text style={[type.cardTitle, { color: c.textPrimary }]}>{t.label}</Text>
-            <Text style={[type.caption, { color: c.textMuted }]}>{t.sub}</Text>
-            {t.auth && !user ? <Ionicons name="lock-closed" size={12} color={c.textMuted} style={s.lock} /> : null}
+            <View style={s.tileIcon}><Ionicons name={tool.icon} size={18} color={c.accentPrimary} /></View>
+            <Text style={[type.cardTitle, { color: c.textPrimary }]}>{t(tool.label)}</Text>
+            <Text style={[type.caption, { color: c.textMuted }]}>{t(tool.sub)}</Text>
+            {tool.auth && !user ? <Ionicons name="lock-closed" size={12} color={c.textMuted} style={s.lock} /> : null}
           </Pressable>
         ))}
       </View>

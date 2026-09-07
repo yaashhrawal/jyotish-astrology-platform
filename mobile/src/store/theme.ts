@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { Appearance } from 'react-native';
 import { palettes, Colors, ThemeName } from '../theme/theme';
 
 interface ThemeState {
@@ -8,7 +7,8 @@ interface ThemeState {
   toggle: () => void;
 }
 
-const initial: ThemeName = Appearance.getColorScheme() === 'light' ? 'light' : 'dark';
+// Default to light (brand-preferred); user can switch to dark in Profile.
+const initial: ThemeName = 'light';
 
 export const useThemeStore = create<ThemeState>((set, get) => ({
   name: initial,

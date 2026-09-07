@@ -4,6 +4,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { useColors } from '../store/theme';
 import { type } from '../theme/typography';
+import { useT } from '../i18n';
 
 import HomeScreen from '../screens/HomeScreen';
 import SavedScreen from '../screens/SavedScreen';
@@ -28,6 +29,7 @@ const ICONS: Record<string, any> = { Home: 'home', Saved: 'bookmark', Profile: '
 
 function Tabs() {
   const c = useColors();
+  const { t } = useT();
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -35,6 +37,7 @@ function Tabs() {
         tabBarActiveTintColor: c.accentPrimary,
         tabBarInactiveTintColor: c.textMuted,
         tabBarStyle: { backgroundColor: c.navBg, borderTopColor: c.borderCard, borderTopWidth: 0.5 },
+        tabBarLabel: t(route.name),
         tabBarLabelStyle: { fontFamily: type.micro.fontFamily, fontSize: 10 },
         tabBarIcon: ({ color, size, focused }) => (
           <Ionicons name={(focused ? ICONS[route.name] : `${ICONS[route.name]}-outline`) as any} size={size - 2} color={color} />
