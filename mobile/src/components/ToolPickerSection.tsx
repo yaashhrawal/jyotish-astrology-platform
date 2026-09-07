@@ -6,12 +6,14 @@ import { type } from '../theme/typography';
 import { BirthData, calcTool } from '../api/astro';
 import { apiError } from '../api/client';
 import GenericResult from './GenericResult';
+import { useT } from '../i18n';
 
 export interface Tool { key: string; ep: string; label: string }
 type Renderers = Record<string, (data: any) => React.ReactNode>;
 
 export default function ToolPickerSection({ birth, tools, initial, renderers }: { birth: BirthData; tools: Tool[]; initial?: string; renderers?: Renderers }) {
   const c = useColors();
+  const { t } = useT();
   const s = useMemo(() => makeStyles(c), [c]);
   const [sel, setSel] = useState(initial || tools[0].key);
   const [data, setData] = useState<Record<string, any>>({});
@@ -19,27 +21,27 @@ export default function ToolPickerSection({ birth, tools, initial, renderers }: 
   const [err, setErr] = useState<Record<string, string>>({});
 
   const load = useCallback(async (key: string) => {
-    const t = tools.find((x) => x.key === key)!;
+    const tl = tools.find((x) => x.key === key)!;
     if (data[key] || status[key] === 'loading') return;
     setStatus((p) => ({ ...p, [key]: 'loading' }));
-    try { const r = await calcTool(t.ep, birth); setData((p) => ({ ...p, [key]: r })); setStatus((p) => ({ ...p, [key]: 'idle' })); }
+    try { const r = await calcTool(tl.ep, birth); setData((p) => ({ ...p, [key]: r })); setStatus((p) => ({ ...p, [key]: 'idle' })); }
     catch (e) { setErr((p) => ({ ...p, [key]: apiError(e) })); setStatus((p) => ({ ...p, [key]: 'error' })); }
   }, [birth, tools, data, status]);
 
   useEffect(() => { load(sel); }, [sel, load]);
 
-  const t = tools.find((x) => x.key === sel)!;
+  const curTool = tools.find((x) => x.key === sel)!;
   return (
     <View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ height: 52 }} contentContainerStyle={s.chipRow}>
         {tools.map((tl) => (
           <Pressable key={tl.key} onPress={() => setSel(tl.key)} style={[s.chip, sel === tl.key && s.chipOn]}>
-            <Text allowFontScaling={false} style={{ fontFamily: type.bodyMed.fontFamily, fontSize: 13, lineHeight: 20, color: sel === tl.key ? c.onAccent : c.textSecondary }}>{tl.label}</Text>
+            <Text allowFontScaling={false} style={{ fontFamily: type.bodyMed.fontFamily, fontSize: 13, lineHeight: 20, color: sel === tl.key ? c.onAccent : c.textSecondary }}>{t(tl.label)}</Text>
           </Pressable>
         ))}
       </ScrollView>
       <View style={s.card}>
-        <Text style={[type.micro, { color: c.textMuted, marginBottom: spacing.sm }]}>{t.label.toUpperCase()}</Text>
+        <Text style={[type.micro, { color: c.textMuted, marginBottom: spacing.sm }]}>{t(curTool.label).toUpperCase()}</Text>
         {status[sel] === 'loading' ? <View style={{ height: 100, alignItems: 'center', justifyContent: 'center' }}><ActivityIndicator color={c.accentPrimary} /></View> :
          status[sel] === 'error' ? <Text style={[type.body, { color: c.accentRed }]}>{err[sel]}</Text> :
          !data[sel] ? null :

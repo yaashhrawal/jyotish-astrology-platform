@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { View, Text, TextInput, Pressable, ScrollView, StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
+import { useT } from '../i18n';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useColors } from '../store/theme';
@@ -13,6 +14,7 @@ const now = new Date();
 
 export default function PanchangaScreen({ navigation }: any) {
   const c = useColors();
+  const { t } = useT();
   const insets = useSafeAreaInsets();
   const s = useMemo(() => makeStyles(c), [c]);
   const [day, setDay] = useState(String(now.getDate()));
@@ -44,20 +46,20 @@ export default function PanchangaScreen({ navigation }: any) {
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, backgroundColor: c.bgBody }}>
       <View style={[s.header, { paddingTop: insets.top + spacing.sm }]}>
         <Pressable onPress={() => navigation.goBack()} style={s.iconBtn}><Ionicons name="chevron-back" size={22} color={c.textPrimary} /></Pressable>
-        <Text style={[type.screenTitle, { color: c.textPrimary }]}>Panchāng</Text>
+        <Text style={[type.screenTitle, { color: c.textPrimary }]}>{t('Panchāng')}</Text>
       </View>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: insets.bottom + 40 }} keyboardShouldPersistTaps="handled">
-        <Text style={[type.eyebrow, { color: c.textSecondary, marginBottom: 6 }]}>DATE</Text>
+        <Text style={[type.eyebrow, { color: c.textSecondary, marginBottom: 6 }]}>{t('DATE')}</Text>
         <View style={s.row}>
           <TextInput value={day} onChangeText={setDay} keyboardType="number-pad" maxLength={2} placeholder="DD" placeholderTextColor={c.textMuted} style={[s.input, { flex: 1, marginBottom: 0 }]} />
           <TextInput value={month} onChangeText={setMonth} keyboardType="number-pad" maxLength={2} placeholder="MM" placeholderTextColor={c.textMuted} style={[s.input, { flex: 1, marginBottom: 0 }]} />
           <TextInput value={year} onChangeText={setYear} keyboardType="number-pad" maxLength={4} placeholder="YYYY" placeholderTextColor={c.textMuted} style={[s.input, { flex: 1.4, marginBottom: 0 }]} />
         </View>
-        <Text style={[type.eyebrow, { color: c.textSecondary, margin: 0, marginTop: spacing.md, marginBottom: 6 }]}>PLACE</Text>
+        <Text style={[type.eyebrow, { color: c.textSecondary, margin: 0, marginTop: spacing.md, marginBottom: 6 }]}>{t('PLACE')}</Text>
         <TextInput value={place} onChangeText={onPlace} placeholder="Search city (default Delhi)" placeholderTextColor={c.textMuted} style={s.input} />
         {results.length > 0 && <View style={s.drop}>{results.map((p, i) => <Pressable key={i} onPress={() => pick(p)} style={s.dropItem}><Ionicons name="location-outline" size={14} color={c.accentPrimary} /><Text style={[type.caption, { color: c.textPrimary, marginLeft: 6, flex: 1 }]} numberOfLines={1}>{p.display}</Text></Pressable>)}</View>}
         <Pressable onPress={run} disabled={loading} style={[s.cta, loading && { opacity: 0.7 }]}>
-          {loading ? <ActivityIndicator color="#fff" /> : <Text style={[type.button, { color: '#fff' }]}>Show Panchāng</Text>}
+          {loading ? <ActivityIndicator color="#fff" /> : <Text style={[type.button, { color: '#fff' }]}>{t('Show Panchāng')}</Text>}
         </Pressable>
         {error ? <Text style={[type.body, { color: c.accentRed, marginTop: spacing.md }]}>{error}</Text> : null}
         {data ? <View style={s.card}><GenericResult data={data} /></View> : null}

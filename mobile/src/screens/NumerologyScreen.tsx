@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { View, Text, TextInput, Pressable, ScrollView, StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
+import { useT } from '../i18n';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useColors } from '../store/theme';
@@ -12,6 +13,7 @@ const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov
 
 export default function NumerologyScreen({ navigation }: any) {
   const c = useColors();
+  const { t } = useT();
   const insets = useSafeAreaInsets();
   const s = useMemo(() => makeStyles(c), [c]);
   const [name, setName] = useState('');
@@ -35,10 +37,10 @@ export default function NumerologyScreen({ navigation }: any) {
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, backgroundColor: c.bgBody }}>
       <View style={[s.header, { paddingTop: insets.top + spacing.sm }]}>
         <Pressable onPress={() => navigation.goBack()} style={s.iconBtn}><Ionicons name="chevron-back" size={22} color={c.textPrimary} /></Pressable>
-        <Text style={[type.screenTitle, { color: c.textPrimary }]}>Numerology</Text>
+        <Text style={[type.screenTitle, { color: c.textPrimary }]}>{t('Numerology')}</Text>
       </View>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: insets.bottom + 40 }} keyboardShouldPersistTaps="handled">
-        <TextInput value={name} onChangeText={setName} placeholder="Full name" placeholderTextColor={c.textMuted} style={s.input} />
+        <TextInput value={name} onChangeText={setName} placeholder={t('Full name')} placeholderTextColor={c.textMuted} style={s.input} />
         <View style={s.row}>
           <TextInput value={day} onChangeText={setDay} keyboardType="number-pad" maxLength={2} placeholder="DD" placeholderTextColor={c.textMuted} style={[s.input, { width: 56, marginBottom: 0 }]} />
           <Pressable style={[s.input, s.sel, { flex: 1, marginBottom: 0 }]} onPress={() => setMonthOpen((v) => !v)}>
@@ -48,7 +50,7 @@ export default function NumerologyScreen({ navigation }: any) {
         </View>
         {monthOpen && <View style={s.drop}>{MONTHS.map((m, i) => <Pressable key={m} onPress={() => { setMonth(i); setMonthOpen(false); }} style={s.dropItem}><Text style={[type.body, { color: i === month ? c.accentPrimary : c.textPrimary }]}>{m}</Text></Pressable>)}</View>}
         <Pressable onPress={run} disabled={loading} style={[s.cta, loading && { opacity: 0.7 }]}>
-          {loading ? <ActivityIndicator color="#fff" /> : <Text style={[type.button, { color: '#fff' }]}>Calculate</Text>}
+          {loading ? <ActivityIndicator color="#fff" /> : <Text style={[type.button, { color: '#fff' }]}>{t('Calculate')}</Text>}
         </Pressable>
         {error ? <Text style={[type.body, { color: c.accentRed, marginTop: spacing.md }]}>{error}</Text> : null}
         {data ? <View style={s.card}><GenericResult data={data} /></View> : null}

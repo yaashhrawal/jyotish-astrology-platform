@@ -2,10 +2,15 @@ import React from 'react';
 import { View } from 'react-native';
 import Svg, { Rect, Line, Text as SvgText, G } from 'react-native-svg';
 import { useColors } from '../store/theme';
+import { useLangStore } from '../i18n';
 
 const ABBR: Record<string, string> = {
   Sun: 'Su', Moon: 'Mo', Mars: 'Ma', Mercury: 'Me', Jupiter: 'Ju',
   Venus: 'Ve', Saturn: 'Sa', Rahu: 'Ra', Ketu: 'Ke',
+};
+const ABBR_HI: Record<string, string> = {
+  Sun: 'सू', Moon: 'चं', Mars: 'मं', Mercury: 'बु', Jupiter: 'गु',
+  Venus: 'शु', Saturn: 'श', Rahu: 'रा', Ketu: 'के',
 };
 
 // House label anchor points (fraction of S), North-Indian fixed layout.
@@ -33,6 +38,8 @@ interface Props {
 
 export default function NorthIndianChart({ size = 300, ascSignIndex, planetHouseMap, planets }: Props) {
   const c = useColors();
+  const hi = useLangStore((s) => s.lang) === 'hi';
+  const AB = hi ? ABBR_HI : ABBR;
   const S = size;
   const m = S / 2;
 
@@ -40,7 +47,7 @@ export default function NorthIndianChart({ size = 300, ascSignIndex, planetHouse
   const byHouse: Record<number, string[]> = {};
   Object.entries(planetHouseMap || {}).forEach(([house, names]) => {
     const h = parseInt(house, 10);
-    byHouse[h] = (names || []).map((name) => (ABBR[name] || name.slice(0, 2)) + (planets?.[name]?.retrograde ? '↺' : ''));
+    byHouse[h] = (names || []).map((name) => (AB[name] || name.slice(0, 2)) + (planets?.[name]?.retrograde ? '↺' : ''));
   });
 
   return (

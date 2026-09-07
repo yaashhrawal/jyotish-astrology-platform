@@ -1,5 +1,6 @@
 import React, { useMemo, useState, useRef } from 'react';
 import { View, Text, ScrollView, Pressable, StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
+import { useT } from '../i18n';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useColors } from '../store/theme';
@@ -11,6 +12,7 @@ import { apiError } from '../api/client';
 
 export default function CompareScreen({ navigation }: any) {
   const c = useColors();
+  const { t } = useT();
   const insets = useSafeAreaInsets();
   const s = useMemo(() => makeStyles(c), [c]);
   const p1 = useRef<PersonValue | null>(null);
@@ -39,7 +41,7 @@ export default function CompareScreen({ navigation }: any) {
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, backgroundColor: c.bgBody }}>
       <View style={[s.header, { paddingTop: insets.top + spacing.sm }]}>
         <Pressable onPress={() => navigation.goBack()} style={s.iconBtn}><Ionicons name="chevron-back" size={22} color={c.textPrimary} /></Pressable>
-        <View><Text style={[type.screenTitle, { color: c.textPrimary }]}>Compare</Text><Text style={[type.caption, { color: c.textMuted }]}>Synastry · chart-to-chart</Text></View>
+        <View><Text style={[type.screenTitle, { color: c.textPrimary }]}>{t('Compare')}</Text><Text style={[type.caption, { color: c.textMuted }]}>Synastry · chart-to-chart</Text></View>
       </View>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: insets.bottom + 40 }} keyboardShouldPersistTaps="handled">
         {res ? (
@@ -53,7 +55,7 @@ export default function CompareScreen({ navigation }: any) {
               </View>
             ) : null}
             <View style={s.card}>
-              <Text style={[type.micro, { color: c.textMuted, marginBottom: spacing.sm }]}>INTER-CHART ASPECTS</Text>
+              <Text style={[type.micro, { color: c.textMuted, marginBottom: spacing.sm }]}>{t('INTER-CHART ASPECTS')}</Text>
               {(res.aspects || []).slice(0, 30).map((a: any, i: number) => (
                 <View key={i} style={s.aRow}>
                   <Text style={[type.bodyMed, { color: c.textPrimary, flex: 1 }]}>{a.p1_planet || a.from} {a.aspect} {a.p2_planet || a.to}</Text>
@@ -62,7 +64,7 @@ export default function CompareScreen({ navigation }: any) {
               ))}
               {!(res.aspects || []).length ? <Text style={[type.body, { color: c.textMuted }]}>No tight aspects.</Text> : null}
             </View>
-            <Pressable onPress={() => setRes(null)} style={s.ghost}><Text style={[type.button, { color: c.accentPrimary }]}>New comparison</Text></Pressable>
+            <Pressable onPress={() => setRes(null)} style={s.ghost}><Text style={[type.button, { color: c.accentPrimary }]}>{t('New comparison')}</Text></Pressable>
           </>
         ) : (
           <>
@@ -70,7 +72,7 @@ export default function CompareScreen({ navigation }: any) {
             <PersonInput label="Person 2" onChange={(v) => (p2.current = v)} />
             {error ? <Text style={[type.body, { color: c.accentRed, marginBottom: spacing.sm }]}>{error}</Text> : null}
             <Pressable onPress={run} disabled={loading} style={[s.cta, loading && { opacity: 0.7 }]}>
-              {loading ? <ActivityIndicator color="#fff" /> : <Text style={[type.button, { color: '#fff' }]}>Compare Charts</Text>}
+              {loading ? <ActivityIndicator color="#fff" /> : <Text style={[type.button, { color: '#fff' }]}>{t('Compare Charts')}</Text>}
             </Pressable>
           </>
         )}

@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { View, Text, TextInput, Pressable, ScrollView, StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
+import { useT } from '../i18n';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useColors } from '../store/theme';
@@ -14,6 +15,7 @@ const plus = (days: number) => { const d = new Date(now.getTime() + days * 864e5
 
 export default function MuhurtaScreen({ navigation }: any) {
   const c = useColors();
+  const { t } = useT();
   const insets = useSafeAreaInsets();
   const s = useMemo(() => makeStyles(c), [c]);
   const [purpose, setPurpose] = useState('marriage');
@@ -48,17 +50,17 @@ export default function MuhurtaScreen({ navigation }: any) {
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, backgroundColor: c.bgBody }}>
       <View style={[s.header, { paddingTop: insets.top + spacing.sm }]}>
         <Pressable onPress={() => navigation.goBack()} style={s.iconBtn}><Ionicons name="chevron-back" size={22} color={c.textPrimary} /></Pressable>
-        <View><Text style={[type.screenTitle, { color: c.textPrimary }]}>Muhūrta</Text><Text style={[type.caption, { color: c.textMuted }]}>Best times · next 7 days</Text></View>
+        <View><Text style={[type.screenTitle, { color: c.textPrimary }]}>{t('Muhūrta')}</Text><Text style={[type.caption, { color: c.textMuted }]}>Best times · next 7 days</Text></View>
       </View>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: insets.bottom + 40 }} keyboardShouldPersistTaps="handled">
-        <Text style={[type.eyebrow, { color: c.textSecondary, marginBottom: 6 }]}>PURPOSE</Text>
+        <Text style={[type.eyebrow, { color: c.textSecondary, marginBottom: 6 }]}>{t('PURPOSE')}</Text>
         <View style={s.chips}>
-          {PURPOSES.map((p) => <Pressable key={p} onPress={() => setPurpose(p)} style={[s.chip, purpose === p && s.chipOn]}><Text style={[type.caption, { color: purpose === p ? c.onAccent : c.textSecondary, textTransform: 'capitalize' }]}>{p}</Text></Pressable>)}
+          {PURPOSES.map((p) => <Pressable key={p} onPress={() => setPurpose(p)} style={[s.chip, purpose === p && s.chipOn]}><Text style={[type.caption, { color: purpose === p ? c.onAccent : c.textSecondary, textTransform: 'capitalize' }]}>{t(p)}</Text></Pressable>)}
         </View>
         <TextInput value={place} onChangeText={onPlace} placeholder="Place (default Delhi)" placeholderTextColor={c.textMuted} style={s.input} />
         {results.length > 0 && <View style={s.drop}>{results.map((p, i) => <Pressable key={i} onPress={() => pick(p)} style={s.dropItem}><Ionicons name="location-outline" size={14} color={c.accentPrimary} /><Text style={[type.caption, { color: c.textPrimary, marginLeft: 6, flex: 1 }]} numberOfLines={1}>{p.display}</Text></Pressable>)}</View>}
         <Pressable onPress={run} disabled={loading} style={[s.cta, loading && { opacity: 0.7 }]}>
-          {loading ? <ActivityIndicator color="#fff" /> : <Text style={[type.button, { color: '#fff' }]}>Find Muhūrtas</Text>}
+          {loading ? <ActivityIndicator color="#fff" /> : <Text style={[type.button, { color: '#fff' }]}>{t('Find Muhūrtas')}</Text>}
         </Pressable>
         {error ? <Text style={[type.body, { color: c.accentRed, marginTop: spacing.md }]}>{error}</Text> : null}
         {data ? (

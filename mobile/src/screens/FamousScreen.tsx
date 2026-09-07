@@ -1,5 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { View, Text, FlatList, Pressable, StyleSheet, ActivityIndicator } from 'react-native';
+import { useT } from '../i18n';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useColors } from '../store/theme';
@@ -11,6 +12,7 @@ import { Loading, ErrorState } from '../components/AsyncStates';
 
 export default function FamousScreen({ navigation }: any) {
   const c = useColors();
+  const { t } = useT();
   const insets = useSafeAreaInsets();
   const s = useMemo(() => makeStyles(c), [c]);
   const [rows, setRows] = useState<any[]>([]);
@@ -42,7 +44,7 @@ export default function FamousScreen({ navigation }: any) {
     <View style={{ flex: 1, backgroundColor: c.bgBody, paddingTop: insets.top }}>
       <View style={s.header}>
         <Pressable onPress={() => navigation.goBack()} style={s.iconBtn}><Ionicons name="chevron-back" size={22} color={c.textPrimary} /></Pressable>
-        <Text style={[type.screenTitle, { color: c.textPrimary }]}>Famous Charts</Text>
+        <Text style={[type.screenTitle, { color: c.textPrimary }]}>{t('Famous Charts')}</Text>
       </View>
       {status === 'loading' ? <Loading /> :
        status === 'error' ? <ErrorState message={error} onRetry={load} /> :

@@ -1,11 +1,13 @@
 import React from 'react';
 import { View, Text, ActivityIndicator, Pressable, StyleSheet } from 'react-native';
+import { useT } from '../i18n';
 import { Ionicons } from '@expo/vector-icons';
 import { useColors } from '../store/theme';
 import { type } from '../theme/typography';
 
 export function Loading({ label }: { label?: string }) {
   const c = useColors();
+  const { t } = useT();
   return (
     <View style={styles.center}>
       <ActivityIndicator color={c.accentPrimary} size="large" />
@@ -27,6 +29,7 @@ export function EmptyState({ icon = 'sparkles-outline', title, subtitle }: { ico
 
 export function ErrorState({ message, onRetry }: { message: string; onRetry?: () => void }) {
   const c = useColors();
+  const { t } = useT();
   return (
     <View style={styles.center}>
       <Ionicons name="alert-circle-outline" size={40} color={c.accentRed} />
@@ -34,7 +37,7 @@ export function ErrorState({ message, onRetry }: { message: string; onRetry?: ()
       {onRetry ? (
         <Pressable onPress={onRetry} style={[styles.retry, { backgroundColor: c.accentBg, borderColor: c.accentPrimary }]}>
           <Ionicons name="refresh" size={15} color={c.accentPrimary} />
-          <Text style={[type.button, { color: c.accentPrimary, marginLeft: 6 }]}>Retry</Text>
+          <Text style={[type.button, { color: c.accentPrimary, marginLeft: 6 }]}>{t('Retry')}</Text>
         </Pressable>
       ) : null}
     </View>

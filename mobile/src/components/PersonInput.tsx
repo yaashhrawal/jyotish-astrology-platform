@@ -1,5 +1,6 @@
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { View, Text, TextInput, Pressable, StyleSheet, Keyboard, Modal, FlatList, ActivityIndicator } from 'react-native';
+import { useT } from '../i18n';
 import { Ionicons } from '@expo/vector-icons';
 import { useColors } from '../store/theme';
 import { Colors, radius, spacing } from '../theme/theme';
@@ -17,6 +18,7 @@ export interface PersonValue {
 
 export default function PersonInput({ label, onChange }: { label: string; onChange: (v: PersonValue) => void }) {
   const c = useColors();
+  const { t } = useT();
   const s = useMemo(() => makeStyles(c), [c]);
   const [name, setName] = useState('');
   const [day, setDay] = useState('1');
@@ -79,13 +81,13 @@ export default function PersonInput({ label, onChange }: { label: string; onChan
   return (
     <View style={s.card}>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.sm }}>
-        <Text style={[type.micro, { color: c.accentPrimary }]}>{label.toUpperCase()}</Text>
+        <Text style={[type.micro, { color: c.accentPrimary }]}>{t(label).toUpperCase()}</Text>
         <Pressable onPress={openPicker} style={s.loadBtn}>
           <Ionicons name="folder-open-outline" size={13} color={c.accentPrimary} />
-          <Text style={[type.caption, { color: c.accentPrimary, marginLeft: 5, fontWeight: '700' }]}>Load saved / famous</Text>
+          <Text style={[type.caption, { color: c.accentPrimary, marginLeft: 5, fontWeight: '700' }]}>{t('Load saved / famous')}</Text>
         </Pressable>
       </View>
-      <TextInput value={name} onChangeText={setName} placeholder="Name" placeholderTextColor={c.textMuted} style={[s.input, { marginBottom: 8 }]} />
+      <TextInput value={name} onChangeText={setName} placeholder={t('Name')} placeholderTextColor={c.textMuted} style={[s.input, { marginBottom: 8 }]} />
       <View style={s.row}>
         <TextInput value={day} onChangeText={setDay} keyboardType="number-pad" maxLength={2} placeholder="DD" placeholderTextColor={c.textMuted} style={[s.input, { width: 46 }]} />
         <Pressable style={[s.input, s.sel, { flex: 1 }]} onPress={() => setMonthOpen((v) => !v)}>
@@ -100,7 +102,7 @@ export default function PersonInput({ label, onChange }: { label: string; onChan
         <TextInput value={minute} onChangeText={setMinute} keyboardType="number-pad" maxLength={2} style={[s.input, { flex: 1 }]} />
         <View style={s.seg}>{(['AM','PM'] as const).map((v) => <Pressable key={v} onPress={() => setAmpm(v)} style={[s.segItem, ampm === v && { backgroundColor: c.accentPrimary }]}><Text style={[type.caption, { color: ampm === v ? c.onAccent : c.textSecondary }]}>{v}</Text></Pressable>)}</View>
       </View>
-      <TextInput value={place} onChangeText={onPlace} placeholder="Birth place" placeholderTextColor={c.textMuted} style={[s.input, { marginTop: 8 }]} />
+      <TextInput value={place} onChangeText={onPlace} placeholder={t('Birth place')} placeholderTextColor={c.textMuted} style={[s.input, { marginTop: 8 }]} />
       {results.length > 0 && <View style={s.drop}>{results.map((p, i) => <Pressable key={i} onPress={() => pick(p)} style={s.dropItem}><Ionicons name="location-outline" size={14} color={c.accentPrimary} /><Text style={[type.caption, { color: c.textPrimary, marginLeft: 6, flex: 1 }]} numberOfLines={1}>{p.display}</Text></Pressable>)}</View>}
       {lat != null && <Text style={[type.caption, { color: c.accentGreen, marginTop: 5 }]}>✓ located</Text>}
 
@@ -108,7 +110,7 @@ export default function PersonInput({ label, onChange }: { label: string; onChan
         <Pressable style={s.modalBg} onPress={() => setPickerOpen(false)}>
           <Pressable style={s.sheet} onPress={(e) => e.stopPropagation()}>
             <View style={s.sheetHead}>
-              <Text style={[type.sectionTitle, { color: c.textPrimary }]}>Choose a chart</Text>
+              <Text style={[type.sectionTitle, { color: c.textPrimary }]}>{t('Choose a chart')}</Text>
               <Pressable onPress={() => setPickerOpen(false)}><Ionicons name="close" size={22} color={c.textMuted} /></Pressable>
             </View>
             {loadingList ? <View style={{ padding: 30 }}><ActivityIndicator color={c.accentPrimary} /></View> : (

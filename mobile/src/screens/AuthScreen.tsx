@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import {
   View, Text, TextInput, Pressable, StyleSheet, KeyboardAvoidingView, Platform, ActivityIndicator, ScrollView,
 } from 'react-native';
+import { useT } from '../i18n';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useColors } from '../store/theme';
 import { useAuth } from '../store/auth';
@@ -12,6 +13,7 @@ import GrahikaMark from '../components/GrahikaMark';
 
 export default function AuthScreen({ navigation }: any) {
   const c = useColors();
+  const { t } = useT();
   const insets = useSafeAreaInsets();
   const s = useMemo(() => makeStyles(c), [c]);
   const { login, register } = useAuth();
@@ -56,10 +58,10 @@ export default function AuthScreen({ navigation }: any) {
         </View>
 
         {mode === 'signup' && (
-          <TextInput value={name} onChangeText={setName} placeholder="Full name" placeholderTextColor={c.textMuted} style={s.input} />
+          <TextInput value={name} onChangeText={setName} placeholder={t('Full name')} placeholderTextColor={c.textMuted} style={s.input} />
         )}
-        <TextInput value={email} onChangeText={setEmail} placeholder="Email" placeholderTextColor={c.textMuted} autoCapitalize="none" keyboardType="email-address" style={s.input} />
-        <TextInput value={password} onChangeText={setPassword} placeholder="Password" placeholderTextColor={c.textMuted} secureTextEntry style={s.input} />
+        <TextInput value={email} onChangeText={setEmail} placeholder={t('Email')} placeholderTextColor={c.textMuted} autoCapitalize="none" keyboardType="email-address" style={s.input} />
+        <TextInput value={password} onChangeText={setPassword} placeholder={t('Password')} placeholderTextColor={c.textMuted} secureTextEntry style={s.input} />
 
         {error ? <Text style={[type.body, { color: c.accentRed, marginTop: 4 }]}>{error}</Text> : null}
 

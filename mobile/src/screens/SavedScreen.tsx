@@ -1,5 +1,6 @@
 import React, { useMemo, useState, useCallback } from 'react';
 import { View, Text, FlatList, Pressable, StyleSheet, RefreshControl } from 'react-native';
+import { useT } from '../i18n';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -13,6 +14,7 @@ import { Loading, EmptyState, ErrorState } from '../components/AsyncStates';
 
 export default function SavedScreen({ navigation }: any) {
   const c = useColors();
+  const { t } = useT();
   const insets = useSafeAreaInsets();
   const s = useMemo(() => makeStyles(c), [c]);
   const user = useAuth((st) => st.user);
@@ -53,16 +55,16 @@ export default function SavedScreen({ navigation }: any) {
   if (!user) {
     return (
       <View style={{ flex: 1, backgroundColor: c.bgBody, paddingTop: insets.top }}>
-        <Text style={[type.screenTitle, s.title]}>Saved Charts</Text>
-        <EmptyState icon="bookmark-outline" title="Sign in to sync" subtitle="Your saved charts appear here — synced across iPhone, iPad and web." />
-        <Pressable style={s.cta} onPress={() => navigation.navigate('Auth')}><Text style={[type.button, { color: '#fff' }]}>Log in / Create account</Text></Pressable>
+        <Text style={[type.screenTitle, s.title]}>{t('Saved Charts')}</Text>
+        <EmptyState icon="bookmark-outline" title={t('Sign in to sync')} subtitle="Your saved charts appear here — synced across iPhone, iPad and web." />
+        <Pressable style={s.cta} onPress={() => navigation.navigate('Auth')}><Text style={[type.button, { color: '#fff' }]}>{t('Log in / Create account')}</Text></Pressable>
       </View>
     );
   }
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bgBody, paddingTop: insets.top }}>
-      <Text style={[type.screenTitle, s.title]}>Saved Charts</Text>
+      <Text style={[type.screenTitle, s.title]}>{t('Saved Charts')}</Text>
       {status === 'loading' && rows.length === 0 ? <Loading /> :
        status === 'error' ? <ErrorState message={error} onRetry={load} /> :
        rows.length === 0 ? <EmptyState icon="bookmark-outline" title="No saved charts yet" subtitle="Calculate a chart and save it to see it here." /> :

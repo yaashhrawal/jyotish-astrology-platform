@@ -5,6 +5,7 @@ import { Colors, radius, spacing } from '../theme/theme';
 import { type } from '../theme/typography';
 import { BirthData, getYogas, getAshtakavarga, getShadbala, getAspects, getDoshas, getKarakas, getArudha, getRemedies } from '../api/astro';
 import { apiError } from '../api/client';
+import { useT } from '../i18n';
 
 const SIGNS = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
 const SIGN3 = (s: string) => s.slice(0, 3);
@@ -23,6 +24,7 @@ type Tab = typeof TABS[number]['k'];
 
 export default function AnalysisSection({ birth }: { birth: BirthData }) {
   const c = useColors();
+  const { t } = useT();
   const s = useMemo(() => makeStyles(c), [c]);
   const [tab, setTab] = useState<Tab>('yogas');
   const [data, setData] = useState<Record<string, any>>({});
@@ -47,9 +49,9 @@ export default function AnalysisSection({ birth }: { birth: BirthData }) {
   return (
     <View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: spacing.lg, gap: 8, paddingBottom: spacing.sm }}>
-        {TABS.map((t) => (
-          <Pressable key={t.k} onPress={() => setTab(t.k)} style={[s.chip, tab === t.k && s.chipOn]}>
-            <Text style={[type.bodyMed, { color: tab === t.k ? c.onAccent : c.textSecondary }]}>{t.label}</Text>
+        {TABS.map((tb) => (
+          <Pressable key={tb.k} onPress={() => setTab(tb.k)} style={[s.chip, tab === tb.k && s.chipOn]}>
+            <Text style={[type.bodyMed, { color: tab === tb.k ? c.onAccent : c.textSecondary }]}>{t(tb.label)}</Text>
           </Pressable>
         ))}
       </ScrollView>
@@ -72,6 +74,7 @@ export default function AnalysisSection({ birth }: { birth: BirthData }) {
 }
 
 function Yogas({ c, s, d }: any) {
+  const { t } = useT();
   const yogas = d?.yogas || [];
   if (!yogas.length) return <Text style={[type.body, { color: c.textMuted }]}>No major yogas detected.</Text>;
   return (
@@ -81,9 +84,9 @@ function Yogas({ c, s, d }: any) {
         <View key={i} style={s.yoga}>
           <View style={s.yogaHead}>
             <Text style={[type.cardTitle, { color: c.textPrimary, flex: 1 }]}>{y.name}</Text>
-            <View style={[s.pill, { backgroundColor: c.accentBg }]}><Text style={[type.micro, { color: c.accentPrimary }]}>{String(y.strength || '').toUpperCase()}</Text></View>
+            <View style={[s.pill, { backgroundColor: c.accentBg }]}><Text style={[type.micro, { color: c.accentPrimary }]}>{t(String(y.strength||'')).toUpperCase()}</Text></View>
           </View>
-          <Text style={[type.caption, { color: c.accentPrimary, marginTop: 1 }]}>{y.type}</Text>
+          <Text style={[type.caption, { color: c.accentPrimary, marginTop: 1 }]}>{t(y.type)}</Text>
           <Text style={[type.body, { color: c.textSecondary, marginTop: 4 }]}>{y.description}</Text>
         </View>
       ))}
@@ -92,6 +95,7 @@ function Yogas({ c, s, d }: any) {
 }
 
 function Ashtakavarga({ c, s, d }: any) {
+  const { t } = useT();
   const sav = d?.sarvashtakavarga || {};
   const bav = d?.bhinnashtakavarga || {};
   return (
@@ -117,6 +121,7 @@ function Ashtakavarga({ c, s, d }: any) {
 }
 
 function Shadbala({ c, s, d }: any) {
+  const { t } = useT();
   const sb = d?.shadbala || {};
   return (
     <>
@@ -125,7 +130,7 @@ function Shadbala({ c, s, d }: any) {
         return (
           <View key={p} style={{ marginBottom: 12 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <Text style={[type.bodyMed, { color: c.textPrimary }]}>{p}</Text>
+              <Text style={[type.bodyMed, { color: c.textPrimary }]}>{t(p)}</Text>
               <Text style={[type.caption, { color: v.sufficient ? c.accentGreen : c.accentRed }]}>
                 {v.total_rupas?.toFixed(2)} / {v.required_rupas} rūpa {v.sufficient ? '✓' : ''}
               </Text>
@@ -140,6 +145,7 @@ function Shadbala({ c, s, d }: any) {
 }
 
 function Aspects({ c, s, d }: any) {
+  const { t } = useT();
   const asp = (d?.parashari_aspects || []).filter((a: any) => a.aspected_planets?.length);
   if (!asp.length) return <Text style={[type.body, { color: c.textMuted }]}>No planet-to-planet aspects.</Text>;
   return (
@@ -147,9 +153,9 @@ function Aspects({ c, s, d }: any) {
       <Text style={[type.micro, s.lbl]}>PĀRĀŚARĪ GRAHA DṚṢṬI</Text>
       {asp.map((a: any, i: number) => (
         <View key={i} style={s.aspRow}>
-          <Text style={[type.bodyMed, { color: c.accentPrimary, width: 62 }]}>{a.aspector}</Text>
+          <Text style={[type.bodyMed, { color: c.accentPrimary, width: 62 }]}>{t(a.aspector)}</Text>
           <Text style={[type.caption, { color: c.textMuted, width: 52 }]}>{a.aspect_type?.replace(' house','H')}</Text>
-          <Text style={[type.body, { color: c.textSecondary, flex: 1 }]}>→ {a.aspected_planets.join(', ')} <Text style={{ color: c.textMuted }}>(H{a.target_house} {SIGN3(a.target_sign || '')})</Text></Text>
+          <Text style={[type.body, { color: c.textSecondary, flex: 1 }]}>→ {a.aspected_planets.map((x:string)=>t(x)).join(', ')} <Text style={{ color: c.textMuted }}>(H{a.target_house} {SIGN3(a.target_sign || '')})</Text></Text>
         </View>
       ))}
     </>
@@ -157,6 +163,7 @@ function Aspects({ c, s, d }: any) {
 }
 
 function Doshas({ c, s, d }: any) {
+  const { t } = useT();
   const items = [
     { k: 'Mangal (Kuja) Dosha', v: d?.mangal_dosha },
     { k: 'Kāla Sarpa Dosha', v: d?.kalsarpa_dosha },
@@ -171,7 +178,7 @@ function Doshas({ c, s, d }: any) {
             <View style={s.yogaHead}>
               <Text style={[type.cardTitle, { color: c.textPrimary, flex: 1 }]}>{k}</Text>
               <View style={[s.pill, { backgroundColor: has ? c.accentBg : c.tagBg }]}>
-                <Text style={[type.micro, { color: has ? c.accentRed : c.accentGreen }]}>{has ? (v?.severity || 'PRESENT') : 'CLEAR'}</Text>
+                <Text style={[type.micro, { color: has ? c.accentRed : c.accentGreen }]}>{has ? t(v?.severity || 'PRESENT') : t('CLEAR')}</Text>
               </View>
             </View>
             {v?.triggers?.length ? <Text style={[type.caption, { color: c.textMuted, marginTop: 4 }]}>{v.triggers.join(' · ')}</Text> : null}
@@ -185,6 +192,7 @@ function Doshas({ c, s, d }: any) {
 }
 
 function Karakas({ c, s, d }: any) {
+  const { t } = useT();
   const ks = d?.karakas || [];
   return (
     <>
@@ -192,8 +200,8 @@ function Karakas({ c, s, d }: any) {
       {ks.map((k: any, i: number) => (
         <View key={i} style={s.trow}>
           <Text style={[type.bodyMed, { color: c.accentPrimary, width: 44 }]}>{k.karaka}</Text>
-          <Text style={[type.body, { color: c.textPrimary, width: 78 }]}>{k.planet}</Text>
-          <Text style={[type.body, { color: c.textSecondary, flex: 1 }]}>{k.sign} {Math.round(k.degree_in_sign)}°</Text>
+          <Text style={[type.body, { color: c.textPrimary, width: 78 }]}>{t(k.planet)}</Text>
+          <Text style={[type.body, { color: c.textSecondary, flex: 1 }]}>{t(k.sign)} {Math.round(k.degree_in_sign)}°</Text>
           <Text style={[type.caption, { color: c.textMuted }]}>D9 {SIGN3(k.navamsha_sign || '')}</Text>
         </View>
       ))}
@@ -203,6 +211,7 @@ function Karakas({ c, s, d }: any) {
 }
 
 function Arudha({ c, s, d }: any) {
+  const { t } = useT();
   const ar = d?.arudhas || [];
   return (
     <>
@@ -220,6 +229,7 @@ function Arudha({ c, s, d }: any) {
 }
 
 function Remedies({ c, s, d }: any) {
+  const { t } = useT();
   const rem = d?.remedies || {};
   const entries = Object.values(rem);
   if (!entries.length) return <Text style={[type.body, { color: c.textMuted }]}>No remedies flagged.</Text>;
@@ -229,8 +239,8 @@ function Remedies({ c, s, d }: any) {
       {entries.map((r: any, i: number) => (
         <View key={i} style={s.yoga}>
           <View style={s.yogaHead}>
-            <Text style={[type.cardTitle, { color: c.textPrimary, flex: 1 }]}>{r.planet} <Text style={[type.caption, { color: c.textMuted }]}>· {r.status}</Text></Text>
-            <View style={[s.pill, { backgroundColor: r.priority === 'high' ? c.accentBg : c.tagBg }]}><Text style={[type.micro, { color: r.priority === 'high' ? c.accentRed : c.textMuted }]}>{String(r.priority || '').toUpperCase()}</Text></View>
+            <Text style={[type.cardTitle, { color: c.textPrimary, flex: 1 }]}>{t(r.planet)} <Text style={[type.caption, { color: c.textMuted }]}>· {t(r.status)}</Text></Text>
+            <View style={[s.pill, { backgroundColor: r.priority === 'high' ? c.accentBg : c.tagBg }]}><Text style={[type.micro, { color: r.priority === 'high' ? c.accentRed : c.textMuted }]}>{t(String(r.priority||'')).toUpperCase()}</Text></View>
           </View>
           {r.gem?.primary ? <Text style={[type.body, { color: c.textSecondary, marginTop: 4 }]}>💎 {r.gem.primary}{r.gem.alt?.length ? ` (alt: ${r.gem.alt.slice(0,2).join(', ')})` : ''}</Text> : null}
           {r.mantra?.beej ? <Text style={[type.body, { color: c.textSecondary, marginTop: 2 }]}>🕉 {r.mantra.beej}</Text> : null}

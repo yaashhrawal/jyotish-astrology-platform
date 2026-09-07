@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, Pressable, TextInput, StyleSheet, ActivityIndicator } from 'react-native';
+import { useT } from '../i18n';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useColors } from '../store/theme';
@@ -13,6 +14,7 @@ const CATS = ['general','career','marriage','finance','health','travel','educati
 
 export default function PrashnaScreen({ navigation }: any) {
   const c = useColors();
+  const { t } = useT();
   const insets = useSafeAreaInsets();
   const s = useMemo(() => makeStyles(c), [c]);
   const [cat, setCat] = useState('general');
@@ -37,20 +39,20 @@ export default function PrashnaScreen({ navigation }: any) {
     <View style={{ flex: 1, backgroundColor: c.bgBody }}>
       <View style={[s.header, { paddingTop: insets.top + spacing.sm }]}>
         <Pressable onPress={() => navigation.goBack()} style={s.iconBtn}><Ionicons name="chevron-back" size={22} color={c.textPrimary} /></Pressable>
-        <View><Text style={[type.screenTitle, { color: c.textPrimary }]}>Prashna</Text><Text style={[type.caption, { color: c.textMuted }]}>Horary · cast for this moment</Text></View>
+        <View><Text style={[type.screenTitle, { color: c.textPrimary }]}>{t('Prashna')}</Text><Text style={[type.caption, { color: c.textMuted }]}>Horary · cast for this moment</Text></View>
       </View>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: insets.bottom + 40 }} keyboardShouldPersistTaps="handled">
-        <Text style={[type.micro, { color: c.textMuted, marginBottom: spacing.sm }]}>QUESTION ABOUT</Text>
+        <Text style={[type.micro, { color: c.textMuted, marginBottom: spacing.sm }]}>{t('QUESTION ABOUT')}</Text>
         <View style={s.chips}>
           {CATS.map((k) => (
             <Pressable key={k} onPress={() => setCat(k)} style={[s.chip, cat === k && s.chipOn]}>
-              <Text style={[type.caption, { color: cat === k ? c.onAccent : c.textSecondary, textTransform: 'capitalize' }]}>{k}</Text>
+              <Text style={[type.caption, { color: cat === k ? c.onAccent : c.textSecondary, textTransform: 'capitalize' }]}>{t(k)}</Text>
             </Pressable>
           ))}
         </View>
-        <TextInput value={q} onChangeText={setQ} placeholder="Your question (optional)" placeholderTextColor={c.textMuted} style={s.input} multiline />
+        <TextInput value={q} onChangeText={setQ} placeholder={t('Your question (optional)')} placeholderTextColor={c.textMuted} style={s.input} multiline />
         <Pressable onPress={ask} disabled={loading} style={[s.cta, loading && { opacity: 0.7 }]}>
-          {loading ? <ActivityIndicator color="#fff" /> : <><Ionicons name="sparkles" size={16} color="#fff" /><Text style={[type.button, { color: '#fff', marginLeft: 8 }]}>Cast Prashna</Text></>}
+          {loading ? <ActivityIndicator color="#fff" /> : <><Ionicons name="sparkles" size={16} color="#fff" /><Text style={[type.button, { color: '#fff', marginLeft: 8 }]}>{t('Cast Prashna')}</Text></>}
         </Pressable>
         {error ? <Text style={[type.body, { color: c.accentRed, marginTop: spacing.md }]}>{error}</Text> : null}
 
@@ -64,7 +66,7 @@ export default function PrashnaScreen({ navigation }: any) {
             )}
             {verdict?.signals?.length ? (
               <View style={s.card}>
-                <Text style={[type.micro, { color: c.textMuted, marginBottom: spacing.sm }]}>SIGNALS</Text>
+                <Text style={[type.micro, { color: c.textMuted, marginBottom: spacing.sm }]}>{t('SIGNALS')}</Text>
                 {verdict.signals.map((sig: any, i: number) => (
                   <View key={i} style={s.sig}>
                     <Ionicons name={sig.positive ? 'checkmark-circle' : 'close-circle'} size={16} color={sig.positive ? c.accentGreen : c.accentRed} />

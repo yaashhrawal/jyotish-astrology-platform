@@ -162,13 +162,13 @@ export default function ChartScreen({ route, navigation }: any) {
               <View style={s.pill}><Text style={[type.caption, { color: c.textSecondary, textTransform: 'capitalize' }]}>{chart.ayanamsa}</Text></View>
             </View>
             <View style={[s.card, s.chartCard]}>
-              <Text style={[type.micro, s.cardLabel]}>D1 · RĀŚI</Text>
+              <Text style={[type.micro, s.cardLabel]}>{t('D1 · RĀŚI')}</Text>
               <View style={{ alignItems: 'center' }}>
                 <NorthIndianChart size={CHART_SIZE} ascSignIndex={chart.ascendant.sign_index} planetHouseMap={chart.planet_house_map} planets={chart.planets} />
               </View>
             </View>
             <View style={s.card}>
-              <Text style={[type.micro, s.cardLabel]}>PLANETS</Text>
+              <Text style={[type.micro, s.cardLabel]}>{t('PLANETS')}</Text>
               <PlanetTable c={c} s={s} planets={chart.planets} />
             </View>
           </>
@@ -193,13 +193,13 @@ export default function ChartScreen({ route, navigation }: any) {
                 </View>
               )}
             </View>
-            {cur && !vLoading ? <View style={s.card}><Text style={[type.micro, s.cardLabel]}>PLANETS · D{vNum}</Text><PlanetTable c={c} s={s} planets={cur.planets} /></View> : null}
+            {cur && !vLoading ? <View style={s.card}><Text style={[type.micro, s.cardLabel]}>{t('PLANETS')} · D{vNum}</Text><PlanetTable c={c} s={s} planets={cur.planets} /></View> : null}
           </>
         )}
 
         {section === 'dasha' && (
           <View style={s.card}>
-            <Text style={[type.micro, s.cardLabel]}>VIMŚOTTARĪ · tap to expand antar / pratyantar</Text>
+            <Text style={[type.micro, s.cardLabel]}>{t('VIMŚOTTARĪ · tap to expand antar / pratyantar')}</Text>
             {dLoading || !dTree ? (
               <View style={{ height: 120, alignItems: 'center', justifyContent: 'center' }}><ActivityIndicator color={c.accentPrimary} /></View>
             ) : (

@@ -41,6 +41,34 @@ const HI: Record<string, string> = {
   'Check Compatibility': 'मिलान जाँचें', 'Compare Charts': 'कुंडली तुलना', 'Cast Prashna': 'प्रश्न कुंडली', 'New match': 'नया मिलान',
   'Load saved / famous': 'सहेजी / प्रसिद्ध चुनें', 'Person 1': 'व्यक्ति 1', 'Person 2': 'व्यक्ति 2',
   Theme: 'थीम', Language: 'भाषा', 'Sign in to Grahika': 'ग्रहिका में साइन इन', 'Save & sync charts across devices': 'कुंडलियाँ सहेजें व समन्वयित करें',
+  // dignity / status / value words
+  exalted: 'उच्च', debilitated: 'नीच', 'own sign': 'स्वराशि', own: 'स्व', moolatrikona: 'मूलत्रिकोण', friendly: 'मित्र', friend: 'मित्र', enemy: 'शत्रु', neutral: 'सम',
+  'great friend': 'अधिमित्र', 'great enemy': 'अधिशत्रु', combust: 'अस्त', retrograde: 'वक्री', direct: 'मार्गी', debilitation: 'नीच', exaltation: 'उच्च',
+  Yes: 'हाँ', No: 'नहीं', None: 'कोई नहीं', high: 'उच्च', medium: 'मध्यम', low: 'निम्न', moderate: 'मध्यम', strong: 'बलवान', weak: 'निर्बल',
+  favorable: 'शुभ', favourable: 'शुभ', unfavorable: 'अशुभ', unfavourable: 'अशुभ', protected: 'सुरक्षित', hostile: 'शत्रुतापूर्ण', mixed: 'मिश्रित',
+  Favorable: 'शुभ', Unfavorable: 'अशुभ', 'Moderately Favorable': 'मध्यम शुभ', Challenging: 'कठिन',
+  // vargas
+  Rashi: 'राशि', Navamsha: 'नवांश', Dashamsha: 'दशांश', Hora: 'होरा', Drekkana: 'द्रेष्काण', Saptamsha: 'सप्तांश',
+  // card / section labels
+  'D1 · RĀŚI': 'D1 · राशि',
+  'VIMŚOTTARĪ · tap to expand antar / pratyantar': 'विंशोत्तरी · अन्तर/प्रत्यन्तर हेतु टैप करें',
+  'Aṣṭakavarga': 'अष्टकवर्ग', 'Ṣaḍbala': 'षड्बल',
+  // More tools
+  Dignity: 'बल-स्थिति', 'Avasthās': 'अवस्था', Argala: 'अर्गला', Upagrahas: 'उपग्रह', Combustion: 'अस्त',
+  Sahams: 'सहम', 'Special Lagnas': 'विशेष लग्न', Varnada: 'वर्णदा', 'Kārakāṁśa': 'कारकांश', 'Vimśopaka': 'विंशोपक',
+  'Bhāva Chalit': 'भाव चलित', 'Lagneśa': 'लग्नेश', 'Jaimini Aspects': 'जैमिनी दृष्टि', 'Saptarṣi': 'सप्तर्षि', 'Pañca Pakṣī': 'पंच पक्षी',
+  'Kota Chakra': 'कोटा चक्र', Sarvatobhadra: 'सर्वतोभद्र', 'Sudarśana': 'सुदर्शन',
+  'Yoginī Daśā': 'योगिनी दशा', 'Aṣṭottarī Daśā': 'अष्टोत्तरी दशा', 'Kālachakra': 'कालचक्र', 'Chara Daśā': 'चर दशा', 'Nārāyaṇa Daśā': 'नारायण दशा',
+  // screen titles / buttons / fields
+  'Choose a chart': 'कुंडली चुनें',
+  Calculate: 'गणना', 'Show Panchāng': 'पंचांग देखें', 'Find Muhūrtas': 'मुहूर्त खोजें', DATE: 'तिथि', PLACE: 'स्थान', PURPOSE: 'उद्देश्य',
+  'Full name': 'पूरा नाम', Name: 'नाम', Email: 'ईमेल', Password: 'पासवर्ड', 'Your question (optional)': 'आपका प्रश्न (वैकल्पिक)', 'QUESTION ABOUT': 'प्रश्न का विषय',
+  general: 'सामान्य', career: 'करियर', marriage: 'विवाह', finance: 'धन', health: 'स्वास्थ्य', travel: 'यात्रा', education: 'शिक्षा', property: 'संपत्ति', child: 'संतान', litigation: 'मुकदमा', business: 'व्यापार', medical: 'चिकित्सा', construction: 'निर्माण',
+  SIGNALS: 'संकेत', 'Talk to Astrologer': 'ज्योतिषी से बात करें', 'Order': 'ऑर्डर', 'New comparison': 'नई तुलना',
+  'No saved charts yet': 'अभी कोई कुंडली सहेजी नहीं', 'Sign in to sync': 'समन्वय हेतु साइन इन', 'Log in / Create account': 'लॉग इन / खाता बनाएँ',
+  'Birth place': 'जन्म स्थान', 'Search city (default Delhi)': 'शहर खोजें (डिफ़ॉल्ट दिल्ली)', 'Place (default Delhi)': 'स्थान (डिफ़ॉल्ट दिल्ली)',
+  'AṢṬAKOOTA BREAKDOWN': 'अष्टकूट विवरण', 'INTER-CHART ASPECTS': 'अंतर-कुंडली दृष्टि', 'GOCHARA · from natal Moon': 'गोचर · जन्म चंद्र से',
+  'PRAŚNA KUNDLI': 'प्रश्न कुंडली', 'KP RULING PLANETS': 'KP शासक ग्रह', 'PLANETARY REMEDIES': 'ग्रह उपाय', 'ARUDHA PADAS': 'आरूढ़ पद',
 };
 
 /** Translate a UI string or a Jyotish term. Returns Hindi in HI mode, else the key. */

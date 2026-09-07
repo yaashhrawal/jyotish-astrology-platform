@@ -3,6 +3,7 @@ import {
   View, Text, TextInput, Pressable, ScrollView, StyleSheet,
   KeyboardAvoidingView, Platform, ActivityIndicator, Keyboard,
 } from 'react-native';
+import { useT } from '../i18n';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useColors } from '../store/theme';
@@ -15,6 +16,7 @@ const MONTHS = ['January','February','March','April','May','June','July','August
 
 export default function CreateChartScreen({ navigation }: any) {
   const c = useColors();
+  const { t } = useT();
   const insets = useSafeAreaInsets();
   const s = useMemo(() => makeStyles(c), [c]);
 
@@ -82,7 +84,7 @@ export default function CreateChartScreen({ navigation }: any) {
       >
         <View style={s.header}>
           <Pressable onPress={() => navigation.goBack()} style={s.iconBtn}><Ionicons name="chevron-back" size={22} color={c.textPrimary} /></Pressable>
-          <Text style={[type.screenTitle, { color: c.textPrimary }]}>Create Kundli</Text>
+          <Text style={[type.screenTitle, { color: c.textPrimary }]}>{t('Create Kundli')}</Text>
         </View>
 
         <Field label="FULL NAME" c={c} s={s}>
@@ -135,7 +137,7 @@ export default function CreateChartScreen({ navigation }: any) {
         </Field>
 
         <Field label="BIRTH PLACE" c={c} s={s}>
-          <TextInput value={place} onChangeText={onPlaceChange} placeholder="Search any city…" placeholderTextColor={c.textMuted} style={s.input} />
+          <TextInput value={place} onChangeText={onPlaceChange} placeholder={t('Search any city…')} placeholderTextColor={c.textMuted} style={s.input} />
           {results.length > 0 && (
             <View style={s.dropdown}>
               {results.map((p, i) => (
@@ -156,7 +158,7 @@ export default function CreateChartScreen({ navigation }: any) {
 
       <View style={[s.ctaWrap, { paddingBottom: insets.bottom + spacing.md }]}>
         <Pressable onPress={submit} disabled={loading} style={[s.cta, loading && { opacity: 0.7 }]}>
-          {loading ? <ActivityIndicator color="#fff" /> : <><Text style={[type.button, { color: '#fff' }]}>Calculate Chart</Text><Ionicons name="flash" size={16} color="#fff" style={{ marginLeft: 8 }} /></>}
+          {loading ? <ActivityIndicator color="#fff" /> : <><Text style={[type.button, { color: '#fff' }]}>{t('Calculate Chart')}</Text><Ionicons name="flash" size={16} color="#fff" style={{ marginLeft: 8 }} /></>}
         </Pressable>
       </View>
     </KeyboardAvoidingView>

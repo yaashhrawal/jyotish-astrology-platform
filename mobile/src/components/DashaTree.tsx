@@ -5,6 +5,7 @@ import { useColors } from '../store/theme';
 import { radius, spacing } from '../theme/theme';
 import { type } from '../theme/typography';
 import { DashaNode } from '../api/astro';
+import { useT } from '../i18n';
 
 const now = Date.now();
 const isActive = (d: DashaNode) => {
@@ -16,6 +17,7 @@ const children = (d: DashaNode) => d.antardashas || d.pratyantardashas || [];
 
 function Row({ node, depth }: { node: DashaNode; depth: number }) {
   const c = useColors();
+  const { t } = useT();
   const kids = children(node);
   const active = isActive(node);
   const [open, setOpen] = useState(active && depth < 2);
@@ -36,7 +38,7 @@ function Row({ node, depth }: { node: DashaNode; depth: number }) {
           <View style={{ width: 16 }} />
         )}
         <Text style={[depth === 0 ? type.bodyMed : type.body, { color: active ? c.accentPrimary : c.textPrimary, width: 74 }]}>
-          {node.lord}{active ? ' •' : ''}
+          {t(node.lord)}{active ? ' •' : ''}
         </Text>
         <Text style={[type.caption, { color: c.textMuted, flex: 1 }]}>
           {node.start.slice(0, 10)} → {node.end.slice(0, 10)}

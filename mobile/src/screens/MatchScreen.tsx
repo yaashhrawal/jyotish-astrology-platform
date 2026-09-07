@@ -1,5 +1,6 @@
 import React, { useMemo, useState, useRef } from 'react';
 import { View, Text, ScrollView, Pressable, StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
+import { useT } from '../i18n';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useColors } from '../store/theme';
@@ -11,6 +12,7 @@ import { apiError } from '../api/client';
 
 export default function MatchScreen({ navigation }: any) {
   const c = useColors();
+  const { t } = useT();
   const insets = useSafeAreaInsets();
   const s = useMemo(() => makeStyles(c), [c]);
   const p1 = useRef<PersonValue | null>(null);
@@ -37,7 +39,7 @@ export default function MatchScreen({ navigation }: any) {
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, backgroundColor: c.bgBody }}>
       <View style={[s.header, { paddingTop: insets.top + spacing.sm }]}>
         <Pressable onPress={() => navigation.goBack()} style={s.iconBtn}><Ionicons name="chevron-back" size={22} color={c.textPrimary} /></Pressable>
-        <Text style={[type.screenTitle, { color: c.textPrimary }]}>Matchmaking</Text>
+        <Text style={[type.screenTitle, { color: c.textPrimary }]}>{t('Matchmaking')}</Text>
       </View>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: insets.bottom + 40 }} keyboardShouldPersistTaps="handled">
         {result ? (
@@ -48,7 +50,7 @@ export default function MatchScreen({ navigation }: any) {
               <Text style={[type.body, { color: c.textMuted, marginTop: 2 }]}>{result.percentage}% · {result.person1.name} ✦ {result.person2.name}</Text>
             </View>
             <View style={s.card}>
-              <Text style={[type.micro, { color: c.textMuted, marginBottom: spacing.sm }]}>AṢṬAKOOTA BREAKDOWN</Text>
+              <Text style={[type.micro, { color: c.textMuted, marginBottom: spacing.sm }]}>{t('AṢṬAKOOTA BREAKDOWN')}</Text>
               {Object.entries(result.kootas).map(([k, v]) => {
                 const pct = v.max ? v.score / v.max : 0;
                 return (
@@ -62,7 +64,7 @@ export default function MatchScreen({ navigation }: any) {
                 );
               })}
             </View>
-            <Pressable onPress={() => setResult(null)} style={s.ghost}><Text style={[type.button, { color: c.accentPrimary }]}>New match</Text></Pressable>
+            <Pressable onPress={() => setResult(null)} style={s.ghost}><Text style={[type.button, { color: c.accentPrimary }]}>{t('New match')}</Text></Pressable>
           </>
         ) : (
           <>
@@ -70,7 +72,7 @@ export default function MatchScreen({ navigation }: any) {
             <PersonInput label="Person 2" onChange={(v) => (p2.current = v)} />
             {error ? <Text style={[type.body, { color: c.accentRed, marginBottom: spacing.sm }]}>{error}</Text> : null}
             <Pressable onPress={run} disabled={loading} style={[s.cta, loading && { opacity: 0.7 }]}>
-              {loading ? <ActivityIndicator color="#fff" /> : <Text style={[type.button, { color: '#fff' }]}>Check Compatibility</Text>}
+              {loading ? <ActivityIndicator color="#fff" /> : <Text style={[type.button, { color: '#fff' }]}>{t('Check Compatibility')}</Text>}
             </Pressable>
           </>
         )}
