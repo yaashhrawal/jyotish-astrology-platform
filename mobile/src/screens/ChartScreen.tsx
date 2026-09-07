@@ -14,6 +14,15 @@ import AnalysisSection from '../components/AnalysisSection';
 import ReadingSection from '../components/ReadingSection';
 import TransitsSection from '../components/TransitsSection';
 import ToolPickerSection, { Tool } from '../components/ToolPickerSection';
+import KotaChakra from '../components/chakras/KotaChakra';
+import SBCChakra from '../components/chakras/SBCChakra';
+import SudarshanaChakra from '../components/chakras/SudarshanaChakra';
+
+const MORE_RENDERERS: Record<string, (d: any) => React.ReactNode> = {
+  kota: (d) => <KotaChakra data={d} />,
+  sbc: (d) => <SBCChakra data={d} />,
+  sudarshana: (d) => <SudarshanaChakra data={d} />,
+};
 
 const MORE_TOOLS: Tool[] = [
   { key: 'dignity', ep: 'dignity', label: 'Dignity' },
@@ -199,7 +208,7 @@ export default function ChartScreen({ route, navigation }: any) {
 
         {section === 'reading' && birth ? <View style={{ paddingTop: spacing.xs }}><ReadingSection birth={birth} /></View> : null}
         {section === 'transits' && birth ? <TransitsSection birth={birth} /> : null}
-        {section === 'more' && birth ? <View style={{ paddingTop: spacing.xs }}><ToolPickerSection birth={birth} tools={MORE_TOOLS} /></View> : null}
+        {section === 'more' && birth ? <View style={{ paddingTop: spacing.xs }}><ToolPickerSection birth={birth} tools={MORE_TOOLS} renderers={MORE_RENDERERS} /></View> : null}
         {section === 'analysis' && birth ? <View style={{ paddingTop: spacing.xs }}><AnalysisSection birth={birth} /></View> : null}
         {section === 'analysis' && !birth ? <View style={s.card}><Text style={[type.body, { color: c.textMuted }]}>Open this chart from Create Kundli to run analysis.</Text></View> : null}
       </ScrollView>

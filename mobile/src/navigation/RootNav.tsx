@@ -16,6 +16,9 @@ import PrashnaScreen from '../screens/PrashnaScreen';
 import CompareScreen from '../screens/CompareScreen';
 import GemsScreen from '../screens/GemsScreen';
 import FamousScreen from '../screens/FamousScreen';
+import NumerologyScreen from '../screens/NumerologyScreen';
+import PanchangaScreen from '../screens/PanchangaScreen';
+import MuhurtaScreen from '../screens/MuhurtaScreen';
 import ComingSoonScreen from '../screens/ComingSoonScreen';
 
 const Tab = createBottomTabNavigator();
@@ -57,6 +60,9 @@ export default function RootNav() {
       <Stack.Screen name="Prashna" component={PrashnaScreen} />
       <Stack.Screen name="Gems" component={GemsScreen} />
       <Stack.Screen name="Famous" component={FamousScreen} />
+      <Stack.Screen name="Numerology" component={NumerologyScreen} />
+      <Stack.Screen name="Panchanga" component={PanchangaScreen} />
+      <Stack.Screen name="Muhurta" component={MuhurtaScreen} />
     </Stack.Navigator>
   );
 }

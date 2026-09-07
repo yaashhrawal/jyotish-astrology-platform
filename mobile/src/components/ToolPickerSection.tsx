@@ -8,8 +8,9 @@ import { apiError } from '../api/client';
 import GenericResult from './GenericResult';
 
 export interface Tool { key: string; ep: string; label: string }
+type Renderers = Record<string, (data: any) => React.ReactNode>;
 
-export default function ToolPickerSection({ birth, tools, initial }: { birth: BirthData; tools: Tool[]; initial?: string }) {
+export default function ToolPickerSection({ birth, tools, initial, renderers }: { birth: BirthData; tools: Tool[]; initial?: string; renderers?: Renderers }) {
   const c = useColors();
   const s = useMemo(() => makeStyles(c), [c]);
   const [sel, setSel] = useState(initial || tools[0].key);
@@ -41,7 +42,14 @@ export default function ToolPickerSection({ birth, tools, initial }: { birth: Bi
         <Text style={[type.micro, { color: c.textMuted, marginBottom: spacing.sm }]}>{t.label.toUpperCase()}</Text>
         {status[sel] === 'loading' ? <View style={{ height: 100, alignItems: 'center', justifyContent: 'center' }}><ActivityIndicator color={c.accentPrimary} /></View> :
          status[sel] === 'error' ? <Text style={[type.body, { color: c.accentRed }]}>{err[sel]}</Text> :
-         <GenericResult data={data[sel]} />}
+         !data[sel] ? null :
+         renderers?.[sel] ? (
+           <View>
+             {renderers[sel](data[sel])}
+             <View style={{ height: spacing.md }} />
+             <GenericResult data={data[sel]} />
+           </View>
+         ) : <GenericResult data={data[sel]} />}
       </View>
     </View>
   );

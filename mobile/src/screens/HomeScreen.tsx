@@ -16,6 +16,9 @@ const TOOLS: { key: string; label: string; sub: string; icon: any; route: string
   { key: 'saved',   label: 'Saved Charts',sub: 'Synced to your account',  icon: 'bookmark-outline', route: 'Saved', auth: true },
   { key: 'gems',    label: 'Gems',        sub: 'Recommended stones',      icon: 'diamond-outline', route: 'Gems' },
   { key: 'famous',  label: 'Famous Charts',sub: 'Study notable nativities', icon: 'star-outline', route: 'Famous' },
+  { key: 'panchanga',label: 'Panchāng',    sub: "Today's tithi, nakṣatra", icon: 'calendar-outline', route: 'Panchanga' },
+  { key: 'muhurta', label: 'Muhūrta',      sub: 'Best times for an event', icon: 'time-outline', route: 'Muhurta' },
+  { key: 'numerology',label:'Numerology',  sub: 'Moolank · Bhagyank',     icon: 'calculator-outline', route: 'Numerology' },
 ];
 
 export default function HomeScreen({ navigation }: any) {
