@@ -1,8 +1,9 @@
 import os
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
 from pydantic import BaseModel, EmailStr
 from core.db import get_pool
 from core.auth import hash_password, verify_password, create_access_token, get_current_user
+from core.ratelimit import limiter
 import uuid
 from datetime import datetime, timedelta
 
@@ -40,7 +41,8 @@ class UpdateProfileRequest(BaseModel):
 
 
 @router.post("/auth/register")
-async def register(req: RegisterRequest):
+@limiter.limit("10/minute")
+async def register(request: Request, req: RegisterRequest):
     pool = await get_pool()
     async with pool.acquire() as conn:
         existing = await conn.fetchrow("SELECT id FROM users WHERE email=$1", req.email)
@@ -70,7 +72,8 @@ async def register(req: RegisterRequest):
 
 
 @router.post("/auth/login")
-async def login(req: LoginRequest):
+@limiter.limit("10/minute")
+async def login(request: Request, req: LoginRequest):
     pool = await get_pool()
     async with pool.acquire() as conn:
         user = await conn.fetchrow("SELECT * FROM users WHERE email=$1", req.email)

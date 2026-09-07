@@ -8,7 +8,8 @@ from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from contextlib import asynccontextmanager
-from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi import _rate_limit_exceeded_handler
+from core.ratelimit import limiter
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from collections import defaultdict
@@ -41,7 +42,6 @@ from routers import varnada
 from routers import interpretation
 
 
-limiter = Limiter(key_func=get_remote_address)
 
 # Simple sliding-window rate limiter for /api/calc/* routes
 _calc_hits: dict = defaultdict(list)
