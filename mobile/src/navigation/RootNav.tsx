@@ -15,6 +15,7 @@ import MatchScreen from '../screens/MatchScreen';
 import PrashnaScreen from '../screens/PrashnaScreen';
 import CompareScreen from '../screens/CompareScreen';
 import GemsScreen from '../screens/GemsScreen';
+import FamousScreen from '../screens/FamousScreen';
 import ComingSoonScreen from '../screens/ComingSoonScreen';
 
 const Tab = createBottomTabNavigator();
@@ -55,6 +56,7 @@ export default function RootNav() {
       <Stack.Screen name="Compare" component={CompareScreen} />
       <Stack.Screen name="Prashna" component={PrashnaScreen} />
       <Stack.Screen name="Gems" component={GemsScreen} />
+      <Stack.Screen name="Famous" component={FamousScreen} />
     </Stack.Navigator>
   );
 }

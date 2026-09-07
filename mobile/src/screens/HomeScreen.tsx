@@ -15,6 +15,7 @@ const TOOLS: { key: string; label: string; sub: string; icon: any; route: string
   { key: 'prashna', label: 'Prashna',     sub: 'Ask a question now',      icon: 'help-circle-outline', route: 'Prashna' },
   { key: 'saved',   label: 'Saved Charts',sub: 'Synced to your account',  icon: 'bookmark-outline', route: 'Saved', auth: true },
   { key: 'gems',    label: 'Gems',        sub: 'Recommended stones',      icon: 'diamond-outline', route: 'Gems' },
+  { key: 'famous',  label: 'Famous Charts',sub: 'Study notable nativities', icon: 'star-outline', route: 'Famous' },
 ];
 
 export default function HomeScreen({ navigation }: any) {

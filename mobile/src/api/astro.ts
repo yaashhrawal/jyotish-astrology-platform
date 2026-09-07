@@ -116,8 +116,19 @@ export const getInterpret = (d: BirthData, topic: string) =>
 export const gemsCatalog = () =>
   api.get<any[]>(`/api/gems/catalog`).then((r) => r.data);
 
+export const getFamousCharts = () =>
+  api.get(`${CALC}/famous_charts`).then((r) => {
+    const d: any = r.data;
+    if (Array.isArray(d)) return d;
+    return d.charts || d.famous || d.famous_charts || (Object.values(d).find(Array.isArray) as any[]) || [];
+  });
+
 export const synastry = (p: CompatPayload) =>
   api.post(`${CALC}/synastry`, { ayanamsa: 'lahiri', ...p }).then((r) => r.data);
+
+// Generic caller for any /api/calc/<ep> that accepts BirthData.
+export const calcTool = (ep: string, d: BirthData) =>
+  api.post(`${CALC}/${ep}`, d).then((r) => r.data);
 
 // Full nested Vimśottarī tree: dashas[].antardashas[].pratyantardashas[]
 export interface DashaNode { lord: string; start: string; end: string; years: number; antardashas?: DashaNode[]; pratyantardashas?: DashaNode[]; }

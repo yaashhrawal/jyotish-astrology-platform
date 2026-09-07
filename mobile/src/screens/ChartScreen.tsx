@@ -13,6 +13,33 @@ import DashaTree from '../components/DashaTree';
 import AnalysisSection from '../components/AnalysisSection';
 import ReadingSection from '../components/ReadingSection';
 import TransitsSection from '../components/TransitsSection';
+import ToolPickerSection, { Tool } from '../components/ToolPickerSection';
+
+const MORE_TOOLS: Tool[] = [
+  { key: 'dignity', ep: 'dignity', label: 'Dignity' },
+  { key: 'avasthas', ep: 'avasthas', label: 'Avasthās' },
+  { key: 'argala', ep: 'argala', label: 'Argala' },
+  { key: 'upagrahas', ep: 'upagrahas', label: 'Upagrahas' },
+  { key: 'combustion', ep: 'combustion', label: 'Combustion' },
+  { key: 'sahams', ep: 'sahams', label: 'Sahams' },
+  { key: 'special_lagnas', ep: 'special_lagnas', label: 'Special Lagnas' },
+  { key: 'varnada', ep: 'varnada', label: 'Varnada' },
+  { key: 'karakamsha', ep: 'karakamsha', label: 'Kārakāṁśa' },
+  { key: 'vimshopaka', ep: 'vimshopaka', label: 'Vimśopaka' },
+  { key: 'bhava_chalit', ep: 'bhava_chalit', label: 'Bhāva Chalit' },
+  { key: 'lagnesh', ep: 'lagnesh_analysis', label: 'Lagneśa' },
+  { key: 'jaimini_aspects', ep: 'jaimini_aspects', label: 'Jaimini Aspects' },
+  { key: 'saptarishis', ep: 'saptarishis', label: 'Saptarṣi' },
+  { key: 'pancha_pakshi', ep: 'pancha_pakshi', label: 'Pañca Pakṣī' },
+  { key: 'kota', ep: 'kota_chakra', label: 'Kota Chakra' },
+  { key: 'sbc', ep: 'sarvatobhadra', label: 'Sarvatobhadra' },
+  { key: 'sudarshana', ep: 'sudarshana', label: 'Sudarśana' },
+  { key: 'yogini', ep: 'yogini_dasha', label: 'Yoginī Daśā' },
+  { key: 'ashtottari', ep: 'ashtottari', label: 'Aṣṭottarī Daśā' },
+  { key: 'kalachakra', ep: 'kalachakra', label: 'Kālachakra' },
+  { key: 'chara', ep: 'chara_dasha', label: 'Chara Daśā' },
+  { key: 'narayana', ep: 'narayana_dasha', label: 'Nārāyaṇa Daśā' },
+];
 
 // Fill the card width: screen minus outer margins minus small card padding.
 const CHART_SIZE = Dimensions.get('window').width - 2 * spacing.lg - 2 * spacing.md;
@@ -24,10 +51,11 @@ const VARGAS = [
   { d: 16, n: 'D16' }, { d: 20, n: 'D20' }, { d: 24, n: 'D24' }, { d: 27, n: 'D27' },
   { d: 30, n: 'D30 Triṁśāṁśa' }, { d: 60, n: 'D60 Ṣaṣṭyāṁśa' },
 ];
-type Section = 'chart' | 'vargas' | 'dasha' | 'reading' | 'transits' | 'analysis';
+type Section = 'chart' | 'vargas' | 'dasha' | 'reading' | 'transits' | 'analysis' | 'more';
 const SECTIONS: { k: Section; label: string }[] = [
   { k: 'chart', label: 'Chart' }, { k: 'vargas', label: 'Vargas' }, { k: 'dasha', label: 'Dāśā' },
   { k: 'reading', label: 'Reading' }, { k: 'transits', label: 'Transits' }, { k: 'analysis', label: 'Analysis' },
+  { k: 'more', label: 'More' },
 ];
 
 export default function ChartScreen({ route, navigation }: any) {
@@ -171,6 +199,7 @@ export default function ChartScreen({ route, navigation }: any) {
 
         {section === 'reading' && birth ? <View style={{ paddingTop: spacing.xs }}><ReadingSection birth={birth} /></View> : null}
         {section === 'transits' && birth ? <TransitsSection birth={birth} /> : null}
+        {section === 'more' && birth ? <View style={{ paddingTop: spacing.xs }}><ToolPickerSection birth={birth} tools={MORE_TOOLS} /></View> : null}
         {section === 'analysis' && birth ? <View style={{ paddingTop: spacing.xs }}><AnalysisSection birth={birth} /></View> : null}
         {section === 'analysis' && !birth ? <View style={s.card}><Text style={[type.body, { color: c.textMuted }]}>Open this chart from Create Kundli to run analysis.</Text></View> : null}
       </ScrollView>
