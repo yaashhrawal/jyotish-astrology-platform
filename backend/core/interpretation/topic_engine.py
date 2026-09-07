@@ -59,9 +59,50 @@ def _neecha_bhanga(planet, planets, lagna_idx):
                for c in (disp, exalt_lord))
 
 
-def _plain_effect(f, area: str) -> str:
+_AREA_HI = {
+    "career and profession": "करियर", "career": "करियर", "self, body and vitality": "स्वयं",
+    "wealth, family and speech": "धन", "wealth": "धन", "marriage": "विवाह", "love": "प्रेम",
+    "family": "परिवार", "health": "स्वास्थ्य", "children": "संतान", "education": "शिक्षा",
+    "travel": "यात्रा", "fortune": "भाग्य", "profession": "करियर", "gains": "लाभ", "spirituality": "अध्यात्म",
+}
+
+def _plain_effect_hi(f, a: str) -> str:
+    """Hindi mirror of _plain_effect (same rule order)."""
+    c = " ".join(f.conditions)
+    if "neecha_bhanga" in c: return "यहाँ प्रारंभिक कमजोरी पलट जाती है — जीवन के आरंभ का संघर्ष आगे चलकर वास्तविक उन्नति बनता है।"
+    if "mks" in c: return f"यह ग्रह इस स्थान पर बहुत कमजोर है, अतः आपके {a} हेतु कम फल देता है।"
+    if "combust" in c: return f"सूर्य के अति निकट होने से इस ग्रह के शुभ प्रभाव आपके {a} हेतु मंद पड़ते हैं।"
+    if "yoga:parivartana" in c: return f"दो स्वामी स्थान बदलते हैं — आपके {a} को प्रबल, स्वतःपुष्ट बल।"
+    if "yoga:amala" in c: return "स्वच्छ प्रतिष्ठा और स्थायी सुनाम का संकेत।"
+    if "manglik" in c: return "मंगल विवाह में बाधा व विलंब जोड़ता है — समान स्थिति वाले साथी से संतुलित होता है।"
+    if "functional:yogakaraka" in c: return f"कुंडली के श्रेष्ठतम ग्रहों में से एक — यह आपके {a} को प्रबलता से उठाता है।"
+    if "functional:benefic" in c: return f"आपके {a} हेतु स्वभावतः सहायक स्वामी।"
+    if "functional_malefic" in c or "functional:malefic" in c: return f"एक कठोर स्वामी — आपका {a} परिश्रम से अर्जित होता है, सहज नहीं।"
+    if "argala:benefic" in c: return f"निकट के शुभ ग्रहों से आपके {a} को अतिरिक्त सहयोग मिलता है।"
+    if "aspect" in c: return f"आपके {a} की रक्षा करती शुभ दृष्टि।" if f.polarity > 0 else f"आपके {a} पर दबाव डालती कठोर दृष्टि।"
+    if "conjunct" in c: return f"अच्छी संगति इस स्वामी के {a} पर कार्य को निखारती है।" if f.polarity > 0 else f"तनावपूर्ण संगति इस स्वामी के {a} पर कार्य को जटिल बनाती है।"
+    if "retrograde" in c: return "एक अपरंपरागत, अंतर्मुखी मार्ग — प्रगति अपने ढंग से आती है।"
+    if "from_moon" in c: return f"मन/भावना से देखने पर यही विषय आपके {a} हेतु दोहराया जाता है।"
+    if "varga" in c: return f"आपके {a} को विशेष रूप से नियंत्रित करने वाले वर्ग में पुष्टि।"
+    if "jaimini:amatyakaraka" in c: return "आपका स्वाभाविक करियर कारक — इसकी स्थिति व्यावसायिक जीवन को रंग देती है।"
+    if "sav" in c: return "यह भाव बल-बिंदुओं से भरपूर है।" if f.polarity > 0 else ("यह भाव बल-बिंदुओं में कम है — कोमल क्षेत्र।" if f.polarity < 0 else "इस भाव में औसत बल है।")
+    if "karaka" in c:
+        if f.polarity > 0: return f"आपके {a} का स्वाभाविक कारक बलवान है — शुभ संकेत।"
+        if f.polarity < 0: return f"आपके {a} का स्वाभाविक कारक कमजोर है — सहयोग चाहिए।"
+        return f"आपके {a} का स्वाभाविक कारक स्थिर है।"
+    if "exalted" in c: return f"यहाँ अपने श्रेष्ठ रूप में — आपके {a} हेतु स्पष्ट बल।"
+    if "own_sign" in c: return f"अपने घर में — आपके {a} में ठोस व आत्मविश्वासी।"
+    if "debilitated" in c: return f"यहाँ कमजोर — आपके {a} के इस भाग को अतिरिक्त देखभाल चाहिए।"
+    if f.polarity > 0: return f"आपके {a} पर एक सहायक प्रभाव।"
+    if f.polarity < 0: return f"आपके {a} पर एक चुनौतीपूर्ण प्रभाव।"
+    return f"आपके {a} हेतु एक तटस्थ, संदर्भ-निर्धारक कारक।"
+
+
+def _plain_effect(f, area: str, lang: str = "en") -> str:
     """A short, layperson 'what this means' line derived from the factor.
     Plain English, no jargon — the reading should explain itself."""
+    if lang == "hi":
+        return _plain_effect_hi(f, _AREA_HI.get((area or "").lower(), area))
     c = " ".join(f.conditions)
     a = area
     # strongest/most specific rules first
@@ -118,7 +159,7 @@ def _plain_effect(f, area: str) -> str:
 
 def topic_factors(cfg, planets, lagna_idx, dvarga_planets=None, active_lords=None,
                   aspects_on_house=None, sav_house=None, scheme="parashari",
-                  varga_mode=False, varga_num=1, d1_signs=None):
+                  varga_mode=False, varga_num=1, d1_signs=None, lang="en"):
     """
     Emit the factor list for one topic. In varga_mode=True the chart passed IS the
     divisional; D1-only families (dāśā boost, SAV, combustion) are skipped.
@@ -332,5 +373,5 @@ def topic_factors(cfg, planets, lagna_idx, dvarga_planets=None, active_lords=Non
     area = vinfo["domain"] if varga_mode else label.lower()
     for f in F:
         if not f.effect:
-            f.effect = _plain_effect(f, area)
+            f.effect = _plain_effect(f, area, lang)
     return F

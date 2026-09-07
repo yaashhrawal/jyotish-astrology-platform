@@ -47,6 +47,7 @@ class InterpretRequest(BaseModel):
     topic: str = "career"       # a topic key, or "all"
     varga: int = 1              # 1 = D1 (rashi); >1 judges the topic inside that divisional
     scheme: str = "parashari"
+    lang: str = "en"            # en | hi — narrative language
 
 
 def _asof_jd() -> float:
@@ -78,9 +79,9 @@ def interpret(req: InterpretRequest):
     results = []
     for t in keys:
         if req.varga and req.varga != 1:
-            results.append(analyze_varga(t, planets, lagna, jd, asof, req.varga, req.scheme))
+            results.append(analyze_varga(t, planets, lagna, jd, asof, req.varga, req.scheme, req.lang))
         else:
-            results.append(analyze(t, planets, lagna, jd, asof, req.scheme))
+            results.append(analyze(t, planets, lagna, jd, asof, req.scheme, req.lang))
 
     return {
         "topic": req.topic, "varga": f"D{req.varga}", "scheme": req.scheme,

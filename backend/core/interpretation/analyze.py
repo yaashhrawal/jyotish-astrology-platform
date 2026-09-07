@@ -50,7 +50,7 @@ def _active_lords(planets, birth_jd, asof_jd):
     return set(d["lord"] for d in dashas if d["start_jd"] <= asof_jd < d["end_jd"])
 
 
-def _factors_for_house(cfg, house, planets, lagna_idx, active, scheme):
+def _factors_for_house(cfg, house, planets, lagna_idx, active, scheme, lang="en"):
     """Run the engine for one house using the topic's karakas/varga/sources."""
     sub = dict(cfg); sub["house"] = house
     primary = cfg.get("primary_varga", 1)
@@ -63,11 +63,11 @@ def _factors_for_house(cfg, house, planets, lagna_idx, active, scheme):
     asp = _aspects_on_house(planets, lagna_idx, house)
     sav = _sav_house(planets, lagna_idx, house)
     return topic_factors(sub, planets, lagna_idx, dvarga_planets=dvarga,
-                         active_lords=active, aspects_on_house=asp, sav_house=sav, scheme=scheme)
+                         active_lords=active, aspects_on_house=asp, sav_house=sav, scheme=scheme, lang=lang)
 
 
 def analyze_varga(topic_key, d1_planets, d1_lagna_idx, birth_jd, asof_jd,
-                  varga_num, scheme="parashari"):
+                  varga_num, scheme="parashari", lang="en"):
     """Run the SAME engine inside a divisional chart (D9/D10/...). Judges the topic's
     house by that varga's own positions; D1-only rule families are gated off."""
     cfg = get_topic(topic_key)
@@ -84,7 +84,7 @@ def analyze_varga(topic_key, d1_planets, d1_lagna_idx, birth_jd, asof_jd,
         sub = dict(cfg); sub["house"] = h
         for f in topic_factors(sub, vplanets, vlagna, dvarga_planets=None, active_lords=active,
                                aspects_on_house=asp, sav_house=None, scheme=scheme,
-                               varga_mode=True, varga_num=varga_num, d1_signs=d1_signs):
+                               varga_mode=True, varga_num=varga_num, d1_signs=d1_signs, lang=lang):
             k = (f.subject, f.claim)
             if k not in seen:
                 seen.add(k); factors.append(f)
@@ -100,12 +100,12 @@ def analyze_varga(topic_key, d1_planets, d1_lagna_idx, birth_jd, asof_jd,
     return {
         "topic": topic_key, "label": cfg["label"], "varga": f"D{varga_num}",
         "net": merged["net"], "tension": merged["tension"],
-        "narrative": compose(topic_key, merged, active),
+        "narrative": compose(topic_key, merged, active, lang),
         "factors": [f.to_dict() for f in ranked],
     }
 
 
-def analyze(topic_key, planets, lagna_idx, birth_jd, asof_jd, scheme="parashari"):
+def analyze(topic_key, planets, lagna_idx, birth_jd, asof_jd, scheme="parashari", lang="en"):
     cfg = get_topic(topic_key)
     active = _active_lords(planets, birth_jd, asof_jd)
     houses = cfg.get("houses") or [cfg["house"]]
@@ -113,7 +113,7 @@ def analyze(topic_key, planets, lagna_idx, birth_jd, asof_jd, scheme="parashari"
     factors = []
     seen = set()
     for h in houses:
-        for f in _factors_for_house(cfg, h, planets, lagna_idx, active, scheme):
+        for f in _factors_for_house(cfg, h, planets, lagna_idx, active, scheme, lang):
             k = (f.subject, f.claim)
             if k not in seen:
                 seen.add(k); factors.append(f)
@@ -128,7 +128,7 @@ def analyze(topic_key, planets, lagna_idx, birth_jd, asof_jd, scheme="parashari"
               "harm": round(sum(f.weight for f in ranked if f.polarity < 0), 3),
               "tension": any(f.polarity > 0 for f in ranked) and any(f.polarity < 0 for f in ranked),
               "factors": ranked}
-    narrative = compose(topic_key, merged, active)
+    narrative = compose(topic_key, merged, active, lang)
 
     return {
         "topic": topic_key, "label": cfg["label"], "houses": houses,

@@ -5,30 +5,34 @@ import { Colors, radius, spacing } from '../theme/theme';
 import { type } from '../theme/typography';
 import { BirthData, getInterpretTopics, getInterpret } from '../api/astro';
 import { apiError } from '../api/client';
+import { useLangStore } from '../i18n';
 
 export default function ReadingSection({ birth }: { birth: BirthData }) {
   const c = useColors();
+  const lang = useLangStore((st) => st.lang);
   const s = useMemo(() => makeStyles(c), [c]);
   const [topics, setTopics] = useState<{ key: string; label: string }[]>([]);
   const [topic, setTopic] = useState('career');
-  const [data, setData] = useState<Record<string, any>>({});
+  const [data, setData] = useState<Record<string, any>>({});   // keyed by `${topic}:${lang}`
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => { getInterpretTopics().then(setTopics).catch(() => {}); }, []);
 
-  const load = useCallback(async (t: string) => {
-    setTopic(t);
-    if (data[t]) return;
+  const load = useCallback(async (topicKey: string) => {
+    setTopic(topicKey);
+    const cacheKey = `${topicKey}:${lang}`;
+    if (data[cacheKey]) return;
     setLoading(true); setError('');
-    try { const r = await getInterpret(birth, t); setData((p) => ({ ...p, [t]: r })); }
+    try { const r = await getInterpret(birth, topicKey, lang); setData((p) => ({ ...p, [cacheKey]: r })); }
     catch (e) { setError(apiError(e)); }
     finally { setLoading(false); }
-  }, [birth, data]);
+  }, [birth, data, lang]);
 
+  useEffect(() => { load(topic); }, [lang]);   // (re)load current topic in the active language
   useEffect(() => { load('career'); }, []);
 
-  const cur = data[topic];
+  const cur = data[`${topic}:${lang}`];
   return (
     <View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: spacing.lg, gap: 8, paddingBottom: spacing.sm }}>

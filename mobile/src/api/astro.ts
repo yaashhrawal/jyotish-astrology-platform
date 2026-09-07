@@ -110,8 +110,8 @@ export const getRemedies = (d: BirthData) =>
   api.post(`${CALC}/remedies`, d).then((r) => r.data);
 export const getInterpretTopics = () =>
   api.get<{ topics: { key: string; label: string }[] }>(`${CALC}/interpret/topics`).then((r) => r.data.topics);
-export const getInterpret = (d: BirthData, topic: string) =>
-  api.post(`${CALC}/interpret`, { ...d, topic }).then((r) => r.data);
+export const getInterpret = (d: BirthData, topic: string, lang: string = 'en') =>
+  api.post(`${CALC}/interpret`, { ...d, topic, lang }).then((r) => r.data);
 
 export const gemsCatalog = () =>
   api.get<any[]>(`/api/gems/catalog`).then((r) => r.data);
