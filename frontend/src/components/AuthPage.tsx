@@ -166,6 +166,12 @@ export default function AuthPage({ onClose }: { onClose: () => void }) {
           )}
 
           <div style={S.skip} onClick={onClose}>{t('Continue as guest')}</div>
+          <div style={S.legal}>
+            {t('By continuing you agree to our')}{' '}
+            <a href="/terms.html" target="_blank" rel="noopener" style={S.legalLink}>{t('Terms')}</a>
+            {' '}&{' '}
+            <a href="/privacy.html" target="_blank" rel="noopener" style={S.legalLink}>{t('Privacy Policy')}</a>.
+          </div>
         </div>
       </div>
     </div>
@@ -192,6 +198,8 @@ const S: Record<string, React.CSSProperties> = {
   err: { color: 'var(--red)', fontSize: '13px', marginBottom: '12px', padding: '8px 10px', background: 'var(--red-bg)', borderRadius: '6px' },
   toggle: { color: 'var(--accent)', fontSize: '13px', textAlign: 'center', marginTop: '15px', cursor: 'pointer' },
   skip: { color: 'var(--text3)', fontSize: '12.5px', textAlign: 'center', marginTop: '18px', cursor: 'pointer', textDecoration: 'underline' },
+  legal: { color: 'var(--text4)', fontSize: '11.5px', textAlign: 'center', marginTop: '16px', lineHeight: 1.5 },
+  legalLink: { color: 'var(--text3)', textDecoration: 'underline' },
   roleGrid: { display: 'flex', flexDirection: 'column', gap: '11px', marginBottom: '8px' },
   roleCard: { border: '2px solid var(--border)', borderRadius: '11px', padding: '15px', cursor: 'pointer', transition: 'all .15s', background: 'var(--bg)' },
   roleActive: { borderColor: 'var(--accent)', background: 'var(--accent-bg)' },
