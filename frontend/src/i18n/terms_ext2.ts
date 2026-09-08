@@ -95,4 +95,9 @@ export const EXT2: Dict = {
   'th house':          { en: 'th house',           hi: 'वें भाव',        sa: 'भावे' },
   'Tap a period to read it. Every prediction cites its rule.': { en: 'Tap a period to read it. Every prediction cites its rule.', hi: 'पढ़ने हेतु किसी अवधि पर टैप करें। प्रत्येक कथन अपना नियम उद्धृत करता है।', sa: 'वाचनार्थं कालखण्डं स्पृशतु। प्रत्येकं कथनं स्वनियमम् उद्धरति।' },
   'Rule-based · deterministic · every prediction cites its classical source.': { en: 'Rule-based · deterministic · every prediction cites its classical source.', hi: 'नियम-आधारित · सुनिश्चित · प्रत्येक कथन शास्त्रीय स्रोत उद्धृत करता है।', sa: 'नियमाधारितम् · निश्चितम् · प्रत्येकं कथनं शास्त्रीयस्रोतम् उद्धरति।' },
+  'Coming soon': { en: 'Coming soon', hi: 'जल्द आ रहा है', sa: 'शीघ्रम् आगच्छति' },
+  'iOS & Android apps': { en: 'iOS & Android apps', hi: 'iOS व Android ऐप', sa: 'iOS Android अनुप्रयोगाः' },
+  'Gems marketplace': { en: 'Gems marketplace', hi: 'रत्न बाज़ार', sa: 'रत्नविपणिः' },
+  'Client CRM': { en: 'Client CRM', hi: 'क्लाइंट प्रबंधन', sa: 'ग्राहकप्रबन्धनम्' },
+  'Astrologer tools': { en: 'Astrologer tools', hi: 'ज्योतिषी साधन', sa: 'ज्योतिषिसाधनानि' },
 }

@@ -193,20 +193,17 @@ const APP_TABS: TabItem[] = [
 // businessOnly = requires an active trial / paid plan (the ₹500 Practice tier).
 // Gems + Earnings are FREE (referral income for everyone); calculations are free.
 type AppSection = { label: string; icon?: string; businessOnly?: boolean; tabs: TabItem[] }
+// LAUNCH nav — only live consumer tools. Gems/Earnings/Business (CRM/Brand)
+// are hidden until they ship (teased via the "coming soon" strip). Their render
+// cases + routes remain in code, just not surfaced in navigation.
 const APP_SECTIONS: AppSection[] = [
   { label: 'Tools', icon: '✦', tabs: [
     { id: 'prashna',       label: 'Prashna',  icon: '☽' },
     { id: 'muhurta',       label: 'Muhurta',  icon: '✦' },
     { id: 'compatibility', label: 'Match',    icon: '♥' },
     { id: 'synastry',      label: 'Compare',  icon: '⊗' },
-    { id: 'gems',          label: 'Gems',     icon: '💎' },   // free — referral income
-    { id: 'earnings',      label: 'Earnings', icon: '💰' },   // free — your gem commissions
     { id: 'research',      label: 'Research' },
     { id: 'ai',            label: 'AI' },
-  ]},
-  { label: 'Business', icon: '💼', businessOnly: true, tabs: [
-    { id: 'crm',      label: 'Clients' },
-    { id: 'profile',  label: 'Brand',    icon: '⚙' },
   ]},
 ]
 
@@ -1229,6 +1226,30 @@ function HeroEmpty() {
               <div style={{ fontSize: '11px', color: 'var(--text3)', marginTop: '2px' }}>{item.sub}</div>
             </div>
           ))}
+        </div>
+
+        {/* Roadmap / coming-soon strip */}
+        <div style={{ marginTop: '32px', maxWidth: '560px' }}>
+          <div style={{ fontSize: '10.5px', fontWeight: '800', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text3)', marginBottom: '10px' }}>
+            {t('Coming soon')}
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
+            {[
+              { icon: '📱', label: t('iOS & Android apps') },
+              { icon: '💎', label: t('Gems marketplace') },
+              { icon: '🗂', label: t('Client CRM') },
+              { icon: '⚙', label: t('Astrologer tools') },
+            ].map(cs => (
+              <span key={cs.label} style={{
+                padding: '6px 13px', borderRadius: '20px', fontSize: '12px',
+                background: 'transparent', border: '1px dashed var(--border2)',
+                color: 'var(--text3)', fontWeight: '600',
+                display: 'flex', alignItems: 'center', gap: '6px',
+              }}>
+                <span>{cs.icon}</span>{cs.label}
+              </span>
+            ))}
+          </div>
         </div>
       </div>
     </div>
