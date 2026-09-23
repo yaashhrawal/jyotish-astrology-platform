@@ -1,14 +1,10 @@
 import PlanetInterpretationDrawer from './PlanetInterpretation'
+import { PLANET_COLORS } from './ui'
 import { useState, useEffect } from 'react'
 import { useLang } from '../contexts/LanguageContext'
 import { varshaphalApi } from '../api/client'
 import NorthIndianChart from './NorthIndianChart'
 import SouthIndianChart from './SouthIndianChart'
-
-const PLANET_COLORS: Record<string, string> = {
-  Sun: '#D97706', Moon: '#0891B2', Mars: '#DC2626', Mercury: '#16A34A',
-  Jupiter: '#B45309', Venus: '#7C3AED', Saturn: '#2563EB', Rahu: '#57534E', Ketu: '#A8A29E'
-}
 
 interface Props { chart: any; birthData: any }
 
@@ -74,7 +70,7 @@ export default function VarshaphalPanel({ chart, birthData }: Props) {
       </div>
 
       {loading && <div style={{ padding: '20px', color: 'var(--text3)' }}>Computing solar return…</div>}
-      {error && <div style={{ padding: '12px', background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: '8px', color: '#DC2626', fontSize: '13px' }}>{error}</div>}
+      {error && <div style={{ padding: '12px', background: 'var(--red-bg)', border: '1px solid var(--red)', borderRadius: '8px', color: '#DC2626', fontSize: '13px' }}>{error}</div>}
 
       {data && <>
         {/* Return info bar */}
@@ -102,21 +98,23 @@ export default function VarshaphalPanel({ chart, birthData }: Props) {
         </div>
 
         {/* Chart + planets side by side */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(280px, 380px) 1fr', gap: '16px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(360px, 480px) 1fr', gap: '16px', alignItems: 'start' }}>
           {/* Chart */}
-          <div style={card}>
+          <div style={{ ...card, overflow: 'visible' }}>
             <div style={{ fontSize: '12px', fontWeight: '700', marginBottom: '12px', color: 'var(--text3)', fontFamily: "'Noto Sans Devanagari', sans-serif" }}>{t('Solar Return Chart')} {returnYear}</div>
             {varshaphalAsc && (
-              chartStyle === 'north'
-                ? <NorthIndianChart ascendant={varshaphalAsc} planets={varshaphalPlanets} planetHouseMap={varshaphalHouseMap} />
-                : <SouthIndianChart ascendant={varshaphalAsc} planets={varshaphalPlanets} planetHouseMap={varshaphalHouseMap} />
+              <div style={{ maxWidth: '460px', margin: '0 auto' }}>
+                {chartStyle === 'north'
+                  ? <NorthIndianChart compact ascendant={varshaphalAsc} planets={varshaphalPlanets} planetHouseMap={varshaphalHouseMap} />
+                  : <SouthIndianChart compact ascendant={varshaphalAsc} planets={varshaphalPlanets} planetHouseMap={varshaphalHouseMap} />}
+              </div>
             )}
           </div>
 
           {/* Planet positions */}
-          <div style={card}>
+          <div style={{ ...card, overflowX: 'auto' }}>
             <div style={{ fontSize: '12px', fontWeight: '700', marginBottom: '12px', color: 'var(--text3)', fontFamily: "'Noto Sans Devanagari', sans-serif" }}>{t('Planetary Positions (Return vs Natal)')}</div>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+            <table style={{ width: '100%', minWidth: '580px', borderCollapse: 'collapse', fontSize: '12px' }}>
               <thead>
                 <tr style={{ borderBottom: '2px solid var(--border)' }}>
                   {['Planet','Return Sign','House','Natal Sign','Natal H','Status','Retro'].map(h => (
@@ -191,6 +189,85 @@ export default function VarshaphalPanel({ chart, birthData }: Props) {
             </div>
           </div>
         </div>
+
+        {/* Varshesh (year lord) selection via Panchavargeeya bala */}
+        {data.varshesh_candidates?.length > 0 && (
+          <div style={{ ...card, overflowX: 'auto' }}>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', marginBottom: '12px', flexWrap: 'wrap' }}>
+              <div style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.07em', fontFamily: "'Noto Sans Devanagari', sans-serif" }}>{t('Varshesh (Year Lord)')}</div>
+              <span style={{ fontSize: '11px', color: 'var(--text4)' }}>{t('strongest of 5 office-bearers by Panchavargeeya Bala')}</span>
+            </div>
+            <table style={{ width: '100%', minWidth: '580px', borderCollapse: 'collapse', fontSize: '12px' }}>
+              <thead>
+                <tr style={{ borderBottom: '2px solid var(--border)' }}>
+                  {['Office','Planet','Kshetra','Uchcha','Hadda','Drekkana','Navamsa','Total'].map(h => (
+                    <th key={h} style={{ padding: '6px 8px', textAlign: h === 'Office' || h === 'Planet' ? 'left' : 'right', fontSize: '10px', fontWeight: '700', color: 'var(--text3)', textTransform: 'uppercase', fontFamily: "'Noto Sans Devanagari', sans-serif" }}>{t(h)}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {data.varshesh_candidates.map((c: any, i: number) => {
+                  const win = c.planet === data.varshesh && i === 0
+                  return (
+                    <tr key={c.office} style={{ borderBottom: '1px solid var(--border)', background: win ? 'var(--accent-bg)' : i % 2 ? 'var(--surface2)' : 'transparent' }}>
+                      <td style={{ padding: '6px 8px', color: 'var(--text3)', fontFamily: "'Noto Sans Devanagari', sans-serif" }}>{t(c.office)}{win && <span style={{ marginLeft: 6, fontSize: '9px', fontWeight: 800, color: 'var(--accent)' }}>★ {t('Varshesh')}</span>}</td>
+                      <td style={{ padding: '6px 8px', fontWeight: '700', color: PLANET_COLORS[c.planet] || 'var(--text)', fontFamily: "'Noto Sans Devanagari', sans-serif" }}>{t(c.planet)}</td>
+                      <td style={{ padding: '6px 8px', textAlign: 'right', color: 'var(--text3)', fontVariantNumeric: 'tabular-nums' }}>{c.bala.kshetra}</td>
+                      <td style={{ padding: '6px 8px', textAlign: 'right', color: 'var(--text3)', fontVariantNumeric: 'tabular-nums' }}>{c.bala.uchcha}</td>
+                      <td style={{ padding: '6px 8px', textAlign: 'right', color: 'var(--text3)', fontVariantNumeric: 'tabular-nums' }}>{c.bala.hadda}</td>
+                      <td style={{ padding: '6px 8px', textAlign: 'right', color: 'var(--text3)', fontVariantNumeric: 'tabular-nums' }}>{c.bala.drekkana}</td>
+                      <td style={{ padding: '6px 8px', textAlign: 'right', color: 'var(--text3)', fontVariantNumeric: 'tabular-nums' }}>{c.bala.navamsa}</td>
+                      <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: '800', color: win ? 'var(--accent)' : 'var(--text)', fontVariantNumeric: 'tabular-nums' }}>{c.bala.total}</td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+            <div style={{ marginTop: '10px', fontSize: '11px', color: 'var(--text4)', lineHeight: 1.6 }}>
+              {t('Varshesh rules the year. Its dignity, house & aspects color the whole annual chart.')} · {data.is_day_birth ? t('Day birth') : t('Night birth')}
+            </div>
+          </div>
+        )}
+
+        {/* Mudda Dasha — annual timeline */}
+        {data.mudda_dasha?.length > 0 && (
+          <div style={card}>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', marginBottom: '12px', flexWrap: 'wrap' }}>
+              <div style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.07em', fontFamily: "'Noto Sans Devanagari', sans-serif" }}>{t('Mudda Dasha')} — {t('Year Timeline')}</div>
+              <span style={{ fontSize: '11px', color: 'var(--text4)' }}>{t('Varsha-Vimshottari · 120 yrs compressed to one solar year')}</span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              {data.mudda_dasha.map((p: any, i: number) => (
+                <div key={i}>
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', borderRadius: '8px',
+                    background: p.running ? 'var(--accent-bg)' : 'var(--surface2)',
+                    border: p.running ? '1px solid rgba(87,70,175,.35)' : '1px solid transparent',
+                  }}>
+                    <span style={{ fontWeight: '700', color: PLANET_COLORS[p.lord] || 'var(--text)', minWidth: 64, fontFamily: "'Noto Sans Devanagari', sans-serif" }}>{t(p.lord)}</span>
+                    <span style={{ fontSize: '11.5px', color: 'var(--text3)', fontVariantNumeric: 'tabular-nums' }}>{p.start} → {p.end}</span>
+                    <span style={{ fontSize: '11px', color: 'var(--text4)', marginLeft: 'auto', fontVariantNumeric: 'tabular-nums' }}>{p.days}d</span>
+                    {p.running && <span style={{ fontSize: '9px', fontWeight: '800', padding: '2px 8px', borderRadius: '20px', background: 'var(--accent)', color: '#fff', fontFamily: "'Noto Sans Devanagari', sans-serif" }}>{t('NOW')}</span>}
+                  </div>
+                  {/* Antardashas of the running maha */}
+                  {p.running && p.antardashas?.length > 0 && (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', padding: '8px 12px 4px 20px' }}>
+                      {p.antardashas.map((a: any, j: number) => (
+                        <span key={j} title={`${a.start} → ${a.end}`} style={{
+                          fontSize: '10.5px', padding: '3px 9px', borderRadius: '6px',
+                          background: a.running ? 'var(--accent)' : 'var(--surface)',
+                          color: a.running ? '#fff' : PLANET_COLORS[a.lord] || 'var(--text3)',
+                          border: `1px solid ${a.running ? 'var(--accent)' : 'var(--border)'}`,
+                          fontWeight: a.running ? '700' : '500', fontFamily: "'Noto Sans Devanagari', sans-serif",
+                        }}>{t(p.lord)}/{t(a.lord)}{a.running ? ' ●' : ''}</span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Tajika Aspects */}
         {data.tajika_aspects?.length > 0 && (

@@ -172,10 +172,11 @@ def compute_kp(req: KPRequest):
             "status": pd.get("status", "neutral"),
         }
 
-    # Sub-lords for house cusps (using equal house = sign cusps from ascendant)
+    # Sub-lords for house cusps — use the REAL Placidus cusps (KP is cusp-critical;
+    # the cuspal sub-lord is the deciding significator, so equal-house cusps are wrong).
     cusp_sublords = {}
     for h in range(1, 13):
-        cusp_lon = (asc["longitude"] + (h - 1) * 30) % 360
+        cusp_lon = house_data["houses"][h]["cusp_longitude"] % 360
         sl = find_sublord(cusp_lon)
         cusp_sublords[h] = {
             "sign": SIGNS[int(cusp_lon / 30) % 12],

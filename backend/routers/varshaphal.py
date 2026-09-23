@@ -132,6 +132,207 @@ def get_tri_pataki(return_planets: dict, natal_planets: dict, return_asc_idx: in
     return result
 
 
+# ── Panchavargeeya Bala → Varshesh (year-lord) selection ──────────────────
+# Ranks the 5 classical office-bearers by a transparent 5-varga strength.
+from core.engine import EXALTATION, DEBILITATION, OWN_SIGN, VIMSHOTTARI_SEQUENCE, VIMSHOTTARI_YEARS
+
+_SIGN_LORDS = ["Mars","Venus","Mercury","Moon","Sun","Mercury",
+               "Venus","Mars","Jupiter","Saturn","Saturn","Jupiter"]
+
+# Naisargika (natural) friendships
+_FRIENDS = {
+    "Sun":     {"f":{"Moon","Mars","Jupiter"}, "e":{"Venus","Saturn"}},
+    "Moon":    {"f":{"Sun","Mercury"},          "e":set()},
+    "Mars":    {"f":{"Sun","Moon","Jupiter"},   "e":{"Mercury"}},
+    "Mercury": {"f":{"Sun","Venus"},            "e":{"Moon"}},
+    "Jupiter": {"f":{"Sun","Moon","Mars"},      "e":{"Mercury","Venus"}},
+    "Venus":   {"f":{"Mercury","Saturn"},       "e":{"Sun","Moon"}},
+    "Saturn":  {"f":{"Mercury","Venus"},        "e":{"Sun","Moon","Mars"}},
+}
+
+# Egyptian terms (Hadda) — per sign: list of (lord, upper_degree)
+_HADDA = {
+    0:[("Jupiter",6),("Venus",12),("Mercury",20),("Mars",25),("Saturn",30)],
+    1:[("Venus",8),("Mercury",14),("Jupiter",22),("Saturn",27),("Mars",30)],
+    2:[("Mercury",6),("Jupiter",12),("Venus",17),("Mars",24),("Saturn",30)],
+    3:[("Mars",7),("Venus",13),("Mercury",19),("Jupiter",26),("Saturn",30)],
+    4:[("Jupiter",6),("Venus",11),("Saturn",18),("Mercury",24),("Mars",30)],
+    5:[("Mercury",7),("Venus",17),("Jupiter",21),("Mars",28),("Saturn",30)],
+    6:[("Saturn",6),("Mercury",14),("Jupiter",21),("Venus",28),("Mars",30)],
+    7:[("Mars",7),("Venus",11),("Mercury",19),("Jupiter",24),("Saturn",30)],
+    8:[("Jupiter",12),("Venus",17),("Mercury",21),("Saturn",26),("Mars",30)],
+    9:[("Mercury",7),("Jupiter",14),("Venus",22),("Saturn",26),("Mars",30)],
+    10:[("Mercury",7),("Venus",13),("Jupiter",20),("Mars",25),("Saturn",30)],
+    11:[("Venus",12),("Jupiter",16),("Mercury",19),("Mars",28),("Saturn",30)],
+}
+
+
+def _dignity_pts(planet: str, sign_idx: int) -> float:
+    """Points 0.5–5 for a planet sitting in a sign (own/exalt/friend tiers)."""
+    sign = SIGNS[sign_idx]
+    if sign in OWN_SIGN.get(planet, []) or EXALTATION.get(planet) == sign:
+        return 5.0
+    if DEBILITATION.get(planet) == sign:
+        return 0.5
+    lord = _SIGN_LORDS[sign_idx]
+    if lord == planet:
+        return 5.0
+    rel = _FRIENDS.get(planet, {"f":set(),"e":set()})
+    if lord in rel["f"]:
+        return 3.5
+    if lord in rel["e"]:
+        return 1.0
+    return 2.0
+
+
+def _hadda_lord(sign_idx: int, deg: float) -> str:
+    for lord, upper in _HADDA[sign_idx]:
+        if deg < upper:
+            return lord
+    return _HADDA[sign_idx][-1][0]
+
+
+def panchavargeeya_bala(planet: str, longitude: float) -> dict:
+    """5-varga strength (Kshetra, Uchcha, Hadda, Drekkana, Navamsa). Higher = stronger.
+    Transparent scheme for ranking Varshesh candidates."""
+    lon = longitude % 360
+    sign_idx = int(lon // 30)
+    deg = lon % 30
+
+    # 1. Kshetra (rasi)
+    kshetra = _dignity_pts(planet, sign_idx)
+    # 2. Uchcha (exaltation proximity) 0–5
+    ex_sign = EXALTATION.get(planet)
+    if ex_sign:
+        ex_lon = SIGNS.index(ex_sign) * 30 + 0  # deg of exact exaltation ≈ sign start (simplified)
+        dist = abs(((lon - ex_lon + 180) % 360) - 180)
+        uchcha = round((180 - dist) / 180 * 5, 2)
+    else:
+        uchcha = 2.5
+    # 3. Hadda (Egyptian term)
+    hl = _hadda_lord(sign_idx, deg)
+    if hl == planet:
+        hadda = 5.0
+    else:
+        rel = _FRIENDS.get(planet, {"f":set(),"e":set()})
+        hadda = 3.5 if hl in rel["f"] else 1.0 if hl in rel["e"] else 2.0
+    # 4. Drekkana (decanate) — sign of the drekkana lord
+    drek = int(deg // 10)  # 0,1,2
+    drek_sign_idx = (sign_idx + drek * 4) % 12
+    drekkana = _dignity_pts(planet, drek_sign_idx)
+    # 5. Navamsa — start sign by element: fire→Aries, earth→Cap, air→Libra, water→Cancer
+    nav = int((lon % 30) // (30 / 9))
+    start = [0, 9, 6, 3][sign_idx % 4]
+    nav_sign_idx = (start + nav) % 12
+    navamsa = _dignity_pts(planet, nav_sign_idx)
+
+    total = round(kshetra + uchcha + hadda + drekkana + navamsa, 2)
+    return {"kshetra":round(kshetra,2),"uchcha":uchcha,"hadda":round(hadda,2),
+            "drekkana":round(drekkana,2),"navamsa":round(navamsa,2),"total":total}
+
+
+def select_varshesh(return_planets: dict, natal_asc_idx: int, return_asc_idx: int,
+                    muntha: dict, is_day: bool) -> dict:
+    """Rank the 5 classical office-bearers by Panchavargeeya bala; strongest = Varshesh."""
+    # Tri-rashi lords (day: for movable/fixed/dual differ) — classical dina-tri-rashi:
+    # day birth → lord of trine group of the sign; use simplified: lagna sign lord.
+    natal_lagna_lord  = _SIGN_LORDS[natal_asc_idx]
+    varsha_lagna_lord = _SIGN_LORDS[return_asc_idx]
+    muntha_lord       = _SIGN_LORDS[muntha["sign_index"]]
+    # Tri-rashi pati (day/night lords of the return-lagna triplicity)
+    trirashi = _trirashi_lord(return_asc_idx, is_day)
+    # Dina-ratri pati: day → Sun; night → Moon (classical: lord of the day/night)
+    dina_ratri = "Sun" if is_day else "Moon"
+
+    candidates = {
+        "Janma Lagnesh (natal)":  natal_lagna_lord,
+        "Varsha Lagnesh":         varsha_lagna_lord,
+        "Muntha lord":            muntha_lord,
+        "Tri-rashi pati":         trirashi,
+        "Dina-ratri pati":        dina_ratri,
+    }
+    scored = []
+    for office, planet in candidates.items():
+        pd = return_planets.get(planet)
+        if not pd:
+            continue
+        pv = panchavargeeya_bala(planet, pd["longitude"])
+        scored.append({"office": office, "planet": planet, "bala": pv})
+    scored.sort(key=lambda x: x["bala"]["total"], reverse=True)
+    winner = scored[0] if scored else None
+    return {"varshesh": winner["planet"] if winner else None,
+            "varshesh_office": winner["office"] if winner else None,
+            "candidates": scored}
+
+
+def _trirashi_lord(sign_idx: int, is_day: bool) -> str:
+    """Triplicity (tri-rashi) lord — Tajika day/night rulers of the element."""
+    element = sign_idx % 4  # 0 fire,1 earth,2 air,3 water
+    day_night = {
+        0: ("Sun","Jupiter"),    # fire
+        1: ("Venus","Moon"),     # earth
+        2: ("Saturn","Mercury"), # air
+        3: ("Venus","Mars"),     # water
+    }
+    d, n = day_night[element]
+    return d if is_day else n
+
+
+def compute_mudda_dasha(return_jd: float, moon_lon: float, today_jd: float) -> list:
+    """Mudda (Varsha-Vimshottari) dasha: 120y compressed to one solar year (365.25d).
+    Balance from return-chart Moon's nakshatra. Marks the currently-running period."""
+    YEAR = 365.25
+    nak_len = 360.0 / 27
+    moon = moon_lon % 360
+    nak_idx = int(moon // nak_len)
+    frac_elapsed = (moon % nak_len) / nak_len
+    first_lord = NAKSHATRA_LORDS[nak_idx]
+    start_pos = VIMSHOTTARI_SEQUENCE.index(first_lord)
+
+    periods = []
+    cur = return_jd
+    # 9 periods (balance of first + 8 full) + a closing slice of the first lord
+    # so the timeline fills return → next return exactly (total = 365.25d).
+    for i in range(10):
+        lord = VIMSHOTTARI_SEQUENCE[(start_pos + i) % 9]
+        full_days = VIMSHOTTARI_YEARS[lord] / 120.0 * YEAR
+        if i == 0:
+            days = full_days * (1 - frac_elapsed)   # balance of first lord
+        elif i == 9:
+            days = full_days * frac_elapsed          # closing slice of first lord
+        else:
+            days = full_days
+        if days <= 0:
+            continue
+        end = cur + days
+        # antardashas (proportional)
+        antars = []
+        ac = cur
+        a_pos = VIMSHOTTARI_SEQUENCE.index(lord)
+        for j in range(9):
+            al = VIMSHOTTARI_SEQUENCE[(a_pos + j) % 9]
+            adays = (VIMSHOTTARI_YEARS[al] / 120.0) * days
+            aend = ac + adays
+            antars.append({
+                "lord": al,
+                "start": jd_to_datetime(ac)[:10],
+                "end": jd_to_datetime(aend)[:10],
+                "days": round(adays, 1),
+                "running": ac <= today_jd < aend,
+            })
+            ac = aend
+        periods.append({
+            "lord": lord,
+            "start": jd_to_datetime(cur)[:10],
+            "end": jd_to_datetime(end)[:10],
+            "days": round(days, 1),
+            "running": cur <= today_jd < end,
+            "antardashas": antars,
+        })
+        cur = end
+    return periods
+
+
 class VarshaphalRequest(BaseModel):
     name: str = ""
     year: int; month: int; day: int
@@ -204,6 +405,19 @@ def compute_varshaphal(req: VarshaphalRequest):
     # Tajika aspects (Ithasala, Muthasila, Ishrafa, Nakta, Yamaya)
     tajika_aspects = compute_tajika_aspects(return_planets)
 
+    # Day/night birth (Sun above horizon = houses 7–12 of return chart)
+    sun_house = ((return_planets["Sun"]["sign_index"] - return_asc_idx) % 12) + 1
+    is_day = sun_house in (7, 8, 9, 10, 11, 12)
+
+    # Varshesh (year lord) via Panchavargeeya bala of the 5 office-bearers
+    varshesh_data = select_varshesh(return_planets, natal_asc_idx, return_asc_idx, muntha, is_day)
+
+    # Mudda (Varsha-Vimshottari) dasha — annual timeline
+    from datetime import datetime, timezone
+    _now = datetime.now(timezone.utc)
+    today_jd = swe.julday(_now.year, _now.month, _now.day, _now.hour + _now.minute / 60.0)
+    mudda_dasha = compute_mudda_dasha(return_jd, return_planets["Moon"]["longitude"], today_jd)
+
     return_dt = jd_to_datetime(return_jd)
 
     return {
@@ -216,6 +430,11 @@ def compute_varshaphal(req: VarshaphalRequest):
         "planet_house_map": {str(k): v for k, v in planet_house_map.items()},
         "muntha": muntha,
         "year_lord": year_lord,
+        "is_day_birth": is_day,
+        "varshesh": varshesh_data["varshesh"],
+        "varshesh_office": varshesh_data["varshesh_office"],
+        "varshesh_candidates": varshesh_data["candidates"],
+        "mudda_dasha": mudda_dasha,
         "tri_pataki": tri_pataki,
         "kendra_planets": kendra_planets,
         "trikona_planets": trikona_planets,
