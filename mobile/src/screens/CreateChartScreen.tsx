@@ -111,13 +111,13 @@ export default function CreateChartScreen({ navigation }: any) {
             <TextInput value={year} onChangeText={setYear} keyboardType="number-pad" maxLength={4} style={[s.input, { width: 74 }]} />
           </View>
           {monthOpen && (
-            <View style={s.dropdown}>
+            <ScrollView style={s.dropdown} nestedScrollEnabled keyboardShouldPersistTaps="handled">
               {MONTHS.map((mn, i) => (
                 <Pressable key={mn} onPress={() => { setMonth(i); setMonthOpen(false); }} style={s.dropItem}>
                   <Text style={[type.body, { color: i === month ? c.accentPrimary : c.textPrimary }]}>{mn}</Text>
                 </Pressable>
               ))}
-            </View>
+            </ScrollView>
           )}
         </Field>
 

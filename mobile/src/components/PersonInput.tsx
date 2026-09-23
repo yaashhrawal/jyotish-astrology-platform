@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
-import { View, Text, TextInput, Pressable, StyleSheet, Keyboard, Modal, FlatList, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, Pressable, StyleSheet, Keyboard, Modal, FlatList, ActivityIndicator, ScrollView } from 'react-native';
 import { useT } from '../i18n';
 import { Ionicons } from '@expo/vector-icons';
 import { useColors } from '../store/theme';
@@ -95,7 +95,7 @@ export default function PersonInput({ label, onChange }: { label: string; onChan
         </Pressable>
         <TextInput value={year} onChangeText={setYear} keyboardType="number-pad" maxLength={4} placeholder="YYYY" placeholderTextColor={c.textMuted} style={[s.input, { width: 62 }]} />
       </View>
-      {monthOpen && <View style={s.drop}>{MONTHS.map((m, i) => <Pressable key={m} onPress={() => { setMonth(i); setMonthOpen(false); }} style={s.dropItem}><Text style={[type.body, { color: i === month ? c.accentPrimary : c.textPrimary }]}>{m}</Text></Pressable>)}</View>}
+      {monthOpen && <ScrollView style={s.drop} nestedScrollEnabled keyboardShouldPersistTaps="handled">{MONTHS.map((m, i) => <Pressable key={m} onPress={() => { setMonth(i); setMonthOpen(false); }} style={s.dropItem}><Text style={[type.body, { color: i === month ? c.accentPrimary : c.textPrimary }]}>{m}</Text></Pressable>)}</ScrollView>}
       <View style={[s.row, { marginTop: 8 }]}>
         <TextInput value={hour} onChangeText={setHour} keyboardType="number-pad" maxLength={2} style={[s.input, { flex: 1 }]} />
         <Text style={{ color: c.textMuted }}>:</Text>
