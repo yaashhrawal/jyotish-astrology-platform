@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { PLANET_COLORS } from './ui'
 import { apiPost } from '../api/client'
 import { useLang } from '../contexts/LanguageContext'
 
@@ -6,12 +7,6 @@ interface BirthData {
   year: number; month: number; day: number
   hour: number; minute: number; tz_offset: number
   latitude: number; longitude: number; ayanamsa: string
-}
-
-const PLANET_COLORS: Record<string, string> = {
-  Sun: '#f59e0b', Moon: '#a78bfa', Mars: '#ef4444',
-  Mercury: '#10b981', Jupiter: '#f97316', Venus: '#ec4899',
-  Saturn: '#6366f1', Rahu: '#64748b', Ketu: '#84cc16',
 }
 
 const ORDINALS = ['', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th', '11th', '12th']
@@ -72,7 +67,7 @@ export default function ArgalaPanel({ birthData }: { birthData: BirthData | null
         </div>
       </div>
 
-      {error && <div style={{ padding: 10, background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: 8, color: '#DC2626', fontSize: 13 }}>{error}</div>}
+      {error && <div style={{ padding: 10, background: 'var(--red-bg)', border: '1px solid var(--red)', borderRadius: 8, color: '#DC2626', fontSize: 13 }}>{error}</div>}
 
       {data && (
         <>

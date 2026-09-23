@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { PLANET_COLORS } from './ui'
 import type { Planet } from '../api/jyotish'
 import { useLang } from '../contexts/LanguageContext'
 import { PLANETS as PLANET_DICT, SIGNS as SIGN_DICT, NAKSHATRAS as NAKSHATRA_DICT } from '../i18n/terms'
@@ -20,11 +21,6 @@ interface Props {
 const PLANET_SYMBOLS: Record<string, string> = {
   Sun: 'Su', Moon: 'Mo', Mars: 'Ma', Mercury: 'Me',
   Jupiter: 'Ju', Venus: 'Ve', Saturn: 'Sa', Rahu: 'Ra', Ketu: 'Ke'
-}
-
-const PLANET_COLORS: Record<string, string> = {
-  Sun: '#D97706', Moon: '#0891B2', Mars: '#DC2626', Mercury: '#16A34A',
-  Jupiter: '#B45309', Venus: '#7C3AED', Saturn: '#2563EB', Rahu: '#57534E', Ketu: '#A8A29E'
 }
 
 const HOUSE_MEANINGS: Record<number, string> = {
@@ -230,26 +226,36 @@ export default function NorthIndianChart({ ascendant, planets, planetHouseMap, s
                 {isAspectTarget && !isSelected && (
                   <circle cx={cell.cx + 14} cy={cell.cy - 12} r="3" fill="#D97706" opacity="0.7" />
                 )}
-                {/* Planets */}
-                {housePlanets.map((planet, i) => (
-                  <text
-                    key={planet}
-                    x={cell.cx}
-                    y={cell.cy + 16 + i * 13}
-                    textAnchor="middle"
-                    fill={PLANET_COLORS[planet] || 'var(--accent)'}
-                    fontSize="11"
-                    fontWeight="700"
-                    fontFamily="'Noto Sans Devanagari',Inter,sans-serif"
-                    style={{ cursor: 'pointer' }}
-                    onMouseEnter={e => { e.stopPropagation(); setHoveredPlanet(planet) }}
-                    onMouseLeave={() => setHoveredPlanet(null)}
-                    onClick={e => { e.stopPropagation(); onPlanetSelect?.(planet) }}
-                  >
-                    {getPlanetSym(planet)}
-                    {planets[planet]?.retrograde ? 'ᴿ' : ''}
-                  </text>
-                ))}
+                {/* Planets — shrink & tighten when the house is crowded so nothing clips */}
+                {(() => {
+                  const n = housePlanets.length
+                  // Low houses sit near the frame's bottom edge → tighter so the last
+                  // planet never spills past y=400.
+                  const low = cell.cy > 300
+                  const fs = n >= 5 ? 7 : n === 4 ? 8 : n === 3 ? 9 : 10.5
+                  const lh = low ? (n >= 4 ? 7 : n === 3 ? 9 : 11)
+                                 : (n >= 5 ? 7 : n === 4 ? 8 : n === 3 ? 10 : 12)
+                  const startY = cell.cy + (low ? (n >= 4 ? 7 : 12) : (n >= 4 ? 10 : 15))
+                  return housePlanets.map((planet, i) => (
+                    <text
+                      key={planet}
+                      x={cell.cx}
+                      y={startY + i * lh}
+                      textAnchor="middle"
+                      fill={PLANET_COLORS[planet] || 'var(--accent)'}
+                      fontSize={fs}
+                      fontWeight="700"
+                      fontFamily="'Noto Sans Devanagari',Inter,sans-serif"
+                      style={{ cursor: 'pointer' }}
+                      onMouseEnter={e => { e.stopPropagation(); setHoveredPlanet(planet) }}
+                      onMouseLeave={() => setHoveredPlanet(null)}
+                      onClick={e => { e.stopPropagation(); onPlanetSelect?.(planet) }}
+                    >
+                      {getPlanetSym(planet)}
+                      {planets[planet]?.retrograde ? 'ᴿ' : ''}
+                    </text>
+                  ))
+                })()}
               </g>
             )
           })}

@@ -57,7 +57,7 @@ export default function SudarshanPanel({ birthData }: Props) {
   }, [birthData])
 
   if (loading) return <div style={{ padding: 20, color: 'var(--text3)', fontFamily: "'Noto Sans Devanagari', sans-serif" }}>{t('Computing Sudarshana Chakra…')}</div>
-  if (error) return <div style={{ padding: 12, background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: 8, color: '#DC2626', fontSize: 13 }}>{error}</div>
+  if (error) return <div style={{ padding: 12, background: 'var(--red-bg)', border: '1px solid var(--red)', borderRadius: 8, color: '#DC2626', fontSize: 13 }}>{error}</div>
   if (!data) return null
 
   return (
@@ -75,7 +75,7 @@ export default function SudarshanPanel({ birthData }: Props) {
             <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--text)' }}>#{data.current_year_of_life}</div>
           </div>
           {data.triple_activation && (
-            <div style={{ padding: '8px 14px', background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: 8 }}>
+            <div style={{ padding: '8px 14px', background: 'var(--red-bg)', border: '1px solid var(--red)', borderRadius: 8 }}>
               <span style={{ fontSize: 12, fontWeight: 700, color: '#DC2626' }}>⚡ Triple Activation — all 3 wheels same house</span>
             </div>
           )}

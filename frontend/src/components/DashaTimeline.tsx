@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { PLANET_COLORS } from './ui'
 import { useLang } from '../contexts/LanguageContext'
 import { dashaApi } from '../api/client'
 
@@ -11,11 +12,6 @@ interface Props {
   dashas: Dasha[]
   birthYear: number
   birthData?: any
-}
-
-const PLANET_COLORS: Record<string, string> = {
-  Sun: '#D97706', Moon: '#0891B2', Mars: '#DC2626', Mercury: '#16A34A',
-  Jupiter: '#B45309', Venus: '#7C3AED', Saturn: '#2563EB', Rahu: '#57534E', Ketu: '#A8A29E'
 }
 
 function dotStyle(lord: string, size = 9): React.CSSProperties {

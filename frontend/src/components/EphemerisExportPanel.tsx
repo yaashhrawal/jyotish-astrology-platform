@@ -214,7 +214,7 @@ export default function EphemerisExportPanel() {
           {loading ? '⏳ ' : '✅ '}{progress}
         </div>
       )}
-      {err && <div style={{ fontSize: '12px', color: '#DC2626', padding: '8px 12px', background: '#FEF2F2', borderRadius: '8px' }}>{err}</div>}
+      {err && <div style={{ fontSize: '12px', color: '#DC2626', padding: '8px 12px', background: 'var(--red-bg)', borderRadius: '8px' }}>{err}</div>}
 
       {/* Format info */}
       <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-m)', padding: '14px 16px' }}>

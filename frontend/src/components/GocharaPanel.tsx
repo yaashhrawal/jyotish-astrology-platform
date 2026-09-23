@@ -1,12 +1,8 @@
 import { useState, useEffect } from 'react'
+import { PLANET_COLORS } from './ui'
 import NorthIndianChart from './NorthIndianChart'
 import { useLang } from '../contexts/LanguageContext'
 import { apiPost } from '../api/client'
-
-const PLANET_COLORS: Record<string, string> = {
-  Sun: '#D97706', Moon: '#0891B2', Mars: '#DC2626', Mercury: '#16A34A',
-  Jupiter: '#B45309', Venus: '#7C3AED', Saturn: '#2563EB', Rahu: '#57534E', Ketu: '#A8A29E'
-}
 
 const EFFECT_STYLE: Record<string, { bg: string; color: string }> = {
   'favorable':          { bg: '#D1FAE5', color: '#059669' },
@@ -32,7 +28,7 @@ export default function GocharaPanel({ birthData }: Props) {
   }, [birthData])
 
   if (loading) return <div style={{ padding: 20, color: 'var(--text3)' }}>Computing Gochara…</div>
-  if (error) return <div style={{ padding: 12, background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: 8, color: '#DC2626', fontSize: 13 }}>{error}</div>
+  if (error) return <div style={{ padding: 12, background: 'var(--red-bg)', border: '1px solid var(--red)', borderRadius: 8, color: '#DC2626', fontSize: 13 }}>{error}</div>
   if (!data) return null
 
   const overallStyle = EFFECT_STYLE[data.overall] || { bg: 'var(--surface2)', color: 'var(--text3)' }
@@ -73,11 +69,11 @@ export default function GocharaPanel({ birthData }: Props) {
           <div style={{ fontSize: 11, fontWeight: 600, color: '#059669', fontFamily: "'Noto Sans Devanagari', sans-serif" }}>{t('FAVORABLE')}</div>
           <div style={{ fontSize: 28, fontWeight: 800, color: '#059669' }}>{data.favorable_count}</div>
         </div>
-        <div style={{ background: '#FEE2E2', border: '1px solid #FCA5A5', borderRadius: 12, padding: '14px 18px' }}>
+        <div style={{ background: '#FEE2E2', border: '1px solid var(--red)', borderRadius: 12, padding: '14px 18px' }}>
           <div style={{ fontSize: 11, fontWeight: 600, color: '#DC2626', fontFamily: "'Noto Sans Devanagari', sans-serif" }}>{t('UNFAVORABLE')}</div>
           <div style={{ fontSize: 28, fontWeight: 800, color: '#DC2626' }}>{data.unfavorable_count}</div>
         </div>
-        <div style={{ background: data.ashtama_planets?.length > 0 ? '#FEF2F2' : 'var(--surface)', border: `1px solid ${data.ashtama_planets?.length > 0 ? '#FCA5A5' : 'var(--border)'}`, borderRadius: 12, padding: '14px 18px' }}>
+        <div style={{ background: data.ashtama_planets?.length > 0 ? 'var(--red-bg)' : 'var(--surface)', border: `1px solid ${data.ashtama_planets?.length > 0 ? 'var(--red)' : 'var(--border)'}`, borderRadius: 12, padding: '14px 18px' }}>
           <div style={{ fontSize: 11, fontWeight: 600, color: '#DC2626', fontFamily: "'Noto Sans Devanagari', sans-serif" }}>{t('ASHTAMA (H8)')}</div>
           <div style={{ fontSize: 16, fontWeight: 800, color: '#DC2626', fontFamily: "'Noto Sans Devanagari', sans-serif" }}>{data.ashtama_planets?.map((p: string) => t(p)).join(', ') || t('None')}</div>
         </div>

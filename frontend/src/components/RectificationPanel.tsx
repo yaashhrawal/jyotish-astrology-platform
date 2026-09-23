@@ -137,7 +137,7 @@ export default function RectificationPanel({ birthData }: Props) {
         {loading ? t('Analyzing…') : `🔍 ${t('Rectify Birth Time')} (${t('testing')} ${Math.floor(rangeMins * 2 / stepMins)} ${t('candidates')})`}
       </button>
 
-      {error && <div style={{ padding: '12px', background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: 'var(--radius-m)', color: '#DC2626', fontSize: '13px' }}>{error}</div>}
+      {error && <div style={{ padding: '12px', background: 'var(--red-bg)', border: '1px solid var(--red)', borderRadius: 'var(--radius-m)', color: '#DC2626', fontSize: '13px' }}>{error}</div>}
 
       {result && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>

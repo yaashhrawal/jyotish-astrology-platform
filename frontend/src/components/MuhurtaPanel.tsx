@@ -90,7 +90,7 @@ export default function MuhurtaPanel() {
         </button>
       </div>
 
-      {error && <div style={{ padding: '12px', background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: '8px', color: '#DC2626', fontSize: '13px' }}>{error}</div>}
+      {error && <div style={{ padding: '12px', background: 'var(--red-bg)', border: '1px solid var(--red)', borderRadius: '8px', color: '#DC2626', fontSize: '13px' }}>{error}</div>}
 
       {data && <>
         {/* Best muhurtas */}

@@ -1,11 +1,7 @@
 import { useState, useEffect } from 'react'
+import { PLANET_COLORS } from './ui'
 import { dashaApi, transitApi } from '../api/client'
 import { useLang } from '../contexts/LanguageContext'
-
-const PLANET_COLORS: Record<string, string> = {
-  Sun: '#D97706', Moon: '#0891B2', Mars: '#DC2626', Mercury: '#16A34A',
-  Jupiter: '#B45309', Venus: '#7C3AED', Saturn: '#2563EB', Rahu: '#57534E', Ketu: '#A8A29E'
-}
 
 const PLANET_LIST = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn','Rahu','Ketu']
 
@@ -79,7 +75,7 @@ export default function DashaTransitOverlayPanel({ birthData }: Props) {
 
   if (!birthData) return <div style={{ padding: 20, color: 'var(--text3)', fontSize: 13 }}>{t('Load a birth chart first.')}</div>
   if (loading) return <div style={{ padding: 20, color: 'var(--text3)', fontSize: 13 }}>{t('Computing dasha + transit overlay…')}</div>
-  if (err) return <div style={{ padding: 12, background: '#FEF2F2', borderRadius: 8, color: '#DC2626', fontSize: 13 }}>{err}</div>
+  if (err) return <div style={{ padding: 12, background: 'var(--red-bg)', borderRadius: 8, color: '#DC2626', fontSize: 13 }}>{err}</div>
 
   const natalPlanets = transit?.natal || {}
   const transitPlanets = transit?.transit || {}

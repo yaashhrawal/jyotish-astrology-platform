@@ -1,12 +1,8 @@
 import { useEffect, useState } from 'react'
+import { PLANET_COLORS } from './ui'
 import { useLang } from '../contexts/LanguageContext'
 import { shadbaladApi } from '../api/client'
 import ShadbalaRadar from './ShadbalaRadar'
-
-const PLANET_COLORS: Record<string, string> = {
-  Sun: '#D97706', Moon: '#0891B2', Mars: '#DC2626', Mercury: '#16A34A',
-  Jupiter: '#D97706', Venus: '#7C3AED', Saturn: '#2563EB',
-}
 
 export default function ShadbalaTable({ birthData }: { birthData: any }) {
   const { t } = useLang()

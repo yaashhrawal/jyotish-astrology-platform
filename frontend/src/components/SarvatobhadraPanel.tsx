@@ -1,11 +1,7 @@
 import { useState, useEffect } from 'react'
+import { PLANET_COLORS } from './ui'
 import { sarvatobhadraApi } from '../api/client'
 import { useLang } from '../contexts/LanguageContext'
-
-const PLANET_COLORS: Record<string, string> = {
-  Sun: '#D97706', Moon: '#0891B2', Mars: '#DC2626', Mercury: '#16A34A',
-  Jupiter: '#B45309', Venus: '#7C3AED', Saturn: '#2563EB', Rahu: '#57534E', Ketu: '#A8A29E'
-}
 
 const TARA_COLOR: Record<string, string> = {
   good: '#16A34A', bad: '#DC2626', mixed: '#D97706'
@@ -38,7 +34,7 @@ export default function SarvatobhadraPanel({ birthData }: Props) {
   }, [birthData])
 
   if (loading) return <div style={{ padding: '20px', color: 'var(--text3)', fontFamily: "'Noto Sans Devanagari', sans-serif" }}>{t('Computing Sarvatobhadra Chakra…')}</div>
-  if (error) return <div style={{ padding: '12px', background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: '8px', color: '#DC2626', fontSize: '13px' }}>{error}</div>
+  if (error) return <div style={{ padding: '12px', background: 'var(--red-bg)', border: '1px solid var(--red)', borderRadius: '8px', color: '#DC2626', fontSize: '13px' }}>{error}</div>
   if (!data) return null
 
   // Build 9x9 grid lookup
@@ -146,7 +142,7 @@ export default function SarvatobhadraPanel({ birthData }: Props) {
           <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '12px', padding: '14px', flex: 1 }}>
             <div style={{ fontSize: '12px', fontWeight: '700', marginBottom: '10px' }}>⚡ Vedha (Obstruction)</div>
             {data.vedha?.length ? data.vedha.map((v: any, i: number) => (
-              <div key={i} style={{ padding: '8px 10px', borderRadius: '8px', background: '#FEF2F2', border: '1px solid #FCA5A5', marginBottom: '6px' }}>
+              <div key={i} style={{ padding: '8px 10px', borderRadius: '8px', background: 'var(--red-bg)', border: '1px solid var(--red)', marginBottom: '6px' }}>
                 <div style={{ fontSize: '11.5px', fontWeight: '700', color: '#DC2626' }}>
                   <PlanetDot planet={v.natal_planet} />{v.natal_planet}
                   <span style={{ fontSize: '10px', color: '#888', fontWeight: '400', marginLeft: 4 }}>({v.natal_nakshatra})</span>

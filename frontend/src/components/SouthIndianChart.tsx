@@ -1,6 +1,7 @@
 // South Indian chart — fixed sign grid (Aries top-row-second from left, clockwise)
 // Signs are fixed; ascendant and planets placed by sign
 import { useLang } from '../contexts/LanguageContext'
+import { PLANET_COLORS } from './ui'
 import { PLANETS as PLANET_DICT, SIGNS as SIGN_DICT } from '../i18n/terms'
 
 interface Planet {
@@ -50,11 +51,6 @@ const PLANET_SYMBOL: Record<string, string> = {
   Sun: '☀', Moon: '☽', Mars: '♂', Mercury: '☿',
   Jupiter: '♃', Venus: '♀', Saturn: '♄', Rahu: '☊', Ketu: '☋',
 }
-const PLANET_COLORS: Record<string, string> = {
-  Sun: '#D97706', Moon: '#0891B2', Mars: '#DC2626', Mercury: '#16A34A',
-  Jupiter: '#B45309', Venus: '#7C3AED', Saturn: '#2563EB', Rahu: '#57534E', Ketu: '#9CA3AF',
-}
-
 export default function SouthIndianChart({ ascendant, planets, size = 400, title, onHouseSelect, onPlanetSelect, compact }: Props) {
   const { lang } = useLang()
   const cell = Math.floor(size / 4)

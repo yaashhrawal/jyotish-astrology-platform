@@ -1,15 +1,11 @@
 import { useState, useEffect } from 'react'
+import { PLANET_COLORS } from './ui'
 import { yoginiDashaApi } from '../api/client'
 import { useLang } from '../contexts/LanguageContext'
 
 const YOGINI_COLORS: Record<string, string> = {
   Mangala: '#DC2626', Pingala: '#D97706', Dhanya: '#16A34A', Bhramari: '#DC2626',
   Bhadrika: '#0891B2', Ulka: '#2563EB', Siddha: '#7C3AED', Sankata: '#57534E'
-}
-
-const PLANET_COLORS: Record<string, string> = {
-  Sun: '#D97706', Moon: '#0891B2', Mars: '#DC2626', Mercury: '#16A34A',
-  Jupiter: '#B45309', Venus: '#7C3AED', Saturn: '#2563EB', Rahu: '#57534E', Ketu: '#A8A29E'
 }
 
 const YOGINI_MEANINGS: Record<string, string> = {
@@ -49,7 +45,7 @@ export default function YoginiDashaPanel({ birthData }: Props) {
   }, [birthData])
 
   if (loading) return <div style={{ padding: '20px', color: 'var(--text3)', fontFamily: "'Noto Sans Devanagari', sans-serif" }}>{t('Computing Yogini Dasha…')}</div>
-  if (error) return <div style={{ padding: '12px', background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: '8px', color: '#DC2626', fontSize: '13px' }}>{error}</div>
+  if (error) return <div style={{ padding: '12px', background: 'var(--red-bg)', border: '1px solid var(--red)', borderRadius: '8px', color: '#DC2626', fontSize: '13px' }}>{error}</div>
   if (!data) return null
 
   const totalYears = 36

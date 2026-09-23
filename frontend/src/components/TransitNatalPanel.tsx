@@ -1,11 +1,7 @@
 import { useState, useEffect } from 'react'
+import { PLANET_COLORS } from './ui'
 import { transitApi } from '../api/client'
 import { useLang } from '../contexts/LanguageContext'
-
-const PLANET_COLORS: Record<string, string> = {
-  Sun: '#D97706', Moon: '#0891B2', Mars: '#DC2626', Mercury: '#16A34A',
-  Jupiter: '#B45309', Venus: '#7C3AED', Saturn: '#2563EB', Rahu: '#57534E', Ketu: '#A8A29E'
-}
 
 const PLANETS = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn','Rahu','Ketu']
 
@@ -39,7 +35,7 @@ export default function TransitNatalPanel({ birthData }: Props) {
   useEffect(() => { fetchData() }, [birthData, transitDate])
 
   if (loading) return <div style={{ padding: 20, color: 'var(--text3)' }}>{t('Computing transit positions…')}</div>
-  if (error) return <div style={{ padding: 12, background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: 8, color: '#DC2626', fontSize: 13 }}>{error}</div>
+  if (error) return <div style={{ padding: 12, background: 'var(--red-bg)', border: '1px solid var(--red)', borderRadius: 8, color: '#DC2626', fontSize: 13 }}>{error}</div>
   if (!data) return null
 
   const natal = data.natal || {}

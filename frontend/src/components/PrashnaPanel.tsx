@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { PLANET_COLORS } from './ui'
 import { prashnaApi } from '../api/client'
 import NorthIndianChart from './NorthIndianChart'
 import { useLang } from '../contexts/LanguageContext'
@@ -21,7 +22,7 @@ const VERDICT_STYLE: Record<string, { bg: string; border: string; color: string;
   'Favorable':            { bg: '#F0FDF4', border: '#86EFAC', color: '#166534', icon: '✦' },
   'Moderately Favorable': { bg: '#FEFCE8', border: '#FDE68A', color: '#92400E', icon: '◐' },
   'Mixed':                { bg: '#F8F7FF', border: '#C4B5FD', color: '#5746AF', icon: '⚖' },
-  'Unfavorable':          { bg: '#FFF5F5', border: '#FCA5A5', color: '#C53030', icon: '✗' },
+  'Unfavorable':          { bg: '#FFF5F5', border: 'var(--red)', color: '#C53030', icon: '✗' },
   'Matter Will Not Proceed': { bg: '#F9FAFB', border: '#D1D5DB', color: '#6B7280', icon: '○' },
 }
 
@@ -146,11 +147,6 @@ function computeHouseAnalysisFE(
     }
   }
   return result
-}
-
-const PLANET_COLORS: Record<string, string> = {
-  Sun: '#D97706', Moon: '#0891B2', Mars: '#DC2626', Mercury: '#16A34A',
-  Jupiter: '#B45309', Venus: '#7C3AED', Saturn: '#2563EB', Rahu: '#57534E', Ketu: '#A8A29E'
 }
 
 interface GeoResult { lat: number; lon: number; display: string }
@@ -439,7 +435,7 @@ export default function PrashnaPanel() {
 
         {error && (
           <div style={{
-            padding: '10px 12px', background: 'var(--red-bg)', border: '1px solid #FCA5A5',
+            padding: '10px 12px', background: 'var(--red-bg)', border: '1px solid var(--red)',
             borderRadius: '7px', color: 'var(--red)', fontSize: '12.5px',
           }}>{error}</div>
         )}
@@ -502,7 +498,7 @@ export default function PrashnaPanel() {
                   {/* Vibe score gauge */}
                   {vs && (
                     <div style={{
-                      background: vibeBg, border: `2px solid ${vs.score >= 65 ? '#86EFAC' : vs.score >= 45 ? '#FDE68A' : '#FCA5A5'}`,
+                      background: vibeBg, border: `2px solid ${vs.score >= 65 ? '#86EFAC' : vs.score >= 45 ? '#FDE68A' : 'var(--red)'}`,
                       borderRadius: '12px', padding: '16px 20px', minWidth: '160px', textAlign: 'center',
                     }}>
                       <div style={{ fontSize: '11px', fontWeight: '600', color: vibeColor, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '6px' }}>Vibe Score</div>
@@ -697,7 +693,7 @@ export default function PrashnaPanel() {
                             fontSize: '11.5px', padding: '3px 10px', borderRadius: '20px',
                             background: p.nature === 'benefic' ? 'var(--green-bg)' : 'var(--red-bg)',
                             color: p.nature === 'benefic' ? 'var(--green)' : 'var(--red)',
-                            border: `1px solid ${p.nature === 'benefic' ? '#86EFAC' : '#FCA5A5'}`, fontWeight: '600',
+                            border: `1px solid ${p.nature === 'benefic' ? '#86EFAC' : 'var(--red)'}`, fontWeight: '600',
                           }}>{p.planet} ({p.diff}° · {p.days_to_meet}d)</span>
                         ))}
                       </div>
@@ -768,7 +764,7 @@ export default function PrashnaPanel() {
                   <div style={{
                     padding: '14px 16px', borderRadius: '10px',
                     background: result.nitya_yoga.auspicious ? 'var(--green-bg)' : 'var(--red-bg)',
-                    border: `1px solid ${result.nitya_yoga.auspicious ? '#86EFAC' : '#FCA5A5'}`,
+                    border: `1px solid ${result.nitya_yoga.auspicious ? '#86EFAC' : 'var(--red)'}`,
                   }}>
                     <div style={{ fontSize: '10px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '4px', color: result.nitya_yoga.auspicious ? 'var(--green)' : 'var(--red)' }}>Nitya Yoga</div>
                     <div style={{ fontSize: '15px', fontWeight: '700', color: result.nitya_yoga.auspicious ? 'var(--green)' : 'var(--red)', marginBottom: '4px' }}>{result.nitya_yoga.name}</div>
@@ -779,7 +775,7 @@ export default function PrashnaPanel() {
                   <div style={{
                     padding: '14px 16px', borderRadius: '10px',
                     background: result.karana.auspicious ? 'var(--surface2)' : 'var(--red-bg)',
-                    border: `1px solid ${result.karana.auspicious ? 'var(--border)' : '#FCA5A5'}`,
+                    border: `1px solid ${result.karana.auspicious ? 'var(--border)' : 'var(--red)'}`,
                   }}>
                     <div style={{ fontSize: '10px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '4px', color: result.karana.auspicious ? 'var(--text3)' : 'var(--red)' }}>Karana</div>
                     <div style={{ fontSize: '15px', fontWeight: '700', color: result.karana.auspicious ? 'var(--text)' : 'var(--red)', marginBottom: '4px' }}>{result.karana.name}</div>
@@ -790,7 +786,7 @@ export default function PrashnaPanel() {
                   <div style={{
                     padding: '14px 16px', borderRadius: '10px',
                     background: result.drekkana.is_sarpa ? 'var(--red-bg)' : 'var(--surface2)',
-                    border: `1px solid ${result.drekkana.is_sarpa ? '#FCA5A5' : 'var(--border)'}`,
+                    border: `1px solid ${result.drekkana.is_sarpa ? 'var(--red)' : 'var(--border)'}`,
                   }}>
                     <div style={{ fontSize: '10px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '4px', color: result.drekkana.is_sarpa ? 'var(--red)' : 'var(--text3)' }}>Rising Drekkana</div>
                     <div style={{ fontSize: '15px', fontWeight: '700', color: result.drekkana.is_sarpa ? 'var(--red)' : 'var(--text)', marginBottom: '4px' }}>
@@ -842,7 +838,7 @@ export default function PrashnaPanel() {
               <div style={{
                 padding: '14px 18px', borderRadius: '10px',
                 background: result.nimitta_analysis.verdict === 'auspicious' ? 'var(--green-bg)' : result.nimitta_analysis.verdict === 'inauspicious' ? 'var(--red-bg)' : 'var(--surface2)',
-                border: `1px solid ${result.nimitta_analysis.verdict === 'auspicious' ? '#86EFAC' : result.nimitta_analysis.verdict === 'inauspicious' ? '#FCA5A5' : 'var(--border)'}`,
+                border: `1px solid ${result.nimitta_analysis.verdict === 'auspicious' ? '#86EFAC' : result.nimitta_analysis.verdict === 'inauspicious' ? 'var(--red)' : 'var(--border)'}`,
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
                   <span style={{ fontSize: '16px' }}>{result.nimitta_analysis.verdict === 'auspicious' ? '🌸' : result.nimitta_analysis.verdict === 'inauspicious' ? '🪶' : '◯'}</span>

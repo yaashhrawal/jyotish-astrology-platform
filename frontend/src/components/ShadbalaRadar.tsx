@@ -4,13 +4,9 @@
  */
 
 import { useLang } from '../contexts/LanguageContext'
+import { PLANET_COLORS } from './ui'
 
 const PLANETS = ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn']
-const PLANET_COLORS: Record<string, string> = {
-  Sun: '#f59e0b', Moon: '#8b5cf6', Mars: '#ef4444',
-  Mercury: '#10b981', Jupiter: '#f97316', Venus: '#ec4899', Saturn: '#3b82f6',
-}
-
 const AXES = [
   { key: 'sthana_bala', label: 'Sthana', max: 60 },
   { key: 'dig_bala',    label: 'Dig',    max: 60 },

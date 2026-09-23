@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../store/auth'
 import { useLang } from '../contexts/LanguageContext'
 import { authApi, type UserRole } from '../api/client'
+import { track } from '../lib/analytics'
 
 declare global {
   interface Window { google?: any }
@@ -38,7 +39,7 @@ export default function AuthPage({ onClose }: { onClose: () => void }) {
 
   const doRegister = async () => {
     setError(''); setLoading(true)
-    try { await register(email, password, name, phone, role); onClose() }
+    try { await register(email, password, name, phone, role); track('signup', { role }); onClose() }
     catch (e: any) { setError(e?.response?.data?.detail || t('Error occurred')) }
     finally { setLoading(false) }
   }
@@ -101,6 +102,9 @@ export default function AuthPage({ onClose }: { onClose: () => void }) {
 
   return (
     <div style={S.wrap}>
+      <button onClick={onClose} style={S.backBtn} aria-label={t('Back')}>
+        ← {t('Back to charts')}
+      </button>
       <div style={S.center}>
         <div style={S.brand}>
           <img src="/grahika-mark.svg" alt="Grahika" width={40} height={40} />
@@ -198,6 +202,7 @@ const S: Record<string, React.CSSProperties> = {
   err: { color: 'var(--red)', fontSize: '13px', marginBottom: '12px', padding: '8px 10px', background: 'var(--red-bg)', borderRadius: '6px' },
   toggle: { color: 'var(--accent)', fontSize: '13px', textAlign: 'center', marginTop: '15px', cursor: 'pointer' },
   skip: { color: 'var(--text3)', fontSize: '12.5px', textAlign: 'center', marginTop: '18px', cursor: 'pointer', textDecoration: 'underline' },
+  backBtn: { position: 'absolute', top: '20px', left: '20px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', padding: '8px 14px', fontSize: '13px', fontWeight: 600, color: 'var(--text2)', cursor: 'pointer', zIndex: 10 },
   legal: { color: 'var(--text4)', fontSize: '11.5px', textAlign: 'center', marginTop: '16px', lineHeight: 1.5 },
   legalLink: { color: 'var(--text3)', textDecoration: 'underline' },
   roleGrid: { display: 'flex', flexDirection: 'column', gap: '11px', marginBottom: '8px' },

@@ -1,11 +1,7 @@
 import { useState } from 'react'
+import { PLANET_COLORS } from './ui'
 import { numerologyApi } from '../api/client'
 import { useLang } from '../contexts/LanguageContext'
-
-const PLANET_COLORS: Record<string, string> = {
-  Sun: '#D97706', Moon: '#0891B2', Jupiter: '#B45309', Rahu: '#57534E',
-  Mercury: '#16A34A', Venus: '#7C3AED', Ketu: '#A8A29E', Saturn: '#2563EB', Mars: '#DC2626',
-}
 
 const NUM_COLORS = ['','#D97706','#0891B2','#B45309','#57534E','#16A34A','#7C3AED','#A8A29E','#2563EB','#DC2626']
 

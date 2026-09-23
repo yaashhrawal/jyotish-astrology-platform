@@ -1,12 +1,8 @@
 import PlanetInterpretationDrawer from './PlanetInterpretation'
+import { PLANET_COLORS } from './ui'
 import { useState, useEffect } from 'react'
 import { useLang } from '../contexts/LanguageContext'
 import { apiPost } from '../api/client'
-
-const PLANET_COLORS: Record<string, string> = {
-  Sun: '#D97706', Moon: '#0891B2', Mars: '#DC2626', Mercury: '#16A34A',
-  Jupiter: '#B45309', Venus: '#7C3AED', Saturn: '#2563EB'
-}
 
 const DIGNITY_COLORS: Record<string, { bg: string; color: string; label: string }> = {
   exalted:     { bg: '#D1FAE5', color: '#059669', label: '↑ Exalt' },
@@ -38,7 +34,7 @@ export default function DignityPanel({ birthData }: Props) {
   }, [birthData])
 
   if (loading) return <div style={{ padding: 20, color: 'var(--text3)' }}>Computing Dignity Table…</div>
-  if (error) return <div style={{ padding: 12, background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: 8, color: '#DC2626', fontSize: 13 }}>{error}</div>
+  if (error) return <div style={{ padding: 12, background: 'var(--red-bg)', border: '1px solid var(--red)', borderRadius: 8, color: '#DC2626', fontSize: 13 }}>{error}</div>
   if (!data) return null
 
   return (

@@ -1,13 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
+import { PLANET_COLORS } from './ui'
 import { transitApi } from '../api/client'
 import { useLang } from '../contexts/LanguageContext'
 import TransitWheel from './TransitWheel'
-
-const PLANET_COLORS: Record<string, string> = {
-  Sun: '#D97706', Moon: '#0891B2', Mars: '#DC2626',
-  Mercury: '#16A34A', Jupiter: '#B45309', Venus: '#7C3AED',
-  Saturn: '#2563EB', Rahu: '#57534E', Ketu: '#9CA3AF',
-}
 
 const PLANET_SYMBOL: Record<string, string> = {
   Sun: '☀', Moon: '☽', Mars: '♂', Mercury: '☿',

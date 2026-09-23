@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { PLANET_COLORS } from './ui'
 import { ashtakavargaApi } from '../api/client'
 import { useLang } from '../contexts/LanguageContext'
 import AshtakavargaWheel from './AshtakavargaWheel'
@@ -39,11 +40,6 @@ function exportAVtoCSV(result: any, chartName: string) {
 
 const SIGNS = ['Ari','Tau','Gem','Can','Leo','Vir','Lib','Sco','Sag','Cap','Aqu','Pis']
 const PLANETS = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn']
-
-const PLANET_COLORS: Record<string, string> = {
-  Sun: '#D97706', Moon: '#0891B2', Mars: '#DC2626',
-  Mercury: '#16A34A', Jupiter: '#B45309', Venus: '#7C3AED', Saturn: '#2563EB',
-}
 
 function bindColor(n: number): string {
   if (n >= 7) return '#16A34A'

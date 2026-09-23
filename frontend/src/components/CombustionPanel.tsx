@@ -1,12 +1,8 @@
 import PlanetInterpretationDrawer from './PlanetInterpretation'
+import { PLANET_COLORS } from './ui'
 import { useState, useEffect } from 'react'
 import { useLang } from '../contexts/LanguageContext'
 import { apiPost } from '../api/client'
-
-const PLANET_COLORS: Record<string, string> = {
-  Sun: '#D97706', Moon: '#0891B2', Mars: '#DC2626', Mercury: '#16A34A',
-  Jupiter: '#B45309', Venus: '#7C3AED', Saturn: '#2563EB', Rahu: '#57534E', Ketu: '#A8A29E'
-}
 
 const SEV_COLORS: Record<string, string> = {
   deep: '#DC2626', moderate: '#D97706', mild: '#CA8A04', none: 'var(--text4)'
@@ -31,7 +27,7 @@ export default function CombustionPanel({ birthData }: Props) {
   }, [birthData])
 
   if (loading) return <div style={{ padding: 20, color: 'var(--text3)' }}>Checking combustion…</div>
-  if (error) return <div style={{ padding: 12, background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: 8, color: '#DC2626', fontSize: 13 }}>{error}</div>
+  if (error) return <div style={{ padding: 12, background: 'var(--red-bg)', border: '1px solid var(--red)', borderRadius: 8, color: '#DC2626', fontSize: 13 }}>{error}</div>
   if (!data) return null
 
   const combust = (data.combust_planets || []).filter((p: any) => p.combust)
@@ -46,12 +42,12 @@ export default function CombustionPanel({ birthData }: Props) {
           <div style={{ fontSize: 16, fontWeight: 800, color: '#D97706', marginTop: 4, fontFamily: "'Noto Sans Devanagari', sans-serif" }}>{t(data.sun_sign)}</div>
           <div style={{ fontSize: 11, color: 'var(--text3)', fontVariantNumeric: 'tabular-nums' }}>{data.sun_longitude?.toFixed(2)}°</div>
         </div>
-        <div style={{ background: combust.length > 0 ? '#FEF2F2' : 'var(--surface)', border: `1px solid ${combust.length > 0 ? '#FCA5A5' : 'var(--border)'}`, borderRadius: 12, padding: '14px 18px' }}>
+        <div style={{ background: combust.length > 0 ? 'var(--red-bg)' : 'var(--surface)', border: `1px solid ${combust.length > 0 ? 'var(--red)' : 'var(--border)'}`, borderRadius: 12, padding: '14px 18px' }}>
           <div style={{ fontSize: 11, color: 'var(--text4)', fontWeight: 600, fontFamily: "'Noto Sans Devanagari', sans-serif" }}>{t('COMBUST PLANETS')}</div>
           <div style={{ fontSize: 28, fontWeight: 800, color: combust.length > 0 ? '#DC2626' : 'var(--green)', marginTop: 4 }}>{data.combust_count}</div>
           <div style={{ fontSize: 11, color: 'var(--text3)', fontFamily: "'Noto Sans Devanagari', sans-serif" }}>{combust.map((p: any) => t(p.planet)).join(', ') || t('None')}</div>
         </div>
-        <div style={{ background: wars.length > 0 ? '#FEF2F2' : 'var(--surface)', border: `1px solid ${wars.length > 0 ? '#FCA5A5' : 'var(--border)'}`, borderRadius: 12, padding: '14px 18px' }}>
+        <div style={{ background: wars.length > 0 ? 'var(--red-bg)' : 'var(--surface)', border: `1px solid ${wars.length > 0 ? 'var(--red)' : 'var(--border)'}`, borderRadius: 12, padding: '14px 18px' }}>
           <div style={{ fontSize: 11, color: 'var(--text4)', fontWeight: 600, fontFamily: "'Noto Sans Devanagari', sans-serif" }}>{t('PLANETARY WARS')}</div>
           <div style={{ fontSize: 28, fontWeight: 800, color: wars.length > 0 ? '#DC2626' : 'var(--green)', marginTop: 4 }}>{data.war_count}</div>
           <div style={{ fontSize: 11, color: 'var(--text3)', fontFamily: "'Noto Sans Devanagari', sans-serif" }}>{wars.map((w: any) => `${t(w.planet1)}/${t(w.planet2)}`).join(', ') || t('None')}</div>
@@ -71,7 +67,7 @@ export default function CombustionPanel({ birthData }: Props) {
           </thead>
           <tbody>
             {data.combust_planets?.map((p: any, i: number) => (
-              <tr key={p.planet} style={{ borderBottom: '1px solid var(--border)', background: p.combust ? '#FEF2F210' : i % 2 === 0 ? 'var(--surface)' : 'var(--surface2)' }}>
+              <tr key={p.planet} style={{ borderBottom: '1px solid var(--border)', background: p.combust ? 'var(--red-bg)' : i % 2 === 0 ? 'var(--surface)' : 'var(--surface2)' }}>
                 <td style={{ padding: '8px 16px', fontWeight: 600, color: PLANET_COLORS[p.planet] || 'var(--text)', cursor: 'pointer', fontFamily: "'Noto Sans Devanagari', sans-serif" }} onClick={() => setSelPlanet(p.planet)}>{t(p.planet)}</td>
                 <td style={{ padding: '8px 16px', fontVariantNumeric: 'tabular-nums', color: p.combust ? SEV_COLORS[p.severity] : 'var(--text2)' }}>
                   {p.angular_distance?.toFixed(2)}°
@@ -93,10 +89,10 @@ export default function CombustionPanel({ birthData }: Props) {
 
       {/* Planetary Wars */}
       {wars.length > 0 && (
-        <div style={{ background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: 12, padding: '16px 20px' }}>
+        <div style={{ background: 'var(--red-bg)', border: '1px solid var(--red)', borderRadius: 12, padding: '16px 20px' }}>
           <div style={{ fontSize: 12, fontWeight: 700, color: '#DC2626', marginBottom: 10, fontFamily: "'Noto Sans Devanagari', sans-serif" }}>{t('Planetary Wars (Graha Yuddha)')}</div>
           {wars.map((w: any, i: number) => (
-            <div key={i} style={{ padding: '8px 0', borderBottom: '1px solid #FCA5A5', display: 'flex', gap: 16, alignItems: 'center' }}>
+            <div key={i} style={{ padding: '8px 0', borderBottom: '1px solid var(--red)', display: 'flex', gap: 16, alignItems: 'center' }}>
               <span style={{ fontWeight: 700, color: PLANET_COLORS[w.planet1], fontFamily: "'Noto Sans Devanagari', sans-serif" }}>{t(w.planet1)}</span>
               <span style={{ color: '#DC2626', fontWeight: 700 }}>⚔</span>
               <span style={{ fontWeight: 700, color: PLANET_COLORS[w.planet2], fontFamily: "'Noto Sans Devanagari', sans-serif" }}>{t(w.planet2)}</span>

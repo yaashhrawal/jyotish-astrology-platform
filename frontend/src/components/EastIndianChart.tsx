@@ -5,6 +5,7 @@
 //   Aquarius(10)|  [mid]  |   [mid]   | Virgo(5)
 //   Capricorn(9)| Sagit(8)| Scorpio(7)| Libra(6)
 import { useLang } from '../contexts/LanguageContext'
+import { PLANET_COLORS } from './ui'
 
 interface Planet { sign: string; sign_index: number; degree: number; retrograde: boolean; status?: string }
 interface Ascendant { sign: string; sign_index: number; degree: number }
@@ -22,11 +23,6 @@ interface Props {
 const PLANET_SYMBOL: Record<string, string> = {
   Sun:'☀', Moon:'☽', Mars:'♂', Mercury:'☿', Jupiter:'♃', Venus:'♀', Saturn:'♄', Rahu:'☊', Ketu:'☋',
 }
-const PLANET_COLORS: Record<string, string> = {
-  Sun:'#D97706', Moon:'#0891B2', Mars:'#DC2626', Mercury:'#16A34A',
-  Jupiter:'#B45309', Venus:'#7C3AED', Saturn:'#2563EB', Rahu:'#57534E', Ketu:'#9CA3AF',
-}
-
 // East Indian: Aries top-left, going right across top, down right side, across bottom right-to-left, up left side
 const SIGN_GRID: [number, number][] = [
   [0, 0], // Aries(0) top-left

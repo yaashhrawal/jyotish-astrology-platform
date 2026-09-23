@@ -3,11 +3,7 @@ import { useState, useEffect } from 'react'
 import { useLang } from '../contexts/LanguageContext'
 import { aspectsApi } from '../api/client'
 import AspectWheel from './AspectWheel'
-
-const PLANET_COLORS: Record<string, string> = {
-  Sun: '#D97706', Moon: '#0891B2', Mars: '#DC2626', Mercury: '#16A34A',
-  Jupiter: '#B45309', Venus: '#7C3AED', Saturn: '#2563EB', Rahu: '#57534E', Ketu: '#A8A29E'
-}
+import { PLANET_COLORS, LoadingState, ErrorState, EmptyState } from './ui'
 
 const PLANETS = ["Sun","Moon","Mars","Mercury","Jupiter","Venus","Saturn","Rahu","Ketu"]
 
@@ -34,7 +30,7 @@ function PlanetChip({ planet }: { planet: string }) {
 export default function AspectsPanel({ birthData }: Props) {
   const { t } = useLang()
   const [data, setData] = useState<any>(null)
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [view, setView] = useState<'wheel' | 'grid' | 'parashari' | 'western'>('wheel')
   const [selPlanet, setSelPlanet] = useState<string | null>(null)
@@ -47,9 +43,9 @@ export default function AspectsPanel({ birthData }: Props) {
       .finally(() => setLoading(false))
   }, [birthData])
 
-  if (loading) return <div style={{ padding: '20px', color: 'var(--text3)' }}>Computing aspects…</div>
-  if (error) return <div style={{ padding: '12px', background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: '8px', color: '#DC2626', fontSize: '13px' }}>{error}</div>
-  if (!data) return null
+  if (loading) return <LoadingState label="Computing aspects…" />
+  if (error) return <ErrorState message={error} />
+  if (!data) return <EmptyState message="Calculate a chart to see aspects." />
 
   const tabs = [
     { id: 'wheel' as const,     label: '◎ Wheel' },

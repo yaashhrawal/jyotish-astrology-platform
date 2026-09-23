@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { PLANET_COLORS } from './ui'
 import type { Planet } from '../api/jyotish'
 import { useLang } from '../contexts/LanguageContext'
 import { PLANET_IN_SIGN, PLANET_IN_HOUSE, PLANET_KARAKATVA } from './PlanetInterpretation'
@@ -28,10 +29,6 @@ interface Props {
   target: AnalysisTarget | null
 }
 
-const PLANET_COLORS: Record<string, string> = {
-  Sun: '#D97706', Moon: '#0891B2', Mars: '#DC2626', Mercury: '#16A34A',
-  Jupiter: '#B45309', Venus: '#7C3AED', Saturn: '#2563EB', Rahu: '#57534E', Ketu: '#A8A29E',
-}
 const SIGN_SRC = 'BPHS Ch. 20–23 — Effects of planets in the Rashis'
 const HOUSE_SRC = 'BPHS Ch. 24–33 — Effects of planets in the Bhavas'
 const KARAKA_SRC = 'BPHS Ch. 3 — Graha Karakatva; Uttara Kalamrita'

@@ -26,6 +26,7 @@ import PanchangaCard from './components/PanchangaCard'
 import DoshaPanel from './components/DoshaPanel'
 import ChartComparisonPanel from './components/ChartComparisonPanel'
 import VarshaphalPanel from './components/VarshaphalPanel'
+import { track } from './lib/analytics'
 import MuhurtaPanel from './components/MuhurtaPanel'
 import KPPanel from './components/KPPanel'
 import ArudhaPanel from './components/ArudhaPanel'
@@ -95,6 +96,10 @@ type Tab ='chart' | 'interpret' | 'dasha_predict' | 'vargas' | 'dasha' | 'yogas'
 type TabItem = { id: Tab; label: string; icon?: string }
 type TabGroup = { label: string; tabs: TabItem[] }
 
+// ── Information architecture: FIVE doors, not a 68-tab maze. ──────────────
+// Reading (the narrative surface) is pulled up as the star, right after Chart.
+// The long tail of raw astrologer grids lives under one "Advanced" door.
+// Every tab id keeps its render case — this is a pure regrouping.
 const TAB_GROUPS: TabGroup[] = [
   { label: 'Chart', tabs: [
     { id: 'chart',        label: 'Birth Chart' },
@@ -104,10 +109,17 @@ const TAB_GROUPS: TabGroup[] = [
     { id: 'madhya',       label: 'Bhava Madhya' },
     { id: 'sky',          label: 'Live Sky' },
   ]},
-  { label: 'Dasha', tabs: [
-    { id: 'dasha',        label: 'Vimshottari' },
+  { label: 'Reading', tabs: [
+    { id: 'interpret',    label: 'Interpretation', icon: '🔮' },
     { id: 'dasha_predict', label: 'Dasha Predictions', icon: '🔮' },
+    { id: 'yogas',        label: 'Yogas' },
+    { id: 'doshas',       label: 'Doshas', icon: '⚠' },
+    { id: 'remedies',     label: 'Remedies', icon: '💊' },
+  ]},
+  { label: 'Timeline', tabs: [
+    { id: 'dasha',        label: 'Vimshottari' },
     { id: 'dasha_3col',   label: '3-Level View', icon: '⊞' },
+    { id: 'varshaphal',   label: 'Varshphal (Year)', icon: '☀' },
     { id: 'yogini',       label: 'Yogini' },
     { id: 'chara',        label: 'Chara (Jaimini)' },
     { id: 'narayana',     label: 'Narayana' },
@@ -118,33 +130,7 @@ const TAB_GROUPS: TabGroup[] = [
     { id: 'conditional_dasha', label: 'Conditional Dashas', icon: '🔀' },
     { id: 'varga_dasha',  label: 'Varga Dasha (D9/D10…)' },
     { id: 'sudarshan',    label: 'Sudarshana' },
-    { id: 'varshaphal',   label: 'Varshaphal', icon: '☀' },
     { id: 'tithi',        label: 'Tithi Pravesha' },
-  ]},
-  { label: 'Analysis', tabs: [
-    { id: 'interpret',    label: 'Interpretation', icon: '🔮' },
-    { id: 'yogas',        label: 'Yogas' },
-    { id: 'shadbala',     label: 'Shadbala' },
-    { id: 'aspects',      label: 'Aspects' },
-    { id: 'arudha',       label: 'Arudha Lagnas' },
-    { id: 'jaimini',      label: 'Jaimini Karakas' },
-    { id: 'karakamsha',   label: 'Karakamsha', icon: '🔱' },
-    { id: 'argala',       label: 'Argala', icon: '⚡' },
-    { id: 'upapada',      label: 'Upapada (UL)', icon: '💍' },
-    { id: 'varnada',      label: 'Varnada Lagna', icon: '⌛' },
-    { id: 'special',      label: 'Special Lagnas' },
-    { id: 'dignity',      label: 'Dignity Table' },
-    { id: 'doshas',       label: 'Doshas', icon: '⚠' },
-    { id: 'remedies',     label: 'Remedies', icon: '💊' },
-    { id: 'avasthas',     label: 'Avasthas', icon: '🌙' },
-    { id: 'combustion',   label: 'Combust / War' },
-    { id: 'upagraha',     label: 'Upagrahas' },
-    { id: 'ayurdaya',     label: 'Longevity' },
-    { id: 'sahams',       label: 'Sahams' },
-    { id: 'jaimini_asp',  label: 'Jaimini Aspects' },
-    { id: 'lagnesh',      label: 'Lagnesh Analysis' },
-    { id: 'saptarishi',   label: 'Saptarishis' },
-    { id: 'pancha_pakshi',label: 'Pancha Pakshi' },
   ]},
   { label: 'Transits', tabs: [
     { id: 'transit',      label: 'Transit Chart' },
@@ -156,11 +142,28 @@ const TAB_GROUPS: TabGroup[] = [
     { id: 'kota',         label: 'Kota Chakra' },
     { id: 'sbc',          label: 'SBC Chakra' },
   ]},
-  { label: 'KP', tabs: [
+  { label: 'Advanced', tabs: [
+    { id: 'shadbala',     label: 'Shadbala' },
+    { id: 'aspects',      label: 'Aspects' },
+    { id: 'dignity',      label: 'Dignity Table' },
     { id: 'kp',           label: 'KP System' },
-  ]},
-  { label: 'Tools', tabs: [
-    { id: 'vimshopaka',    label: 'Vimshopaka + Bhava Bala' },
+    { id: 'arudha',       label: 'Arudha Lagnas' },
+    { id: 'jaimini',      label: 'Jaimini Karakas' },
+    { id: 'jaimini_asp',  label: 'Jaimini Aspects' },
+    { id: 'karakamsha',   label: 'Karakamsha', icon: '🔱' },
+    { id: 'argala',       label: 'Argala', icon: '⚡' },
+    { id: 'upapada',      label: 'Upapada (UL)', icon: '💍' },
+    { id: 'varnada',      label: 'Varnada Lagna', icon: '⌛' },
+    { id: 'special',      label: 'Special Lagnas' },
+    { id: 'lagnesh',      label: 'Lagnesh Analysis' },
+    { id: 'avasthas',     label: 'Avasthas', icon: '🌙' },
+    { id: 'combustion',   label: 'Combust / War' },
+    { id: 'upagraha',     label: 'Upagrahas' },
+    { id: 'ayurdaya',     label: 'Longevity' },
+    { id: 'sahams',       label: 'Sahams' },
+    { id: 'saptarishi',   label: 'Saptarishis' },
+    { id: 'pancha_pakshi',label: 'Pancha Pakshi' },
+    { id: 'vimshopaka',   label: 'Vimshopaka + Bhava Bala' },
     { id: 'hora_variants', label: 'Hora Methods' },
     { id: 'rectification',  label: 'Birth Rectification', icon: '🔍' },
     { id: 'classical',      label: 'Classical Texts', icon: '📜' },
@@ -287,9 +290,10 @@ export default function App() {
       const result = await getChart(data)
       setChart(result); setChartKey(k => k + 1)
       setShowForm(false); setActiveTab('chart')
+      track('chart-generated', { guest: !user })
       if (!user) setShowSavePrompt(true)   // nudge guests to save & unlock
     } catch {
-      setError('Calculation failed — is the backend running on port 8888?')
+      setError('Could not calculate the chart just now. Please check the birth details and try again in a moment.')
     } finally { setLoading(false) }
   }
 
@@ -321,7 +325,12 @@ export default function App() {
     node_type: birthDataRaw.node_type || 'true',
   } : null
 
-  const isAppTab = ['crm','research','saved','ai','prashna','compatibility','synastry','muhurta','profile','gems','earnings'].includes(activeTab) && !chart
+  // App-only tabs have no in-chart render case → they must render the full-page app
+  // layout even when a chart is loaded (otherwise Saved/Research/AI/etc. go blank).
+  // Dual tabs (also rendered inside the chart layout) keep the !chart guard.
+  const APP_ONLY_TABS = ['crm','research','saved','ai','profile','gems','earnings']
+  const DUAL_TABS = ['prashna','compatibility','synastry','muhurta']
+  const isAppTab = APP_ONLY_TABS.includes(activeTab) || (DUAL_TABS.includes(activeTab) && !chart)
   const [showReportModal, setShowReportModal] = useState(false)
   const [showGemPicker, setShowGemPicker] = useState(false)
 
@@ -677,7 +686,7 @@ export default function App() {
                 {error && (
                   <div style={{
                     marginTop: '10px', padding: '10px 14px',
-                    background: 'var(--red-bg)', border: '1px solid #FCA5A5',
+                    background: 'var(--red-bg)', border: '1px solid var(--red)',
                     borderRadius: '6px', color: 'var(--red)', fontSize: '12.5px',
                   }}>{error}</div>
                 )}
@@ -722,7 +731,13 @@ export default function App() {
                       <button onClick={() => setShowGemPicker(true)} style={{
                         ...ghostBtnSm, background: '#D97706', color: '#fff', border: 'none',
                       }}>💎 Recommend Gem</button>
-                      <button onClick={() => setActiveTab('ai')} style={{
+                      <button onClick={() => setActiveTab('varshaphal')} style={{
+                        ...ghostBtnSm,
+                        background: activeTab === 'varshaphal' ? '#B4581F' : 'transparent',
+                        color: activeTab === 'varshaphal' ? '#fff' : '#B4581F',
+                        border: '1px solid #B4581F',
+                      }}>☀ {t('Varshphal')}</button>
+                      <button onClick={() => goTab('ai')} style={{
                         ...ghostBtnSm, background: 'var(--accent)', color: '#fff', border: 'none',
                       }}>✦ Ask AI</button>
                     </div>
@@ -763,7 +778,7 @@ export default function App() {
                               minWidth: '170px', padding: '4px', marginTop: '2px',
                             }}>
                               {group.tabs.map(tab => (
-                                <button key={tab.id} onClick={() => { setActiveTab(tab.id); setOpenGroup(null) }} style={{
+                                <button key={tab.id} onClick={() => { goTab(tab.id); setOpenGroup(null) }} style={{
                                   display: 'block', width: '100%', textAlign: 'left',
                                   padding: '7px 12px', border: 'none', borderRadius: '5px',
                                   background: activeTab === tab.id ? 'var(--accent)' : 'transparent',

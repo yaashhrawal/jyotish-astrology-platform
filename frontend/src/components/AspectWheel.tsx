@@ -4,18 +4,13 @@
  */
 
 import { useLang } from '../contexts/LanguageContext'
+import { PLANET_COLORS } from './ui'
 
 const PLANETS = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn','Rahu','Ketu']
 const PLANET_SYMBOLS: Record<string, string> = {
   Sun: '☉', Moon: '☽', Mars: '♂', Mercury: '☿',
   Jupiter: '♃', Venus: '♀', Saturn: '♄', Rahu: '☊', Ketu: '☋',
 }
-const PLANET_COLORS: Record<string, string> = {
-  Sun: '#f59e0b', Moon: '#8b5cf6', Mars: '#ef4444',
-  Mercury: '#10b981', Jupiter: '#f97316', Venus: '#ec4899',
-  Saturn: '#3b82f6', Rahu: '#64748b', Ketu: '#84cc16',
-}
-
 const ASPECT_COLORS: Record<string, string> = {
   'Conjunction': '#f59e0b',
   'Trine':       '#22c55e',

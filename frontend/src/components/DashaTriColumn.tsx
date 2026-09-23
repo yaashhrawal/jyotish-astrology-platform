@@ -1,16 +1,11 @@
 import { useState, useEffect } from 'react'
+import { PLANET_COLORS } from './ui'
 import { dashaApi } from '../api/client'
 import { useLang } from '../contexts/LanguageContext'
 
 interface Pratyantardasha { lord: string; start: string; end: string; years: number }
 interface Antardasha { lord: string; start: string; end: string; years: number; pratyantardashas?: Pratyantardasha[] }
 interface Dasha { lord: string; start: string; end: string; years: number; antardashas?: Antardasha[] }
-
-const PLANET_COLORS: Record<string, string> = {
-  Sun: '#f59e0b', Moon: '#a78bfa', Mars: '#ef4444',
-  Mercury: '#10b981', Jupiter: '#f97316', Venus: '#ec4899',
-  Saturn: '#6366f1', Rahu: '#64748b', Ketu: '#84cc16',
-}
 
 function isNow(start: string, end: string) {
   const n = new Date(); return new Date(start) <= n && n <= new Date(end)

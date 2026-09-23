@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { PLANET_COLORS } from './ui'
 import NorthIndianChart from './NorthIndianChart'
 import { apiPost } from '../api/client'
 import { useLang } from '../contexts/LanguageContext'
@@ -20,12 +21,6 @@ interface KarakamshaResult {
   house_breakdown: Array<{ house: number; sign: string; signification: string; planets: string[] }>
   karakamsha_yogas: Array<{ name: string; desc: string; source: string; effect: string; category: string }>
   d9_planets: Record<string, { sign: string; sign_index: number; longitude: number; status: string }>
-}
-
-const PLANET_COLORS: Record<string, string> = {
-  Sun: '#f59e0b', Moon: '#a78bfa', Mars: '#ef4444',
-  Mercury: '#10b981', Jupiter: '#f97316', Venus: '#ec4899',
-  Saturn: '#6366f1', Rahu: '#64748b', Ketu: '#84cc16',
 }
 
 const EFFECT_COLOR: Record<string, string> = {
@@ -74,7 +69,7 @@ export default function KarakamshaPanel({ birthData }: { birthData: BirthData | 
         }}>{loading ? t('Computing…') : t('Compute')}</button>
       </div>
 
-      {error && <div style={{ padding: 10, background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: 8, color: '#DC2626', fontSize: 13 }}>{error}</div>}
+      {error && <div style={{ padding: 10, background: 'var(--red-bg)', border: '1px solid var(--red)', borderRadius: 8, color: '#DC2626', fontSize: 13 }}>{error}</div>}
 
       {data && (() => {
         const SIGNS = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces']

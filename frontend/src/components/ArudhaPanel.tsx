@@ -1,12 +1,8 @@
 import { useState, useEffect } from 'react'
+import { PLANET_COLORS } from './ui'
 import NorthIndianChart from './NorthIndianChart'
 import { arudhaApi } from '../api/client'
 import { useLang } from '../contexts/LanguageContext'
-
-const PLANET_COLORS: Record<string, string> = {
-  Sun: '#D97706', Moon: '#0891B2', Mars: '#DC2626', Mercury: '#16A34A',
-  Jupiter: '#B45309', Venus: '#7C3AED', Saturn: '#2563EB', Rahu: '#57534E', Ketu: '#A8A29E'
-}
 
 const SIGN_MEANINGS: Record<number, string> = {
   1: 'Self, personality, body', 2: 'Wealth, speech, family', 3: 'Courage, siblings, efforts',
@@ -33,7 +29,7 @@ export default function ArudhaPanel({ birthData }: Props) {
   }, [birthData])
 
   if (loading) return <div style={{ padding: '20px', color: 'var(--text3)', fontFamily: "'Noto Sans Devanagari', sans-serif" }}>{t('Computing Arudha Lagnas…')}</div>
-  if (error) return <div style={{ padding: '12px', background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: '8px', color: '#DC2626', fontSize: '13px' }}>{error}</div>
+  if (error) return <div style={{ padding: '12px', background: 'var(--red-bg)', border: '1px solid var(--red)', borderRadius: '8px', color: '#DC2626', fontSize: '13px' }}>{error}</div>
   if (!data) return null
 
   const highlighted = [1, 4, 7, 10, 12]  // AL, A4, A7, A10, UL
